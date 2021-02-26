@@ -1,0 +1,81 @@
+[ {
+  "uid" : "37806623f5d4bb4d",
+  "name" : "20210226143151297-查看删除用户",
+  "time" : {
+    "start" : 1614323683465,
+    "stop" : 1614323683652,
+    "duration" : 187
+  },
+  "status" : "passed",
+  "severity" : "normal"
+}, {
+  "uid" : "7842521f7a19d133",
+  "name" : "20210226145159762-查看用户数量",
+  "time" : {
+    "start" : 1614323683136,
+    "stop" : 1614323683277,
+    "duration" : 141
+  },
+  "status" : "passed",
+  "severity" : "normal"
+}, {
+  "uid" : "5d0a082114a94c1e",
+  "name" : "20210226143741877-未登录增加用户",
+  "time" : {
+    "start" : 1614323682699,
+    "stop" : 1614323682777,
+    "duration" : 78
+  },
+  "status" : "passed",
+  "severity" : "normal"
+}, {
+  "uid" : "287551c1a156843f",
+  "name" : "20210225225256293-登录失败",
+  "time" : {
+    "start" : 1614323682303,
+    "stop" : 1614323682699,
+    "duration" : 396
+  },
+  "status" : "passed",
+  "severity" : "normal"
+}, {
+  "uid" : "2682495248fc33",
+  "name" : "20210226140421294-新增用户",
+  "time" : {
+    "start" : 1614323682886,
+    "stop" : 1614323682996,
+    "duration" : 110
+  },
+  "status" : "passed",
+  "severity" : "normal"
+}, {
+  "uid" : "a58127c1c0d9b1ba",
+  "name" : "20210226145040916-查看用户",
+  "time" : {
+    "start" : 1614323682996,
+    "stop" : 1614323683121,
+    "duration" : 125
+  },
+  "status" : "passed",
+  "severity" : "normal"
+}, {
+  "uid" : "43ce7d46c6095b54",
+  "name" : "20210226145219431-删除用户1",
+  "time" : {
+    "start" : 1614323683277,
+    "stop" : 1614323683449,
+    "duration" : 172
+  },
+  "status" : "passed",
+  "severity" : "normal"
+}, {
+  "uid" : "e7219b16cc7f1f85",
+  "name" : "20210226112126933-登录成功",
+  "time" : {
+    "start" : 1614323682793,
+    "stop" : 1614323682886,
+    "duration" : 93
+  },
+  "status" : "passed",
+  "severity" : "normal"
+} ]

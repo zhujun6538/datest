@@ -1,0 +1,52 @@
+2021-02-26 15:14:42.662 | INFO     | httprunner.runner:test_start:451 - Start to run testcase: 20210225225256293-登录失败, TestCase ID: 472b56c2-c915-4398-832b-bc30202ebaa4
+2021-02-26 15:14:42.662 | INFO     | httprunner.runner:__run_step:292 - run step begin: 登录失败 >>>>>>
+2021-02-26 15:14:42.662 | INFO     | httprunner.runner:__call_hooks:112 - call hook actions: setup request
+2021-02-26 15:14:42.678 | DEBUG    | httprunner.runner:__call_hooks:121 - call hook function: ${prerequest($request)}
+2021-02-26 15:14:42.678 | WARNING  | httprunner.client:request:188 - failed to get client address info: 'NoneType' object has no attribute 'getsockname'
+2021-02-26 15:14:42.698 | WARNING  | httprunner.client:request:196 - failed to get server address info: 'NoneType' object has no attribute 'getpeername'
+2021-02-26 15:14:42.698 | DEBUG    | httprunner.client:log_print:40 - 
+================== request details ==================
+method   : POST
+url      : http://127.0.0.1:7777/api/get-token
+headers  : {
+    "User-Agent": "python-requests/2.25.1",
+    "Accept-Encoding": "gzip, deflate",
+    "Accept": "*/*",
+    "Connection": "keep-alive",
+    "device_sn": "FwgRiO7CNA50DSU",
+    "os_platform": "ios",
+    "app_version": "2.8.6",
+    "Content-Type": "application/json",
+    "HRUN-Request-ID": "HRUN-472b56c2-c915-4398-832b-bc30202ebaa4-682662",
+    "Content-Length": "12"
+}
+cookies  : {}
+body     : {
+    "sign": ""
+}
+
+2021-02-26 15:14:42.698 | DEBUG    | httprunner.client:log_print:40 - 
+================== response details ==================
+status_code : 403
+headers  : {
+    "Content-Type": "application/json",
+    "Content-Length": "50",
+    "Server": "Werkzeug/1.0.1 Python/3.7.4",
+    "Date": "Fri, 26 Feb 2021 07:14:42 GMT"
+}
+cookies  : {}
+encoding : utf-8
+content_type : application/json
+body     : {
+    "success": false,
+    "msg": "Authorization failed!"
+}
+
+2021-02-26 15:14:42.698 | ERROR    | httprunner.client:request:215 - 403 Client Error: FORBIDDEN for url: http://127.0.0.1:7777/api/get-token
+2021-02-26 15:14:42.698 | INFO     | httprunner.runner:__call_hooks:112 - call hook actions: teardown request
+2021-02-26 15:14:42.698 | DEBUG    | httprunner.runner:__call_hooks:121 - call hook function: ${afterresponse($response)}
+2021-02-26 15:14:42.698 | INFO     | httprunner.response:validate:246 - assert body.success equal False(bool)	==> pass
+2021-02-26 15:14:42.698 | INFO     | httprunner.response:validate:246 - assert body.msg equal Authorization failed!(str)	==> pass
+2021-02-26 15:14:42.698 | INFO     | httprunner.runner:__run_step:304 - run step end: 登录失败 <<<<<<
+
+2021-02-26 15:14:42.698 | INFO     | httprunner.runner:test_start:460 - generate testcase log: D:\PycharmProjects\datest\datest\apitest\runner\logs\472b56c2-c915-4398-832b-bc30202ebaa4.run.log

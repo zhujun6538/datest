@@ -1,0 +1,204 @@
+{
+  "uid" : "e7219b16cc7f1f85",
+  "name" : "20210226112126933-登录成功",
+  "fullName" : "test_api.Test_Openapi#test_openapi",
+  "historyId" : "71b10fcc7450134e0387cb78f8561352",
+  "time" : {
+    "start" : 1614323682793,
+    "stop" : 1614323682886,
+    "duration" : 93
+  },
+  "description" : "TestCase ID: 51555a99-2e57-4c0f-81b2-977f2873c597",
+  "descriptionHtml" : "<p>TestCase ID: 51555a99-2e57-4c0f-81b2-977f2873c597</p>\n",
+  "status" : "passed",
+  "flaky" : false,
+  "newFailed" : false,
+  "beforeStages" : [ {
+    "name" : "getlogger",
+    "time" : {
+      "start" : 1614323682288,
+      "stop" : 1614323682288,
+      "duration" : 0
+    },
+    "status" : "passed",
+    "steps" : [ ],
+    "attachments" : [ ],
+    "parameters" : [ ],
+    "hasContent" : false,
+    "stepsCount" : 0,
+    "shouldDisplayMessage" : false,
+    "attachmentsCount" : 0
+  }, {
+    "name" : "testdata",
+    "time" : {
+      "start" : 1614323682793,
+      "stop" : 1614323682793,
+      "duration" : 0
+    },
+    "status" : "passed",
+    "steps" : [ ],
+    "attachments" : [ ],
+    "parameters" : [ ],
+    "hasContent" : false,
+    "stepsCount" : 0,
+    "shouldDisplayMessage" : false,
+    "attachmentsCount" : 0
+  } ],
+  "testStage" : {
+    "description" : "TestCase ID: 51555a99-2e57-4c0f-81b2-977f2873c597",
+    "status" : "passed",
+    "steps" : [ {
+      "name" : "step: 登录成功",
+      "time" : {
+        "start" : 1614323682855,
+        "stop" : 1614323682871,
+        "duration" : 16
+      },
+      "status" : "passed",
+      "steps" : [ {
+        "name" : "请求参数",
+        "time" : {
+          "start" : 1614323682855,
+          "stop" : 1614323682855,
+          "duration" : 0
+        },
+        "status" : "passed",
+        "steps" : [ ],
+        "attachments" : [ ],
+        "parameters" : [ {
+          "name" : "url",
+          "value" : "'/api/get-token'"
+        }, {
+          "name" : "params",
+          "value" : "{}"
+        }, {
+          "name" : "data",
+          "value" : "None"
+        }, {
+          "name" : "jsondata",
+          "value" : "{'sign': '9c0c7e51c91ae963c833a4ccbab8d683c4a90c98'}"
+        }, {
+          "name" : "headers",
+          "value" : "{'device_sn': 'FwgRiO7CNA50DSU', 'os_platform': 'ios', 'app_version': '2.8.6', 'Content-Type': 'application/json', 'HRUN-Request-ID': 'HRUN-51555a99-2e57-4c0f-81b2-977f2873c597-682855'}"
+        } ],
+        "hasContent" : true,
+        "stepsCount" : 0,
+        "shouldDisplayMessage" : false,
+        "attachmentsCount" : 0
+      }, {
+        "name" : "响应数据",
+        "time" : {
+          "start" : 1614323682871,
+          "stop" : 1614323682871,
+          "duration" : 0
+        },
+        "status" : "passed",
+        "steps" : [ ],
+        "attachments" : [ ],
+        "parameters" : [ {
+          "name" : "status_code",
+          "value" : "200"
+        }, {
+          "name" : "responsedata",
+          "value" : "'{\"success\": true, \"token\": \"aDxreIapNNBQ0GbY\"}'"
+        } ],
+        "hasContent" : true,
+        "stepsCount" : 0,
+        "shouldDisplayMessage" : false,
+        "attachmentsCount" : 0
+      } ],
+      "attachments" : [ {
+        "uid" : "3c0124b2e80e6c59",
+        "name" : "response.txt",
+        "source" : "3c0124b2e80e6c59.txt",
+        "type" : "text/plain",
+        "size" : 46
+      } ],
+      "parameters" : [ ],
+      "hasContent" : true,
+      "stepsCount" : 2,
+      "shouldDisplayMessage" : false,
+      "attachmentsCount" : 1
+    } ],
+    "attachments" : [ {
+      "uid" : "d607f9a4578c3349",
+      "name" : "stdout",
+      "source" : "d607f9a4578c3349.txt",
+      "type" : "text/plain",
+      "size" : 222
+    }, {
+      "uid" : "809a8b8a1f0b5ab0",
+      "name" : "stderr",
+      "source" : "809a8b8a1f0b5ab0.txt",
+      "type" : "text/plain",
+      "size" : 2712
+    } ],
+    "parameters" : [ ],
+    "hasContent" : true,
+    "stepsCount" : 3,
+    "shouldDisplayMessage" : false,
+    "attachmentsCount" : 3
+  },
+  "afterStages" : [ {
+    "name" : "getlogger::0",
+    "time" : {
+      "start" : 1614323683652,
+      "stop" : 1614323683652,
+      "duration" : 0
+    },
+    "status" : "passed",
+    "steps" : [ ],
+    "attachments" : [ ],
+    "parameters" : [ ],
+    "hasContent" : false,
+    "stepsCount" : 0,
+    "shouldDisplayMessage" : false,
+    "attachmentsCount" : 0
+  } ],
+  "labels" : [ {
+    "name" : "feature",
+    "value" : "套件测试1"
+  }, {
+    "name" : "story",
+    "value" : "用户管理"
+  }, {
+    "name" : "suite",
+    "value" : "test_api"
+  }, {
+    "name" : "subSuite",
+    "value" : "Test_Openapi"
+  }, {
+    "name" : "host",
+    "value" : "LAPTOP-S9V9QIO2"
+  }, {
+    "name" : "thread",
+    "value" : "22352-MainThread"
+  }, {
+    "name" : "framework",
+    "value" : "pytest"
+  }, {
+    "name" : "language",
+    "value" : "cpython3"
+  }, {
+    "name" : "package",
+    "value" : "test_api"
+  }, {
+    "name" : "resultFormat",
+    "value" : "allure2"
+  } ],
+  "parameters" : [ {
+    "name" : "testdata",
+    "value" : "{'baseurl': 'http://127.0.0.1:7777', 'suitename': '套件测试1', 'group': '用户管理', 'caseno': '20210226112126933', 'casename': '登录成功', 'isrun': 'Y', 'method': 'POST', 'url': '/api/get-token', 'data': {'sign': '9c0c7e51c91ae963c833a4ccbab8d683c4a90c98'}, 'params': {}, 'headers': {'device_sn': 'FwgRiO7CNA50DSU', 'os_platform': 'ios', 'app_version': '2.8.6', 'Content-Type': 'application/json'}, 'asserts': [['eq', 'body.success', True]], 'extract': ['token']}"
+  } ],
+  "links" : [ ],
+  "hidden" : false,
+  "retry" : false,
+  "extra" : {
+    "severity" : "normal",
+    "retries" : [ ],
+    "categories" : [ ],
+    "tags" : [ ]
+  },
+  "source" : "e7219b16cc7f1f85.json",
+  "parameterValues" : [ "{'baseurl': 'http://127.0.0.1:7777', 'suitename': '套件测试1', 'group': '用户管理', 'caseno': '20210226112126933', 'casename': '登录成功', 'isrun': 'Y', 'method': 'POST', 'url': '/api/get-token', 'data': {'sign': '9c0c7e51c91ae963c833a4ccbab8d683c4a90c98'}, 'params': {}, 'headers': {'device_sn': 'FwgRiO7CNA50DSU', 'os_platform': 'ios', 'app_version': '2.8.6', 'Content-Type': 'application/json'}, 'asserts': [['eq', 'body.success', True]], 'extract': ['token']}" ]
+}

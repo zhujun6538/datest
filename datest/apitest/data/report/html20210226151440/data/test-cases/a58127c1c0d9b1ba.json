@@ -1,0 +1,204 @@
+{
+  "uid" : "a58127c1c0d9b1ba",
+  "name" : "20210226145040916-查看用户",
+  "fullName" : "test_api.Test_Openapi#test_openapi",
+  "historyId" : "817ea5f45bbe809d1fdbf1d035ecfe59",
+  "time" : {
+    "start" : 1614323682996,
+    "stop" : 1614323683121,
+    "duration" : 125
+  },
+  "description" : "TestCase ID: c93ab11c-ea99-4120-8545-02416725c046",
+  "descriptionHtml" : "<p>TestCase ID: c93ab11c-ea99-4120-8545-02416725c046</p>\n",
+  "status" : "passed",
+  "flaky" : false,
+  "newFailed" : false,
+  "beforeStages" : [ {
+    "name" : "testdata",
+    "time" : {
+      "start" : 1614323682996,
+      "stop" : 1614323682996,
+      "duration" : 0
+    },
+    "status" : "passed",
+    "steps" : [ ],
+    "attachments" : [ ],
+    "parameters" : [ ],
+    "hasContent" : false,
+    "stepsCount" : 0,
+    "shouldDisplayMessage" : false,
+    "attachmentsCount" : 0
+  }, {
+    "name" : "getlogger",
+    "time" : {
+      "start" : 1614323682288,
+      "stop" : 1614323682288,
+      "duration" : 0
+    },
+    "status" : "passed",
+    "steps" : [ ],
+    "attachments" : [ ],
+    "parameters" : [ ],
+    "hasContent" : false,
+    "stepsCount" : 0,
+    "shouldDisplayMessage" : false,
+    "attachmentsCount" : 0
+  } ],
+  "testStage" : {
+    "description" : "TestCase ID: c93ab11c-ea99-4120-8545-02416725c046",
+    "status" : "passed",
+    "steps" : [ {
+      "name" : "step: 查看用户",
+      "time" : {
+        "start" : 1614323683090,
+        "stop" : 1614323683121,
+        "duration" : 31
+      },
+      "status" : "passed",
+      "steps" : [ {
+        "name" : "请求参数",
+        "time" : {
+          "start" : 1614323683090,
+          "stop" : 1614323683090,
+          "duration" : 0
+        },
+        "status" : "passed",
+        "steps" : [ ],
+        "attachments" : [ ],
+        "parameters" : [ {
+          "name" : "url",
+          "value" : "'/api/users/1'"
+        }, {
+          "name" : "params",
+          "value" : "{}"
+        }, {
+          "name" : "data",
+          "value" : "None"
+        }, {
+          "name" : "jsondata",
+          "value" : "{}"
+        }, {
+          "name" : "headers",
+          "value" : "{'device_sn': 'FwgRiO7CNA50DSU', 'token': 'aDxreIapNNBQ0GbY', 'HRUN-Request-ID': 'HRUN-c93ab11c-ea99-4120-8545-02416725c046-683089'}"
+        } ],
+        "hasContent" : true,
+        "stepsCount" : 0,
+        "shouldDisplayMessage" : false,
+        "attachmentsCount" : 0
+      }, {
+        "name" : "响应数据",
+        "time" : {
+          "start" : 1614323683121,
+          "stop" : 1614323683121,
+          "duration" : 0
+        },
+        "status" : "passed",
+        "steps" : [ ],
+        "attachments" : [ ],
+        "parameters" : [ {
+          "name" : "status_code",
+          "value" : "200"
+        }, {
+          "name" : "responsedata",
+          "value" : "'{\"success\": true, \"data\": {\"name\": \"user1\", \"password\": \"111111\"}}'"
+        } ],
+        "hasContent" : true,
+        "stepsCount" : 0,
+        "shouldDisplayMessage" : false,
+        "attachmentsCount" : 0
+      } ],
+      "attachments" : [ {
+        "uid" : "9be4ca670c24942a",
+        "name" : "response.txt",
+        "source" : "9be4ca670c24942a.txt",
+        "type" : "text/plain",
+        "size" : 66
+      } ],
+      "parameters" : [ ],
+      "hasContent" : true,
+      "stepsCount" : 2,
+      "shouldDisplayMessage" : false,
+      "attachmentsCount" : 1
+    } ],
+    "attachments" : [ {
+      "uid" : "5b973254b41b0ff",
+      "name" : "stdout",
+      "source" : "5b973254b41b0ff.txt",
+      "type" : "text/plain",
+      "size" : 388
+    }, {
+      "uid" : "57ea7ca085f15a56",
+      "name" : "stderr",
+      "source" : "57ea7ca085f15a56.txt",
+      "type" : "text/plain",
+      "size" : 2673
+    } ],
+    "parameters" : [ ],
+    "hasContent" : true,
+    "stepsCount" : 3,
+    "shouldDisplayMessage" : false,
+    "attachmentsCount" : 3
+  },
+  "afterStages" : [ {
+    "name" : "getlogger::0",
+    "time" : {
+      "start" : 1614323683652,
+      "stop" : 1614323683652,
+      "duration" : 0
+    },
+    "status" : "passed",
+    "steps" : [ ],
+    "attachments" : [ ],
+    "parameters" : [ ],
+    "hasContent" : false,
+    "stepsCount" : 0,
+    "shouldDisplayMessage" : false,
+    "attachmentsCount" : 0
+  } ],
+  "labels" : [ {
+    "name" : "feature",
+    "value" : "套件测试1"
+  }, {
+    "name" : "story",
+    "value" : "用户管理"
+  }, {
+    "name" : "suite",
+    "value" : "test_api"
+  }, {
+    "name" : "subSuite",
+    "value" : "Test_Openapi"
+  }, {
+    "name" : "host",
+    "value" : "LAPTOP-S9V9QIO2"
+  }, {
+    "name" : "thread",
+    "value" : "22352-MainThread"
+  }, {
+    "name" : "framework",
+    "value" : "pytest"
+  }, {
+    "name" : "language",
+    "value" : "cpython3"
+  }, {
+    "name" : "package",
+    "value" : "test_api"
+  }, {
+    "name" : "resultFormat",
+    "value" : "allure2"
+  } ],
+  "parameters" : [ {
+    "name" : "testdata",
+    "value" : "{'baseurl': 'http://127.0.0.1:7777', 'suitename': '套件测试1', 'group': '用户管理', 'caseno': '20210226145040916', 'casename': '查看用户', 'isrun': 'Y', 'method': 'GET', 'url': '/api/users/1', 'data': {}, 'params': {}, 'headers': {'device_sn': 'FwgRiO7CNA50DSU', 'token': 'aDxreIapNNBQ0GbY'}, 'asserts': [['eq', 'body.success', True]], 'extract': []}"
+  } ],
+  "links" : [ ],
+  "hidden" : false,
+  "retry" : false,
+  "extra" : {
+    "severity" : "normal",
+    "retries" : [ ],
+    "categories" : [ ],
+    "tags" : [ ]
+  },
+  "source" : "a58127c1c0d9b1ba.json",
+  "parameterValues" : [ "{'baseurl': 'http://127.0.0.1:7777', 'suitename': '套件测试1', 'group': '用户管理', 'caseno': '20210226145040916', 'casename': '查看用户', 'isrun': 'Y', 'method': 'GET', 'url': '/api/users/1', 'data': {}, 'params': {}, 'headers': {'device_sn': 'FwgRiO7CNA50DSU', 'token': 'aDxreIapNNBQ0GbY'}, 'asserts': [['eq', 'body.success', True]], 'extract': []}" ]
+}

@@ -1,0 +1,204 @@
+{
+  "uid" : "2682495248fc33",
+  "name" : "20210226140421294-新增用户",
+  "fullName" : "test_api.Test_Openapi#test_openapi",
+  "historyId" : "e646c029dcfc9933b6f3224c82eeca12",
+  "time" : {
+    "start" : 1614323682886,
+    "stop" : 1614323682996,
+    "duration" : 110
+  },
+  "description" : "TestCase ID: a11cb1a2-940e-453f-b3de-3b80a39ff978",
+  "descriptionHtml" : "<p>TestCase ID: a11cb1a2-940e-453f-b3de-3b80a39ff978</p>\n",
+  "status" : "passed",
+  "flaky" : false,
+  "newFailed" : false,
+  "beforeStages" : [ {
+    "name" : "testdata",
+    "time" : {
+      "start" : 1614323682886,
+      "stop" : 1614323682886,
+      "duration" : 0
+    },
+    "status" : "passed",
+    "steps" : [ ],
+    "attachments" : [ ],
+    "parameters" : [ ],
+    "hasContent" : false,
+    "stepsCount" : 0,
+    "shouldDisplayMessage" : false,
+    "attachmentsCount" : 0
+  }, {
+    "name" : "getlogger",
+    "time" : {
+      "start" : 1614323682288,
+      "stop" : 1614323682288,
+      "duration" : 0
+    },
+    "status" : "passed",
+    "steps" : [ ],
+    "attachments" : [ ],
+    "parameters" : [ ],
+    "hasContent" : false,
+    "stepsCount" : 0,
+    "shouldDisplayMessage" : false,
+    "attachmentsCount" : 0
+  } ],
+  "testStage" : {
+    "description" : "TestCase ID: a11cb1a2-940e-453f-b3de-3b80a39ff978",
+    "status" : "passed",
+    "steps" : [ {
+      "name" : "step: 新增用户",
+      "time" : {
+        "start" : 1614323682965,
+        "stop" : 1614323682996,
+        "duration" : 31
+      },
+      "status" : "passed",
+      "steps" : [ {
+        "name" : "请求参数",
+        "time" : {
+          "start" : 1614323682965,
+          "stop" : 1614323682965,
+          "duration" : 0
+        },
+        "status" : "passed",
+        "steps" : [ ],
+        "attachments" : [ ],
+        "parameters" : [ {
+          "name" : "url",
+          "value" : "'/api/users/1'"
+        }, {
+          "name" : "params",
+          "value" : "{}"
+        }, {
+          "name" : "data",
+          "value" : "None"
+        }, {
+          "name" : "jsondata",
+          "value" : "{'name': 'user1', 'password': '111111'}"
+        }, {
+          "name" : "headers",
+          "value" : "{'device_sn': 'FwgRiO7CNA50DSU', 'token': 'aDxreIapNNBQ0GbY', 'HRUN-Request-ID': 'HRUN-a11cb1a2-940e-453f-b3de-3b80a39ff978-682964'}"
+        } ],
+        "hasContent" : true,
+        "stepsCount" : 0,
+        "shouldDisplayMessage" : false,
+        "attachmentsCount" : 0
+      }, {
+        "name" : "响应数据",
+        "time" : {
+          "start" : 1614323682980,
+          "stop" : 1614323682980,
+          "duration" : 0
+        },
+        "status" : "passed",
+        "steps" : [ ],
+        "attachments" : [ ],
+        "parameters" : [ {
+          "name" : "status_code",
+          "value" : "200"
+        }, {
+          "name" : "responsedata",
+          "value" : "'{\"success\": true, \"msg\": \"user created successfully.\"}'"
+        } ],
+        "hasContent" : true,
+        "stepsCount" : 0,
+        "shouldDisplayMessage" : false,
+        "attachmentsCount" : 0
+      } ],
+      "attachments" : [ {
+        "uid" : "c3b640e4f8cff25d",
+        "name" : "response.txt",
+        "source" : "c3b640e4f8cff25d.txt",
+        "type" : "text/plain",
+        "size" : 54
+      } ],
+      "parameters" : [ ],
+      "hasContent" : true,
+      "stepsCount" : 2,
+      "shouldDisplayMessage" : false,
+      "attachmentsCount" : 1
+    } ],
+    "attachments" : [ {
+      "uid" : "a7b3c5f192cd76d7",
+      "name" : "stdout",
+      "source" : "a7b3c5f192cd76d7.txt",
+      "type" : "text/plain",
+      "size" : 299
+    }, {
+      "uid" : "e1bc5daddb9167e8",
+      "name" : "stderr",
+      "source" : "e1bc5daddb9167e8.txt",
+      "type" : "text/plain",
+      "size" : 2823
+    } ],
+    "parameters" : [ ],
+    "hasContent" : true,
+    "stepsCount" : 3,
+    "shouldDisplayMessage" : false,
+    "attachmentsCount" : 3
+  },
+  "afterStages" : [ {
+    "name" : "getlogger::0",
+    "time" : {
+      "start" : 1614323683652,
+      "stop" : 1614323683652,
+      "duration" : 0
+    },
+    "status" : "passed",
+    "steps" : [ ],
+    "attachments" : [ ],
+    "parameters" : [ ],
+    "hasContent" : false,
+    "stepsCount" : 0,
+    "shouldDisplayMessage" : false,
+    "attachmentsCount" : 0
+  } ],
+  "labels" : [ {
+    "name" : "feature",
+    "value" : "套件测试1"
+  }, {
+    "name" : "story",
+    "value" : "用户管理"
+  }, {
+    "name" : "suite",
+    "value" : "test_api"
+  }, {
+    "name" : "subSuite",
+    "value" : "Test_Openapi"
+  }, {
+    "name" : "host",
+    "value" : "LAPTOP-S9V9QIO2"
+  }, {
+    "name" : "thread",
+    "value" : "22352-MainThread"
+  }, {
+    "name" : "framework",
+    "value" : "pytest"
+  }, {
+    "name" : "language",
+    "value" : "cpython3"
+  }, {
+    "name" : "package",
+    "value" : "test_api"
+  }, {
+    "name" : "resultFormat",
+    "value" : "allure2"
+  } ],
+  "parameters" : [ {
+    "name" : "testdata",
+    "value" : "{'baseurl': 'http://127.0.0.1:7777', 'suitename': '套件测试1', 'group': '用户管理', 'caseno': '20210226140421294', 'casename': '新增用户', 'isrun': 'Y', 'method': 'POST', 'url': '/api/users/1', 'data': {'name': 'user1', 'password': '111111'}, 'params': {}, 'headers': {'device_sn': 'FwgRiO7CNA50DSU', 'token': 'aDxreIapNNBQ0GbY'}, 'asserts': [['eq', 'body.success', True], ['eq', 'body.msg', 'user created successfully.']], 'extract': []}"
+  } ],
+  "links" : [ ],
+  "hidden" : false,
+  "retry" : false,
+  "extra" : {
+    "severity" : "normal",
+    "retries" : [ ],
+    "categories" : [ ],
+    "tags" : [ ]
+  },
+  "source" : "2682495248fc33.json",
+  "parameterValues" : [ "{'baseurl': 'http://127.0.0.1:7777', 'suitename': '套件测试1', 'group': '用户管理', 'caseno': '20210226140421294', 'casename': '新增用户', 'isrun': 'Y', 'method': 'POST', 'url': '/api/users/1', 'data': {'name': 'user1', 'password': '111111'}, 'params': {}, 'headers': {'device_sn': 'FwgRiO7CNA50DSU', 'token': 'aDxreIapNNBQ0GbY'}, 'asserts': [['eq', 'body.success', True], ['eq', 'body.msg', 'user created successfully.']], 'extract': []}" ]
+}

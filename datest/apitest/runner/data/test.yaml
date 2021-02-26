@@ -1,0 +1,163 @@
+- - baseurl: http://127.0.0.1:7777
+    suitename: "\u6D4B\u8BD5\u5957\u4EF62"
+    group: "\u7528\u6237\u7BA1\u7406"
+    caseno: '20210225225256293'
+    casename: "\u767B\u5F55\u5931\u8D25"
+    isrun: Y
+    method: POST
+    url: /api/get-token
+    data:
+      sign: ''
+    params: {}
+    headers:
+      device_sn: FwgRiO7CNA50DSU
+      os_platform: ios
+      app_version: 2.8.6
+      Content-Type: application/json
+    asserts:
+    - - eq
+      - body.success
+      - false
+    - - eq
+      - body.msg
+      - Authorization failed!
+    extract: []
+  - baseurl: http://127.0.0.1:7777
+    suitename: "\u6D4B\u8BD5\u5957\u4EF62"
+    group: "\u7528\u6237\u7BA1\u7406"
+    caseno: '20210226143741877'
+    casename: "\u672A\u767B\u5F55\u589E\u52A0\u7528\u6237"
+    isrun: Y
+    method: POST
+    url: /api/users/1
+    data:
+      name: user1
+      password: '111111'
+    params: {}
+    headers:
+      device_sn: FwgRiO7CNA50DSU
+    asserts:
+    - - eq
+      - body.success
+      - false
+    - - eq
+      - body.msg
+      - device_sn or token is null.
+    extract: []
+- - baseurl: http://127.0.0.1:7777
+    suitename: "\u5957\u4EF6\u6D4B\u8BD51"
+    group: "\u7528\u6237\u7BA1\u7406"
+    caseno: '20210226112126933'
+    casename: "\u767B\u5F55\u6210\u529F"
+    isrun: Y
+    method: POST
+    url: /api/get-token
+    data:
+      sign: 9c0c7e51c91ae963c833a4ccbab8d683c4a90c98
+    params: {}
+    headers:
+      device_sn: FwgRiO7CNA50DSU
+      os_platform: ios
+      app_version: 2.8.6
+      Content-Type: application/json
+    asserts:
+    - - eq
+      - body.success
+      - true
+    extract:
+    - token
+  - baseurl: http://127.0.0.1:7777
+    suitename: "\u5957\u4EF6\u6D4B\u8BD51"
+    group: "\u7528\u6237\u7BA1\u7406"
+    caseno: '20210226140421294'
+    casename: "\u65B0\u589E\u7528\u6237"
+    isrun: Y
+    method: POST
+    url: /api/users/1
+    data:
+      name: user1
+      password: '111111'
+    params: {}
+    headers:
+      device_sn: FwgRiO7CNA50DSU
+      token: '&$.20210226112126933.token&'
+    asserts:
+    - - eq
+      - body.success
+      - true
+    - - eq
+      - body.msg
+      - user created successfully.
+    extract: []
+  - baseurl: http://127.0.0.1:7777
+    suitename: "\u5957\u4EF6\u6D4B\u8BD51"
+    group: "\u7528\u6237\u7BA1\u7406"
+    caseno: '20210226145040916'
+    casename: "\u67E5\u770B\u7528\u6237"
+    isrun: Y
+    method: GET
+    url: /api/users/1
+    data: {}
+    params: {}
+    headers:
+      device_sn: FwgRiO7CNA50DSU
+      token: '&$.20210226112126933.token&'
+    asserts:
+    - - eq
+      - body.success
+      - true
+    extract: []
+  - baseurl: http://127.0.0.1:7777
+    suitename: "\u5957\u4EF6\u6D4B\u8BD51"
+    group: "\u7528\u6237\u7BA1\u7406"
+    caseno: '20210226145159762'
+    casename: "\u67E5\u770B\u7528\u6237\u6570\u91CF"
+    isrun: Y
+    method: GET
+    url: /api/users
+    data: {}
+    params: {}
+    headers:
+      device_sn: FwgRiO7CNA50DSU
+      token: '&$.20210226112126933.token&'
+    asserts:
+    - - eq
+      - body.count
+      - 1
+    extract: []
+  - baseurl: http://127.0.0.1:7777
+    suitename: "\u5957\u4EF6\u6D4B\u8BD51"
+    group: "\u7528\u6237\u7BA1\u7406"
+    caseno: '20210226145219431'
+    casename: "\u5220\u9664\u7528\u62371"
+    isrun: Y
+    method: DELETE
+    url: /api/users/1
+    data: {}
+    params: {}
+    headers:
+      device_sn: FwgRiO7CNA50DSU
+      token: '&$.20210226112126933.token&'
+    asserts:
+    - - eq
+      - body.success
+      - true
+    extract: []
+  - baseurl: http://127.0.0.1:7777
+    suitename: "\u5957\u4EF6\u6D4B\u8BD51"
+    group: "\u7528\u6237\u7BA1\u7406"
+    caseno: '20210226143151297'
+    casename: "\u67E5\u770B\u5220\u9664\u7528\u6237"
+    isrun: Y
+    method: GET
+    url: /api/users/1
+    data: {}
+    params: {}
+    headers:
+      device_sn: FwgRiO7CNA50DSU
+      token: '&$.20210226112126933.token&'
+    asserts:
+    - - eq
+      - body.success
+      - false
+    extract: []

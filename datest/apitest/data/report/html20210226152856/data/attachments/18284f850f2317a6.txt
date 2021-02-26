@@ -1,0 +1,51 @@
+2021-02-26 15:28:59.069 | INFO     | httprunner.runner:test_start:451 - Start to run testcase: 20210226112126933-登录成功, TestCase ID: d06b2d66-3190-442b-a50e-5ad5ac08130c
+2021-02-26 15:28:59.069 | INFO     | httprunner.runner:__run_step:292 - run step begin: 登录成功 >>>>>>
+2021-02-26 15:28:59.069 | INFO     | httprunner.runner:__call_hooks:112 - call hook actions: setup request
+2021-02-26 15:28:59.069 | DEBUG    | httprunner.runner:__call_hooks:121 - call hook function: ${prerequest($request)}
+2021-02-26 15:28:59.084 | WARNING  | httprunner.client:request:188 - failed to get client address info: 'NoneType' object has no attribute 'getsockname'
+2021-02-26 15:28:59.084 | WARNING  | httprunner.client:request:196 - failed to get server address info: 'NoneType' object has no attribute 'getpeername'
+2021-02-26 15:28:59.084 | DEBUG    | httprunner.client:log_print:40 - 
+================== request details ==================
+method   : POST
+url      : http://127.0.0.1:7777/api/get-token
+headers  : {
+    "User-Agent": "python-requests/2.25.1",
+    "Accept-Encoding": "gzip, deflate",
+    "Accept": "*/*",
+    "Connection": "keep-alive",
+    "device_sn": "FwgRiO7CNA50DSU",
+    "os_platform": "ios",
+    "app_version": "2.8.6",
+    "Content-Type": "application/json",
+    "HRUN-Request-ID": "HRUN-d06b2d66-3190-442b-a50e-5ad5ac08130c-539069",
+    "Content-Length": "52"
+}
+cookies  : {}
+body     : {
+    "sign": "9c0c7e51c91ae963c833a4ccbab8d683c4a90c98"
+}
+
+2021-02-26 15:28:59.084 | DEBUG    | httprunner.client:log_print:40 - 
+================== response details ==================
+status_code : 200
+headers  : {
+    "Content-Type": "application/json",
+    "Content-Length": "46",
+    "Server": "Werkzeug/1.0.1 Python/3.7.4",
+    "Date": "Fri, 26 Feb 2021 07:28:59 GMT"
+}
+cookies  : {}
+encoding : utf-8
+content_type : application/json
+body     : {
+    "success": true,
+    "token": "3cr1gelIBfbdQhdS"
+}
+
+2021-02-26 15:28:59.084 | INFO     | httprunner.client:request:218 - status_code: 200, response_time(ms): 15.75 ms, response_length: 0 bytes
+2021-02-26 15:28:59.084 | INFO     | httprunner.runner:__call_hooks:112 - call hook actions: teardown request
+2021-02-26 15:28:59.084 | DEBUG    | httprunner.runner:__call_hooks:121 - call hook function: ${afterresponse($response)}
+2021-02-26 15:28:59.084 | INFO     | httprunner.response:validate:246 - assert body.success equal True(bool)	==> pass
+2021-02-26 15:28:59.084 | INFO     | httprunner.runner:__run_step:304 - run step end: 登录成功 <<<<<<
+
+2021-02-26 15:28:59.084 | INFO     | httprunner.runner:test_start:460 - generate testcase log: D:\PycharmProjects\datest\datest\apitest\runner\logs\d06b2d66-3190-442b-a50e-5ad5ac08130c.run.log

@@ -1,0 +1,48 @@
+2021-02-26 15:28:59.522 | INFO     | httprunner.runner:test_start:451 - Start to run testcase: 20210226143151297-查看删除用户, TestCase ID: ddfe932d-7c38-47b8-804a-50a33bc438c7
+2021-02-26 15:28:59.522 | INFO     | httprunner.runner:__run_step:292 - run step begin: 查看删除用户 >>>>>>
+2021-02-26 15:28:59.522 | INFO     | httprunner.runner:__call_hooks:112 - call hook actions: setup request
+2021-02-26 15:28:59.522 | DEBUG    | httprunner.runner:__call_hooks:121 - call hook function: ${prerequest($request)}
+2021-02-26 15:28:59.537 | WARNING  | httprunner.client:request:188 - failed to get client address info: 'NoneType' object has no attribute 'getsockname'
+2021-02-26 15:28:59.537 | WARNING  | httprunner.client:request:196 - failed to get server address info: 'NoneType' object has no attribute 'getpeername'
+2021-02-26 15:28:59.537 | DEBUG    | httprunner.client:log_print:40 - 
+================== request details ==================
+method   : GET
+url      : http://127.0.0.1:7777/api/users/1
+headers  : {
+    "User-Agent": "python-requests/2.25.1",
+    "Accept-Encoding": "gzip, deflate",
+    "Accept": "*/*",
+    "Connection": "keep-alive",
+    "device_sn": "FwgRiO7CNA50DSU",
+    "token": "3cr1gelIBfbdQhdS",
+    "HRUN-Request-ID": "HRUN-ddfe932d-7c38-47b8-804a-50a33bc438c7-539522",
+    "Content-Length": "2",
+    "Content-Type": "application/json"
+}
+cookies  : {}
+body     : {}
+
+2021-02-26 15:28:59.537 | DEBUG    | httprunner.client:log_print:40 - 
+================== response details ==================
+status_code : 404
+headers  : {
+    "Content-Type": "application/json",
+    "Content-Length": "30",
+    "Server": "Werkzeug/1.0.1 Python/3.7.4",
+    "Date": "Fri, 26 Feb 2021 07:28:59 GMT"
+}
+cookies  : {}
+encoding : utf-8
+content_type : application/json
+body     : {
+    "success": false,
+    "data": {}
+}
+
+2021-02-26 15:28:59.537 | ERROR    | httprunner.client:request:215 - 404 Client Error: NOT FOUND for url: http://127.0.0.1:7777/api/users/1
+2021-02-26 15:28:59.553 | INFO     | httprunner.runner:__call_hooks:112 - call hook actions: teardown request
+2021-02-26 15:28:59.553 | DEBUG    | httprunner.runner:__call_hooks:121 - call hook function: ${afterresponse($response)}
+2021-02-26 15:28:59.553 | INFO     | httprunner.response:validate:246 - assert body.success equal False(bool)	==> pass
+2021-02-26 15:28:59.553 | INFO     | httprunner.runner:__run_step:304 - run step end: 查看删除用户 <<<<<<
+
+2021-02-26 15:28:59.553 | INFO     | httprunner.runner:test_start:460 - generate testcase log: D:\PycharmProjects\datest\datest\apitest\runner\logs\ddfe932d-7c38-47b8-804a-50a33bc438c7.run.log

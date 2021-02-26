@@ -1,0 +1,52 @@
+2021-02-26 15:28:59.147 | INFO     | httprunner.runner:test_start:451 - Start to run testcase: 20210226140421294-新增用户, TestCase ID: 91506dad-4834-4aff-8df2-c558177d7f9d
+2021-02-26 15:28:59.147 | INFO     | httprunner.runner:__run_step:292 - run step begin: 新增用户 >>>>>>
+2021-02-26 15:28:59.147 | INFO     | httprunner.runner:__call_hooks:112 - call hook actions: setup request
+2021-02-26 15:28:59.147 | DEBUG    | httprunner.runner:__call_hooks:121 - call hook function: ${prerequest($request)}
+2021-02-26 15:28:59.162 | WARNING  | httprunner.client:request:188 - failed to get client address info: 'NoneType' object has no attribute 'getsockname'
+2021-02-26 15:28:59.162 | WARNING  | httprunner.client:request:196 - failed to get server address info: 'NoneType' object has no attribute 'getpeername'
+2021-02-26 15:28:59.162 | DEBUG    | httprunner.client:log_print:40 - 
+================== request details ==================
+method   : POST
+url      : http://127.0.0.1:7777/api/users/1
+headers  : {
+    "User-Agent": "python-requests/2.25.1",
+    "Accept-Encoding": "gzip, deflate",
+    "Accept": "*/*",
+    "Connection": "keep-alive",
+    "device_sn": "FwgRiO7CNA50DSU",
+    "token": "3cr1gelIBfbdQhdS",
+    "HRUN-Request-ID": "HRUN-91506dad-4834-4aff-8df2-c558177d7f9d-539147",
+    "Content-Length": "39",
+    "Content-Type": "application/json"
+}
+cookies  : {}
+body     : {
+    "name": "user1",
+    "password": "111111"
+}
+
+2021-02-26 15:28:59.162 | DEBUG    | httprunner.client:log_print:40 - 
+================== response details ==================
+status_code : 200
+headers  : {
+    "Content-Type": "application/json",
+    "Content-Length": "54",
+    "Server": "Werkzeug/1.0.1 Python/3.7.4",
+    "Date": "Fri, 26 Feb 2021 07:28:59 GMT"
+}
+cookies  : {}
+encoding : utf-8
+content_type : application/json
+body     : {
+    "success": true,
+    "msg": "user created successfully."
+}
+
+2021-02-26 15:28:59.162 | INFO     | httprunner.client:request:218 - status_code: 200, response_time(ms): 0.0 ms, response_length: 0 bytes
+2021-02-26 15:28:59.162 | INFO     | httprunner.runner:__call_hooks:112 - call hook actions: teardown request
+2021-02-26 15:28:59.178 | DEBUG    | httprunner.runner:__call_hooks:121 - call hook function: ${afterresponse($response)}
+2021-02-26 15:28:59.178 | INFO     | httprunner.response:validate:246 - assert body.success equal True(bool)	==> pass
+2021-02-26 15:28:59.178 | INFO     | httprunner.response:validate:246 - assert body.msg equal user created successfully.(str)	==> pass
+2021-02-26 15:28:59.178 | INFO     | httprunner.runner:__run_step:304 - run step end: 新增用户 <<<<<<
+
+2021-02-26 15:28:59.178 | INFO     | httprunner.runner:test_start:460 - generate testcase log: D:\PycharmProjects\datest\datest\apitest\runner\logs\91506dad-4834-4aff-8df2-c558177d7f9d.run.log

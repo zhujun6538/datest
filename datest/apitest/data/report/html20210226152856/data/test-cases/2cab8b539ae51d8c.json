@@ -1,0 +1,204 @@
+{
+  "uid" : "2cab8b539ae51d8c",
+  "name" : "20210225225256293-登录失败",
+  "fullName" : "test_api.Test_Openapi#test_openapi",
+  "historyId" : "b5a9874f905ee7626cc8c2c04c039dec",
+  "time" : {
+    "start" : 1614324538577,
+    "stop" : 1614324538929,
+    "duration" : 352
+  },
+  "description" : "TestCase ID: 86ca452a-6ffa-46c8-be30-23ccde88c371",
+  "descriptionHtml" : "<p>TestCase ID: 86ca452a-6ffa-46c8-be30-23ccde88c371</p>\n",
+  "status" : "passed",
+  "flaky" : false,
+  "newFailed" : false,
+  "beforeStages" : [ {
+    "name" : "testdata",
+    "time" : {
+      "start" : 1614324538577,
+      "stop" : 1614324538577,
+      "duration" : 0
+    },
+    "status" : "passed",
+    "steps" : [ ],
+    "attachments" : [ ],
+    "parameters" : [ ],
+    "stepsCount" : 0,
+    "hasContent" : false,
+    "attachmentsCount" : 0,
+    "shouldDisplayMessage" : false
+  }, {
+    "name" : "getlogger",
+    "time" : {
+      "start" : 1614324538577,
+      "stop" : 1614324538577,
+      "duration" : 0
+    },
+    "status" : "passed",
+    "steps" : [ ],
+    "attachments" : [ ],
+    "parameters" : [ ],
+    "stepsCount" : 0,
+    "hasContent" : false,
+    "attachmentsCount" : 0,
+    "shouldDisplayMessage" : false
+  } ],
+  "testStage" : {
+    "description" : "TestCase ID: 86ca452a-6ffa-46c8-be30-23ccde88c371",
+    "status" : "passed",
+    "steps" : [ {
+      "name" : "step: 登录失败",
+      "time" : {
+        "start" : 1614324538897,
+        "stop" : 1614324538929,
+        "duration" : 32
+      },
+      "status" : "passed",
+      "steps" : [ {
+        "name" : "请求参数",
+        "time" : {
+          "start" : 1614324538897,
+          "stop" : 1614324538897,
+          "duration" : 0
+        },
+        "status" : "passed",
+        "steps" : [ ],
+        "attachments" : [ ],
+        "parameters" : [ {
+          "name" : "url",
+          "value" : "'/api/get-token'"
+        }, {
+          "name" : "params",
+          "value" : "{}"
+        }, {
+          "name" : "data",
+          "value" : "None"
+        }, {
+          "name" : "jsondata",
+          "value" : "{'sign': ''}"
+        }, {
+          "name" : "headers",
+          "value" : "{'device_sn': 'FwgRiO7CNA50DSU', 'os_platform': 'ios', 'app_version': '2.8.6', 'Content-Type': 'application/json', 'HRUN-Request-ID': 'HRUN-86ca452a-6ffa-46c8-be30-23ccde88c371-538897'}"
+        } ],
+        "stepsCount" : 0,
+        "hasContent" : true,
+        "attachmentsCount" : 0,
+        "shouldDisplayMessage" : false
+      }, {
+        "name" : "响应数据",
+        "time" : {
+          "start" : 1614324538913,
+          "stop" : 1614324538913,
+          "duration" : 0
+        },
+        "status" : "passed",
+        "steps" : [ ],
+        "attachments" : [ ],
+        "parameters" : [ {
+          "name" : "status_code",
+          "value" : "403"
+        }, {
+          "name" : "responsedata",
+          "value" : "'{\"success\": false, \"msg\": \"Authorization failed!\"}'"
+        } ],
+        "stepsCount" : 0,
+        "hasContent" : true,
+        "attachmentsCount" : 0,
+        "shouldDisplayMessage" : false
+      } ],
+      "attachments" : [ {
+        "uid" : "bc1a62b24dfceba",
+        "name" : "response.txt",
+        "source" : "bc1a62b24dfceba.txt",
+        "type" : "text/plain",
+        "size" : 50
+      } ],
+      "parameters" : [ ],
+      "stepsCount" : 2,
+      "hasContent" : true,
+      "attachmentsCount" : 1,
+      "shouldDisplayMessage" : false
+    } ],
+    "attachments" : [ {
+      "uid" : "99392b4877857d7d",
+      "name" : "stdout",
+      "source" : "99392b4877857d7d.txt",
+      "type" : "text/plain",
+      "size" : 74
+    }, {
+      "uid" : "4452cde9cad94c96",
+      "name" : "stderr",
+      "source" : "4452cde9cad94c96.txt",
+      "type" : "text/plain",
+      "size" : 2808
+    } ],
+    "parameters" : [ ],
+    "stepsCount" : 3,
+    "hasContent" : true,
+    "attachmentsCount" : 3,
+    "shouldDisplayMessage" : false
+  },
+  "afterStages" : [ {
+    "name" : "getlogger::0",
+    "time" : {
+      "start" : 1614324539554,
+      "stop" : 1614324539554,
+      "duration" : 0
+    },
+    "status" : "passed",
+    "steps" : [ ],
+    "attachments" : [ ],
+    "parameters" : [ ],
+    "stepsCount" : 0,
+    "hasContent" : false,
+    "attachmentsCount" : 0,
+    "shouldDisplayMessage" : false
+  } ],
+  "labels" : [ {
+    "name" : "feature",
+    "value" : "测试套件2"
+  }, {
+    "name" : "story",
+    "value" : "用户管理"
+  }, {
+    "name" : "suite",
+    "value" : "test_api"
+  }, {
+    "name" : "subSuite",
+    "value" : "Test_Openapi"
+  }, {
+    "name" : "host",
+    "value" : "LAPTOP-S9V9QIO2"
+  }, {
+    "name" : "thread",
+    "value" : "20440-MainThread"
+  }, {
+    "name" : "framework",
+    "value" : "pytest"
+  }, {
+    "name" : "language",
+    "value" : "cpython3"
+  }, {
+    "name" : "package",
+    "value" : "test_api"
+  }, {
+    "name" : "resultFormat",
+    "value" : "allure2"
+  } ],
+  "parameters" : [ {
+    "name" : "testdata",
+    "value" : "{'baseurl': 'http://127.0.0.1:7777', 'suitename': '测试套件2', 'group': '用户管理', 'caseno': '20210225225256293', 'casename': '登录失败', 'isrun': 'Y', 'method': 'POST', 'url': '/api/get-token', 'data': {'sign': ''}, 'params': {}, 'headers': {'device_sn': 'FwgRiO7CNA50DSU', 'os_platform': 'ios', 'app_version': '2.8.6', 'Content-Type': 'application/json'}, 'asserts': [['eq', 'body.success', False], ['eq', 'body.msg', 'Authorization failed!']], 'extract': []}"
+  } ],
+  "links" : [ ],
+  "hidden" : false,
+  "retry" : false,
+  "extra" : {
+    "severity" : "normal",
+    "retries" : [ ],
+    "categories" : [ ],
+    "tags" : [ ]
+  },
+  "source" : "2cab8b539ae51d8c.json",
+  "parameterValues" : [ "{'baseurl': 'http://127.0.0.1:7777', 'suitename': '测试套件2', 'group': '用户管理', 'caseno': '20210225225256293', 'casename': '登录失败', 'isrun': 'Y', 'method': 'POST', 'url': '/api/get-token', 'data': {'sign': ''}, 'params': {}, 'headers': {'device_sn': 'FwgRiO7CNA50DSU', 'os_platform': 'ios', 'app_version': '2.8.6', 'Content-Type': 'application/json'}, 'asserts': [['eq', 'body.success', False], ['eq', 'body.msg', 'Authorization failed!']], 'extract': []}" ]
+}
