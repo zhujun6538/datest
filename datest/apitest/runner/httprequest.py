@@ -1,16 +1,16 @@
 #!/usr/bin/env/python3
 # -*- coding:utf-8 -*-
-
+import json
 import os
 from httprunner import HttpRunner, Config, Step, RunRequest
 from loguru import logger
+
 
 filedir = os.path.dirname(__file__)
 
 class TestCasePostWithFunctions(HttpRunner):
     def __init__(self,testdata):
         logger.add(filedir + '/logs/httprunner-log.txt', enqueue=True, encoding='utf-8')
-
         self.config = (
             Config(testdata['caseno'] + '-' + testdata['casename'])
                 .variables(
@@ -27,12 +27,13 @@ class TestCasePostWithFunctions(HttpRunner):
         running = RunRequest(testdata['casename'])\
         .with_variables() \
         .setup_hook('${prerequest($request)}') \
+        .setup_hook(testdata['setup_hook']) \
         .post(testdata['url'])\
         .with_json(testdata['data'])\
         .with_params(**testdata['params'])\
         .with_headers(**testdata['headers']) \
         .teardown_hook('${afterresponse($response)}') \
-        .validate()\
+        .validate() \
 
         for ast in testdata['asserts']:
             if ast[0] == 'eq':

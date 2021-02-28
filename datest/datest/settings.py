@@ -125,6 +125,8 @@ USE_L10N = True
 
 USE_TZ = True
 
+MEDIA_URL = '/data/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'apitest/data')
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.1/howto/static-files/

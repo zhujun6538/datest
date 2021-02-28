@@ -22,7 +22,7 @@ def pyrun():
     os.mkdir(f'{filepath}/allure-report')
     datadir = f'{filepath}/allure-report/data{ts}'
     htmldir = f'{BASE_DIR}/data/report/html{ts}'
-    pytest.main(['-v',testdata,'--alluredir',datadir])
+    pytest.main(['-m','work','--cache-clear',testdata,'--alluredir',datadir])
     os.system((f'allure generate {datadir} -o {htmldir} --clean'))
     return htmldir
 

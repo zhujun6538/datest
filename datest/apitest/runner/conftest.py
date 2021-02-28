@@ -17,7 +17,6 @@ def getlogger():
 @pytest.fixture(params=Reader.read_case(filepath + './data/test.yaml'))
 def testdata(request):
     logging.info('---------------------------------------' + request.param['caseno'] + '---------------------------------------')
-    request.param['headers']= Saver.handle_params(json.dumps(request.param['headers'],ensure_ascii=False))
-    request.param['data'] = Saver.handle_params(json.dumps(request.param['data'], ensure_ascii=False))
     return request.param
     logging.info('---------------------------------------' + request.param['caseno'] + '---------------------------------------')
+

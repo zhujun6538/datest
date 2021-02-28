@@ -42,6 +42,7 @@ class ApiGroup(models.Model):
 
 class TestcaseGroup(models.Model):
     name = models.CharField(max_length=100)
+    project = models.ForeignKey(Project, on_delete=models.SET_NULL, null=True)
 
     def __str__(self):
         return self.name
@@ -64,6 +65,7 @@ class Testcase(models.Model):
     casename = models.CharField(max_length=100)
     project = models.ForeignKey(Project, on_delete=models.SET_NULL, null=True)
     group = models.ForeignKey('TestcaseGroup', on_delete=models.SET_NULL, null=True)
+    beforecase = models.ForeignKey('self',on_delete=models.SET_NULL,null=True,blank=True)
     isrun = models.CharField('是否运行', choices=[('Y', "是"), ('N', "否")], max_length=10,default='Y')
     baseurl = models.ForeignKey('BASEURL',on_delete=models.SET_NULL,null=True,default=1)
     api = models.ForeignKey('API',on_delete=models.SET_NULL,null=True)
@@ -77,7 +79,7 @@ class Testcase(models.Model):
     creater = models.ForeignKey('auth.user', on_delete=models.CASCADE)
 
     def __str__(self):
-        return str(self.group)  + '-' + self.casename
+        return str(self.api.name)  + '-' + self.casename
 
     class Meta:
         verbose_name_plural = '测试用例'
@@ -85,6 +87,7 @@ class Testcase(models.Model):
 class BASEURL(models.Model):
     name = models.CharField('环境', max_length=100)
     url = models.CharField('url', max_length=100)
+    project = models.ForeignKey(Project, on_delete=models.SET_NULL, null=True)
 
     def __str__(self):
         return self.name
@@ -215,7 +218,7 @@ class TESTREPORT(models.Model):
     suc = models.IntegerField(null=True,blank=True)
     fail = models.IntegerField(null=True,blank=True)
     runner = models.ForeignKey('auth.user',on_delete=models.CASCADE)
-    # file = models.FileField(upload_to='report',default='report/html/index.html',)
+    file = models.FileField(upload_to='report',default='report/html/index.html',)
 
     def __str__(self):
         return self.reportname

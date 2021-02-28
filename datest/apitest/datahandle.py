@@ -43,6 +43,8 @@ def get_casedata(suitename,case,baseurl=''):
     testcase['isrun'], testcase['method'],testcase['url'], \
     testcase['baseurl'],testcase['data'], testcase['params'], testcase['headers'], testcase['asserts'] , testcase['extract'],= \
         suitename,case.group.name, case.caseno, case.casename, case.isrun, case.api.method , case.api.url, case.baseurl.url,data, params, headers, asserts,extparams
+    if case.beforecase!=None:
+        testcase['before'] = get_casedata(suitename,case.beforecase,baseurl)
     return testcase
 
 def get_suitedata(obj):
