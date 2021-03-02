@@ -1,38 +1,22 @@
 import os
 import time
-
 import allure
 import pytest
-
-from httprequest import *
 from zthttpfunc import ZTPostWithFunctions
-from productor import Saver
+from productor import *
+from process import *
 
 filepath = os.path.dirname(__file__)
 
 
 class Test_Openapi(object):
-    def test_general(self,testdata):
-        Saver.caseno = testdata['caseno']
-        allure.dynamic.feature(testdata['suitename'])
-        allure.dynamic.story(testdata['group'])
-        allure.dynamic.title(testdata['casename'])
-        if testdata['method'] == 'POST':
-            TestCasePostWithFunctions(testdata).test_start()
-        elif testdata['method'] == 'GET':
-            TestCaseGetWithFunctions(testdata).test_start()
-        elif testdata['method'] == 'DELETE':
-            TestCaseDeleteWithFunctions(testdata).test_start()
-
     @pytest.mark.work
-    def test_ztapi(self, testdata):
+    def test_api(self, testdata):
         allure.dynamic.feature(testdata['suitename'])
         allure.dynamic.story(testdata['group'])
         allure.dynamic.title(testdata['casename'])
-        if testdata.get('before'):
-            ZTPostWithFunctions(testdata['before']).test_start()
-            time.sleep(3)
-        ZTPostWithFunctions(testdata).test_start()
+        Callfunc().__getattribute__(testdata['callfunc'])(testdata)
+
 
 
 # if __name__=="__main__":

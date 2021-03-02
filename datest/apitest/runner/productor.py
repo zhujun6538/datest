@@ -1,8 +1,9 @@
 import json
 import re
-
+import time
 import allure
 import jsonpath
+
 
 
 def extractor(data, dics, expr):
@@ -18,6 +19,7 @@ class Saver:
     caseno = ''
     httphist = {}
     testresult = {}
+    testresult['result'] = 'N'
     testresult['passedcase'] = []
     testresult['failedcase'] = []
 
@@ -36,3 +38,4 @@ class Saver:
             return
         handledata = extractor(params, cls.httphist, expr='&(.*?)&')
         return eval(handledata)
+

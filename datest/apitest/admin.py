@@ -2,9 +2,13 @@ import csv
 import datetime
 import random
 import re
+import shutil
 
+import jenkins
+import jsonpath
 from django.contrib import admin
 from django.contrib.admin import AdminSite
+from django.contrib.auth.models import User, Group
 from django.core.exceptions import MultipleObjectsReturned
 from django.core.files import File
 from django.db import transaction
@@ -22,13 +26,16 @@ from .datahandle import *
 # Register your models here.
 from .runner import testrunner
 
+
+# admin.site.unregister(User)
+# admin.site.unregister(Group)
 AdminSite.site_header = "证通自动化测试后台"
 AdminSite.index_title = "api测试"
 filedir = os.path.dirname(__file__)
 @admin.register(Api)
 class ApiAdmin(admin.ModelAdmin):
     list_display = ['code','name','project','method','group','isValid','url','edit']
-    search_fields = ['name']
+    search_fields = ['name','code']
     list_display_links = ['edit']
     list_filter = ['group','project']
     actions = ['get_excel']
@@ -106,9 +113,15 @@ class HeaderParaminline(admin.TabularInline):
 class HeaderkeyAdmin(admin.ModelAdmin):
     search_fields = ['value']
 
+    def has_module_permission(self,request):
+        return False
+
 @admin.register(Headerval)
 class HeadervalAdmin(admin.ModelAdmin):
     search_fields = ['value']
+
+    def has_module_permission(self,request):
+        return False
 
 class AssertParaminline(admin.TabularInline):
     model = AssertParam
@@ -122,20 +135,28 @@ class RequestParaminline(admin.TabularInline):
 
 class Runparaminline(admin.TabularInline):
     model = Runparam
-    extra = 3
-    readonly_fields = ['value']
+    extra = 1
 
 @admin.register(Reqquestkey)
 class ReqquestkeyAdmin(admin.ModelAdmin):
     search_fields = ['value']
 
+    def has_module_permission(self,request):
+        return False
+
 @admin.register(Reqquestval)
 class ReqquestvalAdmin(admin.ModelAdmin):
     search_fields = ['value']
 
+    def has_module_permission(self,request):
+        return False
+
 @admin.register(Assertkey)
 class AssertkeyAdmin(admin.ModelAdmin):
     search_fields = ['value']
+
+    def has_module_permission(self,request):
+        return False
 
     # def get_changeform_initial_data(self, request):
     #     return {'value': '$..'}
@@ -143,6 +164,23 @@ class AssertkeyAdmin(admin.ModelAdmin):
 @admin.register(Assertval)
 class AssertvalAdmin(admin.ModelAdmin):
     search_fields = ['value']
+
+    def has_module_permission(self,request):
+        return False
+
+@admin.register(FUNC)
+class FUNCAdmin(admin.ModelAdmin):
+    list_display = ['name','description']
+
+    def has_module_permission(self,request):
+        return False
+
+@admin.register(CALLFUNC)
+class CALLFUNCAdmin(admin.ModelAdmin):
+    list_display = ['name','description']
+
+    def has_module_permission(self,request):
+        return False
 
 @admin.register(Testcase)
 class TestcaseAdmin(admin.ModelAdmin):
@@ -153,11 +191,12 @@ class TestcaseAdmin(admin.ModelAdmin):
     autocomplete_fields = ['api']
     inlines = [HeaderParaminline,RequestParaminline, AssertParaminline,Runparaminline]
     save_on_top = True
-    list_filter = ['group', 'project']
+    list_filter = ['group', 'project','callfunc']
     actions = ['copy','get_caseyml','runcase']
-    fields = ('casename','project','group','beforecase','isrun','baseurl','api','datamode','requestdata')
+    fields = ('casename','project','group','isrun','baseurl','api','datamode','requestdata','setupfunc','callfunc','responsedata')
     change_list_template = 'admin/apitest/testcase/option_changelist.html'
     list_per_page = 50
+    readonly_fields = ('responsedata',)
 
     def edit(self,obj):
         reportlink = '-'
@@ -220,12 +259,20 @@ class TestcaseAdmin(admin.ModelAdmin):
             testcases = get_exceldata(filedir + '\\data\\uploadfile\\temp.xls')
             num = 0
             for data in testcases:
-                caseno = datetime.datetime.now().strftime('%Y%m%d%H%M%S') + str(random.randint(1,1000))
+                caseno = datetime.datetime.now().strftime('%Y%m%d%H%M%S') + str(random.randint(1,10000))
                 project = Project.objects.get_or_create(name=data['project'],defaults = {'banben':'1'})
                 group = TestcaseGroup.objects.get_or_create(name=data['group'],defaults = {'project':project[0]})
                 baseurl = BASEURL.objects.get_or_create(url=data['baseurl'],defaults = {'name':'新建环境','project':project[0]})
                 api = Api.objects.get(code=data['api'])
-                testcaseobj = Testcase.objects.create(caseno = caseno,casename=data['casename'],project= project[0],group=group[0],api = api,isrun='Y',baseurl=baseurl[0],datamode = 'JSON',requestdata=data['requestdata'],creater=request.user)
+                if data['setupfunc'] != '':
+                    setupfunc = FUNC.objects.get(name = data['setupfunc'])
+                else:
+                    setupfunc = None
+                if data['callfunc'] != '':
+                    callfunc = CALLFUNC.objects.get(name=data['callfunc'])
+                else:
+                    callfunc = None
+                testcaseobj = Testcase.objects.create(caseno = caseno,casename=data['casename'],project= project[0],group=group[0],api = api,isrun='Y',baseurl=baseurl[0],datamode = 'JSON',requestdata=data['requestdata'],creater=request.user,setupfunc=setupfunc,callfunc=callfunc)
                 num += 1
                 def addorget(mod, value):
                     try:
@@ -278,29 +325,30 @@ class TestcaseAdmin(admin.ModelAdmin):
         with transaction.atomic():
             testcases = self.gen_yml(request,query_set)
             try:
-                write_case(f'{filedir}/runner/data/test.yaml', testcases)
-                report = testrunner.pyrun()
-            #     testresult = json.loads(os.environ.get('TESTRESULT'),encoding='utf-8')
-            #     result = testresult['result']
-            #     failed = testresult['failed']
-            #     passed = testresult['passed']
-            #     caseid = jsonpath.jsonpath(testcases,'$[*]..caseid.')
-                thisname = datetime.datetime.now().strftime('%Y%m%d%H%M%S') + '测试报告'
-                with open(report + '/index.html','r',encoding='utf-8') as f:
-                    thisfile = File(f)
-                    thisfile.name = thisfile.name.split('report/')[1]
-                    testreport = TESTREPORT.objects.create(reportname=thisname,runner=request.user, file=thisfile,testnum=casenum,result='Y')
-            #         for passedcase in testresult['passedcase']:
-            #             testreport.succase.add(Testcase.objects.get(caseid=passedcase))
-            #         for failedcase in testresult['failedcase']:
-            #             testreport.succase.add(Testcase.objects.get(caseid=failedcase))
+                for obj in query_set:
+                    testcase = get_casedata('运行测试用例', obj)
+                    write_case(f'{filedir}/runner/data/test.yaml', [[testcase]])
+                    report = testrunner.pyrun(args='')
+                    testresult = json.loads(os.environ.get('TESTRESULT'),encoding='utf-8')
+                    result = testresult['result']
+                    failed = testresult['failed']
+                    passed = testresult['passed']
+                    thisname = datetime.datetime.now().strftime('%Y%m%d%H%M%S') + '测试报告'
+                    with open(report + '/index.html','r',encoding='utf-8') as f:
+                        thisfile = File(f)
+                        thisfile.name = thisfile.name.split('report/')[1]
+                        testreport = TESTREPORT.objects.create(reportname=thisname,runner=request.user, file=thisfile,testnum=casenum,result=result,suc=passed, fail=failed)
+                        for passedcase in testresult['passedcase']:
+                            testreport.succase.add(Testcase.objects.get(caseno=passedcase))
+                        for failedcase in testresult['failedcase']:
+                            testreport.failcase.add(Testcase.objects.get(caseno=failedcase))
+                    testreport.testcases.add(obj)
+                    testreport.save()
+                    obj.runtime = timezone.now()
             except Exception as e:
                 self.message_user(request,'发生异常' + str(e))
-            #     testreport = TESTREPORT.objects.create(reportname=thisname, testnum=len(caseid), result='N',runner=request.user, file=thisfile, suc=passed, fail=failed)
-            for obj in query_set:
-                testreport.testcases.add(obj)
-                testreport.save()
-                obj.runtime = timezone.now()
+                testreport = TESTREPORT.objects.create(reportname=thisname, testnum=casenum, result='N',runner=request.user, errors=str(e))
+
             # Testcase.objects.bulk_update(query_set,['runtime'])
             # filelink = format_html('<a href="{}" style="white-space:nowrap;" target="_blank">{}</a>',testreport.file.url,'查看报告')
             self.message_user(request, '测试运行完成，请查看测试报告')
@@ -310,7 +358,7 @@ class TestcaseAdmin(admin.ModelAdmin):
 class TESTSUITEAdmin(admin.ModelAdmin):
     list_display = ['name','baseurl','ctime','creater','get_testcase','edit']
     filter_horizontal = ['case']
-    actions = ['gen_yaml','runsuite']
+    actions = ['gen_yaml','runsuite','jrunsuite']
     exclude = ['creater','runtime']
     list_display_links = ['edit']
 
@@ -344,30 +392,107 @@ class TESTSUITEAdmin(admin.ModelAdmin):
     gen_yaml.short_description = '生成文件'
 
     def runsuite(self,request,query_set):
-        casenum = 0
-        testsuites = []
+        thisname = datetime.datetime.now().strftime('%Y%m%d%H%M%S') + '测试报告'
         for obj in query_set:
             testsuite = get_suitedata(obj)
-            testsuites.append(testsuite)
-            casenum += obj.case.count()
-        try:
-            write_case(f'{filedir}/runner/data/test.yaml',testsuites)
-            report = testrunner.pyrun()
-            # caseid = jsonpath.jsonpath(testcases,'$[*]..caseid.')
-            thisname = datetime.datetime.now().strftime('%Y%m%d%H%M%S') + '测试报告'
-            with open(report + '/index.html','r',encoding='utf-8') as f:
-                thisfile = File(f)
-                thisfile.name = thisfile.name.split('report/')[1]
-                testreport = TESTREPORT.objects.create(reportname=thisname, runner=request.user, file=thisfile,testnum=casenum, result='Y')
-        except Exception as e:
-            self.message_user(request,'发生异常' + str(e))
-        #     testreport  = TESTREPORT.objects.create(reportname=thisname, testnum=len(caseid), result='失败', runner=request.user,file=thisfile)
-        for obj in query_set:
-            testreport.testsuite.add(obj)
-            testreport.save()
+            casenum = obj.case.count()
+            args = obj.args.all().values_list('name')
+            try:
+                write_case(f'{filedir}/runner/data/test.yaml',[testsuite])
+                report = testrunner.pyrun(args,obj.reruns,obj.reruns_delay)
+                testresult = json.loads(os.environ.get('TESTRESULT'), encoding='utf-8')
+                os.environ.pop('TESTRESULT')
+                result = testresult['result']
+                failed = testresult['failed']
+                passed = testresult['passed']
+                with open(report + '/index.html','r',encoding='utf-8') as f:
+                    thisfile = File(f)
+                    thisfile.name = thisfile.name.split('report/')[1]
+                    testreport = TESTREPORT.objects.create(reportname=thisname, runner=request.user, file=thisfile,testnum=casenum, result=result,suc=passed, fail=failed)
+                    for passedcase in testresult['passedcase']:
+                        testreport.succase.add(Testcase.objects.get(caseno=passedcase))
+                    for failedcase in testresult['failedcase']:
+                        testreport.failcase.add(Testcase.objects.get(caseno=failedcase))
+                testreport.testsuite.add(obj)
+                for case in obj.case.all():
+                    testreport.testcases.add(case)
+                    case.runtime = timezone.now()
+                    case.save()
+                testreport.save()
+            except Exception as e:
+                self.message_user(request,'发生异常' + str(e))
+                testreport  = TESTREPORT.objects.create(reportname=thisname, testnum=casenum, result='N', runner=request.user,errors = str(e))
         # filelink = format_html('<a href="{}" style="white-space:nowrap;" target="_blank">{}</a>',testreport.file.url,'查看报告')
         self.message_user(request, '测试运行完成，请查看测试报告')
     runsuite.short_description = '运行套件'
+
+    def jrunsuite(self,request,query_set):
+        testsuites = []
+        for obj in query_set:
+            rundatas = get_suitedata(obj)
+            testsuites.append(rundatas)
+        try:
+            write_case(f'{filedir}/runner/data/test.yaml', testsuites)
+        except Exception as e:
+            self.message_user(request,'发生异常' + str(e))
+        server = jenkins.Jenkins(url='http://127.0.0.1:8888/', username='admin', password='z111111')
+        last_build_number = server.get_job_info('apitest')['lastCompletedBuild']['number']
+        this_build_number = last_build_number + 1
+        server.build_job('apitest', token='111111')
+        url = 'http://127.0.0.1:8888/job/apitest/'+ str(this_build_number)
+        Jenkinsreport.objects.create(testno=this_build_number,url=url)
+        self.message_user(request, 'Jenkins已进行构建')
+    jrunsuite.short_description = 'jenkins运行套件'
+
+@admin.register(Testbatch)
+class TestbatchAdmin(admin.ModelAdmin):
+    list_display = ['batchno','ctime','runtime']
+    filter_horizontal = ['testsuite']
+    actions = ['runbatch',]
+    exclude = ('runtime',)
+
+    def runbatch(self,request,query_set):
+        thisname = datetime.datetime.now().strftime('%Y%m%d%H%M%S') + '测试报告'
+        for batch in query_set:
+            for obj in batch.testsuite.all():
+                testsuite = get_suitedata(obj)
+                casenum = obj.case.count()
+                args = obj.args.all().values_list('name')
+                try:
+                    write_case(f'{filedir}/runner/data/test.yaml',[testsuite])
+                    report = testrunner.pyrun(args,obj.reruns,obj.reruns_delay)
+                    testresult = json.loads(os.environ.get('TESTRESULT'), encoding='utf-8')
+                    os.environ.pop('TESTRESULT')
+                    result = testresult['result']
+                    failed = testresult['failed']
+                    passed = testresult['passed']
+                    with open(report + '/index.html','r',encoding='utf-8') as f:
+                        thisfile = File(f)
+                        thisfile.name = thisfile.name.split('report/')[1]
+                        testreport = TESTREPORT.objects.create(reportname=thisname, runner=request.user, file=thisfile,testnum=casenum, result=result,suc=passed, fail=failed)
+                        for passedcase in testresult['passedcase']:
+                            testreport.succase.add(Testcase.objects.get(caseno=passedcase))
+                        for failedcase in testresult['failedcase']:
+                            testreport.failcase.add(Testcase.objects.get(caseno=failedcase))
+                    testreport.testsuite.add(obj)
+                    for case in obj.case.all():
+                        testreport.testcases.add(case)
+                        case.runtime = timezone.now()
+                        case.save()
+                    testreport.save()
+                except Exception as e:
+                    self.message_user(request,'发生异常' + str(e))
+                    testreport  = TESTREPORT.objects.create(reportname=thisname, testnum=casenum, result='N', runner=request.user,errors = str(e))
+        # filelink = format_html('<a href="{}" style="white-space:nowrap;" target="_blank">{}</a>',testreport.file.url,'查看报告')
+        self.message_user(request, '测试运行完成，请查看测试报告')
+    runbatch.short_description = '运行批次'
+
+@admin.register(Argument)
+class ArgumentAdmin(admin.ModelAdmin):
+    list_display = ['name']
+
+    def has_module_permission(self,request):
+        return False
 
 TESTREPORTparams = [p.attname for p in TESTREPORT._meta.fields][1:]
 for k,v in TESTREPORT._meta.fields_map.items():
@@ -378,10 +503,16 @@ class TESTREPORTAdmin(admin.ModelAdmin):
     list_display = ['reportname', 'testtime', 'testnum', 'result', 'suc', 'fail', 'runner','filelink']
     list_filter = ['testsuite']
     view_on_site = True
-    fields = TESTREPORTparams
-    readonly_fields = TESTREPORTparams
+    params = TESTREPORTparams
+    fields = params
+    readonly_fields = params
     list_display_links = ['filelink']
 
     def filelink(self,obj):
         return format_html('<a href="{}" target="_blank">{}</a> <a href="{}">{}</a>',obj.file.url,'查看报告',reverse('admin:apitest_testreport_change', args=(obj.id,)),'详情')
     filelink.short_description = '操作'
+
+    def delete_model(self,request,obj):
+        reportfile = obj.file.url.rsplit('/',1)[0]
+        if os.path.exists(filedir+reportfile):
+            shutil.rmtree(filedir+reportfile)

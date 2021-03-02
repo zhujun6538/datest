@@ -9,7 +9,6 @@ filedir = os.path.dirname(__file__)
 
 class ZTPostWithFunctions(HttpRunner):
     def __init__(self,testdata):
-        logger.add(filedir + '/logs/httprunner-log.txt', enqueue=True, encoding='utf-8')
         Saver.caseno = testdata['caseno']
         testdata['headers'] = Saver.handle_params(json.dumps(testdata['headers'], ensure_ascii=False))
         testdata['data'] = Saver.handle_params(json.dumps(testdata['data'], ensure_ascii=False))
@@ -28,8 +27,8 @@ class ZTPostWithFunctions(HttpRunner):
 
         running = RunRequest(testdata['casename'])\
         .with_variables() \
-        .setup_hook('${ztrequest($request)}') \
-        .post(testdata['url'])\
+        .setup_hook(testdata['setupfunc']) \
+        .__getattribute__(testdata['method'].lower())(testdata['url']) \
         .with_json(testdata['data'])\
         .with_params(**testdata['params'])\
         .with_headers(**testdata['headers']) \
