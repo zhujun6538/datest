@@ -78,7 +78,12 @@ class ApiAdmin(admin.ModelAdmin):
             for data in apidatas:
                 project = Project.objects.get_or_create(name=data['project'],defaults = {'banben':'1'})
                 group = ApiGroup.objects.get_or_create(name=data['group'],defaults = {'project':project[0]})
-                Api.objects.get_or_create(code=data['code'],name=data['name'],defaults = {'project':project[0],'group':group[0],'method' : data['method'],'description':data['description'],'isValid':True,'url':data['url']})
+                headers = json.loads(data['headers'])
+                api = Api.objects.get_or_create(code=data['code'],name=data['name'],defaults = {'project':project[0],'group':group[0],'method' : data['method'],'description':data['description'],'isValid':True,'url':data['url']})
+                for key,value in headers.items():
+                    header = Header.objects.get_or_create(key=key,value=value)
+                    api[0].header.add(header[0])
+                api[0].save()
                 apinum += 1
             self.message_user(request, str(apinum) + "个API批量导入成功")
             return redirect("..")
@@ -193,7 +198,7 @@ class TestcaseAdmin(admin.ModelAdmin):
     inlines = [HeaderParaminline,RequestParaminline, AssertParaminline,Runparaminline]
     save_on_top = True
     list_filter = ['group', 'project','callfunc']
-    actions = ['copy','get_caseyml','runcase']
+    actions = ['get_excel','copy','get_caseyml','runcase']
     fields = ('casename','project','group','isrun','baseurl','api','datamode','requestdata','setupfunc','callfunc','responsedata')
     change_list_template = 'admin/apitest/testcase/option_changelist.html'
     list_per_page = 50
@@ -239,7 +244,12 @@ class TestcaseAdmin(admin.ModelAdmin):
         for obj in query_set:
             rowvalue = []
             for field in fieldsname:
-                rowvalue.append(f'{getattr(obj,field)}')
+                if getattr(obj,field) is not None:
+                    rowvalue.append(f'{getattr(obj,field)}')
+                else:
+                    rowvalue.append('')
+            for assdata in obj.assertparam_set.all():
+                rowvalue.append(assdata.paramkey.value + '|' + assdata.paramval.value)
             row = ws.append(rowvalue)
         wb.save(response)
         return response
@@ -273,7 +283,7 @@ class TestcaseAdmin(admin.ModelAdmin):
                     callfunc = CALLFUNC.objects.get(name=data['callfunc'])
                 else:
                     callfunc = None
-                testcaseobj = Testcase.objects.create(caseno = caseno,casename=data['casename'],project= project[0],group=group[0],api = api,isrun='Y',baseurl=baseurl[0],datamode = 'JSON',requestdata=data['requestdata'],creater=request.user,setupfunc=setupfunc,callfunc=callfunc)
+                testcaseobj = Testcase.objects.create(caseno = caseno,casename=data['casename'],project= project[0],group=group[0],api = api,isrun='Y',baseurl=baseurl[0],datamode = data['datamode'],requestdata=data['requestdata'],creater=request.user,setupfunc=setupfunc,callfunc=callfunc)
                 num += 1
                 def addorget(mod, value):
                     try:
@@ -285,8 +295,8 @@ class TestcaseAdmin(admin.ModelAdmin):
                 if data['headers'] != '':
                     for key,value in json.loads(data['headers']).items():
                         hkeyobj = addorget(Headerkey, key)
-                        hvobj = addorget(Headerval, value)
-                        HeaderParam.objects.create(testcase=testcaseobj, paramkey=hkeyobj, paramval=hvobj)
+                        hvalobj = addorget(Headerval, value)
+                        HeaderParam.objects.create(testcase=testcaseobj, paramkey=hkeyobj, paramval=hvalobj)
                 for k,v in data.items():
                     if k.startswith('assert') and v is not '':
                         assertkey = v.split('|')[0]
