@@ -26,7 +26,6 @@ def pyrun(args='',reruns=0,reruns_delay=0):
     testargs = []
     for arg in args:
         testargs.append(arg[0])
-    testargs.append(testdata)
     testargs.append('--reruns')
     testargs.append(str(reruns))
     testargs.append('--reruns-delay')
