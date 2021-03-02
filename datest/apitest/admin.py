@@ -158,8 +158,6 @@ class AssertkeyAdmin(admin.ModelAdmin):
     def has_module_permission(self,request):
         return False
 
-    # def get_changeform_initial_data(self, request):
-    #     return {'value': '$..'}
 
 @admin.register(Assertval)
 class AssertvalAdmin(admin.ModelAdmin):
@@ -348,9 +346,6 @@ class TestcaseAdmin(admin.ModelAdmin):
             except Exception as e:
                 self.message_user(request,'发生异常' + str(e))
                 testreport = TESTREPORT.objects.create(reportname=thisname, testnum=casenum, result='N',runner=request.user, errors=str(e))
-
-            # Testcase.objects.bulk_update(query_set,['runtime'])
-            # filelink = format_html('<a href="{}" style="white-space:nowrap;" target="_blank">{}</a>',testreport.file.url,'查看报告')
             self.message_user(request, '测试运行完成，请查看测试报告')
     runcase.short_description = '运行所有用例'
 
@@ -422,7 +417,6 @@ class TESTSUITEAdmin(admin.ModelAdmin):
             except Exception as e:
                 self.message_user(request,'发生异常' + str(e))
                 testreport  = TESTREPORT.objects.create(reportname=thisname, testnum=casenum, result='N', runner=request.user,errors = str(e))
-        # filelink = format_html('<a href="{}" style="white-space:nowrap;" target="_blank">{}</a>',testreport.file.url,'查看报告')
         self.message_user(request, '测试运行完成，请查看测试报告')
     runsuite.short_description = '运行套件'
 
@@ -483,7 +477,6 @@ class TestbatchAdmin(admin.ModelAdmin):
                 except Exception as e:
                     self.message_user(request,'发生异常' + str(e))
                     testreport  = TESTREPORT.objects.create(reportname=thisname, testnum=casenum, result='N', runner=request.user,errors = str(e))
-        # filelink = format_html('<a href="{}" style="white-space:nowrap;" target="_blank">{}</a>',testreport.file.url,'查看报告')
         self.message_user(request, '测试运行完成，请查看测试报告')
     runbatch.short_description = '运行批次'
 
