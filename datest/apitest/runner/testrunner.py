@@ -16,7 +16,8 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 
 def pyrun(args='',reruns=0,reruns_delay=0):
-    workpath = os.getcwd()
+    if not os.path.exists(f'{filepath}/allure-report/'):
+        os.mkdir(f'{filepath}/allure-report/')
     shutil.rmtree(f'{filepath}/allure-report/')
     os.mkdir(f'{filepath}/allure-report')
     ts = datetime.datetime.now().strftime('%Y%m%d%H%M%S')
