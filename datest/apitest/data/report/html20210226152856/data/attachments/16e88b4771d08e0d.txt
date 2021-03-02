@@ -1,1 +1,0 @@
-{'20210225225256293': {'success': False, 'msg': 'Authorization failed!'}, '20210226143741877': {'success': False, 'msg': 'device_sn or token is null.'}, '20210226112126933': {'success': True, 'token': '3cr1gelIBfbdQhdS'}, '20210226140421294': {'success': True, 'msg': 'user created successfully.'}}

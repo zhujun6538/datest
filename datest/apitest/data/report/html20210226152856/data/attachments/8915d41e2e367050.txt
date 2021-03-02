@@ -1,1 +1,0 @@
-{"success": false, "msg": "device_sn or token is null."}
