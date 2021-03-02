@@ -13,7 +13,7 @@ def getlogger():
     yield
     logging.info('结束测试')
 
-@pytest.fixture(params=Reader.read_case(filepath + './data/test.yaml'))
+@pytest.fixture(params=Reader.read_case(filepath + '/data/test.yaml'))
 def testdata(request):
     logging.info('---------------------------------------' + request.param['caseno'] + '---------------------------------------')
     return request.param
