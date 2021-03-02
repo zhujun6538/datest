@@ -18,7 +18,7 @@ class Api(models.Model):
     name = models.CharField('名称',max_length=100)
     project = models.ForeignKey(Project,verbose_name='所属项目',on_delete=models.SET_NULL,null=True)
     group = models.ForeignKey('ApiGroup',verbose_name='所属分组',on_delete=models.SET_NULL,null=True)
-    header = models.ManyToManyField('Header',verbose_name='请求头',related_name='header_apis')
+    header = models.ManyToManyField('Header',verbose_name='请求头',related_name='header_apis',null=True,blank=True)
     method = models.CharField('请求方法',choices=[('GET', "GET"),('POST', "POST"),('DELETE', "DELETE")],max_length=10)
     description = models.TextField('描述',max_length=1000)
     isValid = models.BooleanField('是否有效',default=True)

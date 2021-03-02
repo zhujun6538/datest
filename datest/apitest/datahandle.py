@@ -52,7 +52,7 @@ def get_casedata(suitename,case,baseurl='',setupfunc='',callfunc=''):
         asserts.append([adata.mode, adata.paramkey.value, get_paramval(adata.paramval.value,adata.paramval.type)])
     testcase['extract'] = []
     for extdata in case.runparam_set.all():
-        testcase['extract'].append(extdata.key)
+        testcase['extract'].append(extdata.param)
     testcase['suitename'] ,testcase['group'] ,testcase['caseno'], testcase['casename'], \
     testcase['isrun'], testcase['method'],testcase['url'], \
     testcase['baseurl'],testcase['data'], testcase['params'], testcase['headers'], testcase['asserts']   = \

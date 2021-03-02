@@ -107,7 +107,7 @@ class BASEURLAdmin(admin.ModelAdmin):
 
 class HeaderParaminline(admin.TabularInline):
     model = HeaderParam
-    extra = 3
+    extra = 1
 
 @admin.register(Headerkey)
 class HeaderkeyAdmin(admin.ModelAdmin):
@@ -125,12 +125,12 @@ class HeadervalAdmin(admin.ModelAdmin):
 
 class AssertParaminline(admin.TabularInline):
     model = AssertParam
-    extra = 3
+    extra = 1
     autocomplete_fields = ['paramkey','paramval']
 
 class RequestParaminline(admin.TabularInline):
     model = RequestParam
-    extra = 3
+    extra = 1
     autocomplete_fields = ['paramkey', 'paramval']
 
 class Runparaminline(admin.TabularInline):
@@ -158,6 +158,9 @@ class AssertkeyAdmin(admin.ModelAdmin):
     def has_module_permission(self,request):
         return False
 
+    def get_changeform_initial_data(self, request):
+        return {'value': 'body.'}
+
 
 @admin.register(Assertval)
 class AssertvalAdmin(admin.ModelAdmin):
@@ -184,7 +187,7 @@ class CALLFUNCAdmin(admin.ModelAdmin):
 class TestcaseAdmin(admin.ModelAdmin):
     list_display = ['caseno','casename', 'group', 'isrun', 'api', 'createtime', 'runtime', 'edit']
     list_display_links = ['edit']
-    search_fields = ['casename']
+    search_fields = ['caseno','casename']
     radio_fields = {"isrun": admin.HORIZONTAL, "datamode": admin.HORIZONTAL}
     autocomplete_fields = ['api']
     inlines = [HeaderParaminline,RequestParaminline, AssertParaminline,Runparaminline]
