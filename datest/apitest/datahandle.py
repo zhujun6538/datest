@@ -54,9 +54,9 @@ def get_casedata(suitename,case,baseurl='',setupfunc='',callfunc=''):
     for extdata in case.runparam_set.all():
         testcase['extract'].append(extdata.param)
     testcase['suitename'] ,testcase['group'] ,testcase['caseno'], testcase['casename'], \
-    testcase['isrun'], testcase['method'],testcase['url'], \
+    testcase['isValid'], testcase['method'],testcase['url'], \
     testcase['baseurl'],testcase['data'], testcase['params'], testcase['headers'], testcase['asserts']   = \
-        suitename,case.group.name, case.caseno, case.api.name + case.casename, case.isrun, case.api.method , case.api.url, case.baseurl.url,data, params, headers, asserts
+        suitename,case.group.name, case.caseno, case.api.name + case.casename, case.isValid, case.api.method , case.api.url, case.baseurl.url,data, params, headers, asserts
     if case.beforecase!=None:
         testcase['before'] = get_casedata(suitename,case.beforecase,baseurl)
     return testcase

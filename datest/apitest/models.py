@@ -21,7 +21,7 @@ class Api(models.Model):
     header = models.ManyToManyField('Header',verbose_name='请求头',related_name='header_apis',null=True,blank=True)
     method = models.CharField('请求方法',choices=[('GET', "GET"),('POST', "POST"),('DELETE', "DELETE")],max_length=10)
     description = models.TextField('描述',max_length=1000)
-    isValid = models.BooleanField('是否有效',default=True,)
+    isValid = models.BooleanField('是否有效',default=True)
     url = models.CharField(max_length=100)
 
     def __str__(self):
@@ -66,7 +66,7 @@ class Testcase(models.Model):
     project = models.ForeignKey(Project, verbose_name='所属项目', on_delete=models.SET_NULL, null=True)
     group = models.ForeignKey('TestcaseGroup',verbose_name='所属分组', on_delete=models.SET_NULL, null=True)
     beforecase = models.ForeignKey('self',on_delete=models.SET_NULL,null=True,blank=True)
-    isrun = models.CharField('是否运行', choices=[('Y', "是"), ('N', "否")], max_length=10,default='Y')
+    isValid = models.CharField('是否运行', choices=[('Y', "是"), ('N', "否")], max_length=10,default='Y')
     baseurl = models.ForeignKey('BASEURL',verbose_name='环境地址',on_delete=models.SET_NULL,null=True,default=1)
     api = models.ForeignKey('Api',verbose_name='测试接口',on_delete=models.SET_NULL,null=True)
     datamode = models.CharField('请求参数类型',choices=[('JSON', "JSON"), ('FORM-DATA', "FORM-DATA")], max_length=10)
@@ -79,7 +79,7 @@ class Testcase(models.Model):
     creater = models.ForeignKey('auth.user', verbose_name='创建人',on_delete=models.CASCADE)
 
     def __str__(self):
-        return self.caseno + '-' + self.casename
+        return str(self.group) + '-' + self.caseno + '-' + self.casename
 
     class Meta:
         verbose_name_plural = '测试用例'
