@@ -84,27 +84,27 @@ WSGI_APPLICATION = 'datest.wsgi.application'
 #     }
 # }
 
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.mysql',
-#         'NAME': 'datest',
-#         'HOST': '127.0.0.1',
-#         'PORT': '3306',
-#         'USER': 'root',
-#         'PASSWORD': '',
-#     }
-# }
-
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'datest',
-        'HOST': 'cd-cdb-ef5dl3fu.sql.tencentcdb.com',
-        'PORT': '62172',
+        'HOST': '127.0.0.1',
+        'PORT': '3306',
         'USER': 'root',
-        'PASSWORD': 'z65388674',
+        'PASSWORD': '',
     }
 }
+
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.mysql',
+#         'NAME': 'datest',
+#         'HOST': 'cd-cdb-ef5dl3fu.sql.tencentcdb.com',
+#         'PORT': '62172',
+#         'USER': 'root',
+#         'PASSWORD': 'z65388674',
+#     }
+# }
 
 # Password validation
 # https://docs.djangoproject.com/en/3.1/ref/settings/#auth-password-validators
