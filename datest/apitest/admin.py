@@ -199,7 +199,7 @@ class TestcaseAdmin(admin.ModelAdmin):
     save_on_top = True
     list_filter = ['group', 'project','callfunc']
     actions = ['get_excel','copy','get_caseyml','runcase']
-    fields = ('casename','project','group','isrun','baseurl','api','datamode','requestdata','setupfunc','callfunc','responsedata')
+    fields = ('casename','group','isrun','baseurl','api','datamode','requestdata','setupfunc','callfunc','responsedata')
     change_list_template = 'admin/apitest/testcase/option_changelist.html'
     list_per_page = 50
     readonly_fields = ('responsedata',)
@@ -215,9 +215,10 @@ class TestcaseAdmin(admin.ModelAdmin):
     edit.short_description = '操作'
 
     def save_model(self, request, obj, form, change):
-        obj.caseno = datetime.datetime.now().strftime('%Y%m%d%H%M%S') + str(random.randint(1,1000))
-        obj.project = obj.api.project
-        obj.creater = request.user
+        if change is False:
+            obj.caseno = datetime.datetime.now().strftime('%Y%m%d%H%M%S') + str(random.randint(1,1000))
+            obj.project = obj.api.project
+            obj.creater = request.user
         super().save_model(request, obj, form, change)
 
     def copy(self,request,query_set):
