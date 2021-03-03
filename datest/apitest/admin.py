@@ -381,7 +381,10 @@ class TESTSUITEAdmin(admin.ModelAdmin):
         super().save_model(request, obj, form, change)
 
     def get_testcase(self,obj):
-        return obj.case.all().count()
+        if obj.isorder is False:
+            return obj.case.all().count()
+        else:
+            return obj.testcaselist_set.all().count()
     get_testcase.short_description = '用例数量'
 
     def edit(self,obj):
