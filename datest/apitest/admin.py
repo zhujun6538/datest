@@ -37,10 +37,15 @@ class ApiAdmin(admin.ModelAdmin):
     list_display = ['code','name','project','method','group','isValid','url','get_casenum','edit']
     search_fields = ['name','code']
     list_display_links = ['edit']
-    list_filter = ['group','project']
+    list_filter = ['group','project','isValid']
     actions = ['get_excel']
     change_list_template = 'admin/apitest/api/option_changelist.html'
     save_on_top = True
+
+    def get_search_results(self, request, queryset, search_term):
+        if request.path == '/admin/apitest/api/autocomplete/':
+            queryset = queryset.filter(isValid=True)
+        return super().get_search_results(request, queryset, search_term)
 
     def edit(self,obj):
         return format_html('<a href="{}">{}</a>',reverse('admin:apitest_api_change', args=(obj.id,)),'编辑')
@@ -195,10 +200,10 @@ class CALLFUNCAdmin(admin.ModelAdmin):
 
 @admin.register(Testcase)
 class TestcaseAdmin(admin.ModelAdmin):
-    list_display = ['caseno','casename', 'group', 'isrun', 'api', 'createtime', 'runtime', 'edit']
+    list_display = ['caseno','casename','isValid', 'group', 'api', 'runtime', 'edit']
     list_display_links = ['edit']
     search_fields = ['caseno','casename']
-    radio_fields = {"isrun": admin.HORIZONTAL, "datamode": admin.HORIZONTAL}
+    radio_fields = {"isValid": admin.HORIZONTAL, "datamode": admin.HORIZONTAL}
     autocomplete_fields = ['api']
     inlines = [HeaderParaminline,RequestParaminline, AssertParaminline,Runparaminline]
     save_on_top = True
@@ -208,6 +213,11 @@ class TestcaseAdmin(admin.ModelAdmin):
     change_list_template = 'admin/apitest/testcase/option_changelist.html'
     list_per_page = 50
     readonly_fields = ('responsedata',)
+
+    def get_search_results(self, request, queryset, search_term):
+        if request.path == '/admin/apitest/testcase/autocomplete/':
+            queryset = queryset.filter(isValid='Y')
+        return super().get_search_results(request, queryset, search_term)
 
     def edit(self,obj):
         reportlink = '-'
@@ -290,7 +300,7 @@ class TestcaseAdmin(admin.ModelAdmin):
                     callfunc = CALLFUNC.objects.get(name=data['callfunc'])
                 else:
                     callfunc = None
-                testcaseobj = Testcase.objects.create(caseno = caseno,casename=data['casename'],project= project[0],group=group[0],api = api,isrun='Y',baseurl=baseurl[0],datamode = data['datamode'],requestdata=data['requestdata'],creater=request.user,setupfunc=setupfunc,callfunc=callfunc)
+                testcaseobj = Testcase.objects.create(caseno = caseno,casename=data['casename'],project= project[0],group=group[0],api = api,isValid='Y',baseurl=baseurl[0],datamode = data['datamode'],requestdata=data['requestdata'],creater=request.user,setupfunc=setupfunc,callfunc=callfunc)
                 num += 1
                 def addorget(mod, value):
                     try:
@@ -382,6 +392,11 @@ class TESTSUITEAdmin(admin.ModelAdmin):
     exclude = ['creater','runtime']
     list_display_links = ['edit']
     inlines = [Testcaselistinline,]
+
+    def formfield_for_manytomany(self, db_field, request, **kwargs):
+        if db_field.name == "case":
+            kwargs["queryset"] = Testcase.objects.filter(isValid='Y')
+        return super().formfield_for_manytomany(db_field, request, **kwargs)
 
     def save_model(self, request, obj, form, change):
         obj.creater = request.user
