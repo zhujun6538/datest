@@ -206,12 +206,24 @@ class TESTSUITE(models.Model):
     args = models.ManyToManyField('Argument',verbose_name='pytest运行参数', related_name='Argument_suites',null=True,blank=True)
     reruns = models.IntegerField('失败重跑次数',null=True,blank=True,default=0)
     reruns_delay = models.IntegerField('重跑间隔时间',null=True, blank=True,default=0)
+    isorder = models.BooleanField('是否顺序执行',default=False)
 
     def __str__(self):
         return self.name
 
     class Meta:
         verbose_name_plural = '测试集合'
+
+class Testcaselist(models.Model):
+    testsuite = models.ForeignKey('TESTSUITE',verbose_name='测试套件', on_delete=models.CASCADE)
+    testcase = models.ForeignKey('Testcase',verbose_name='测试用例', on_delete=models.CASCADE)
+    runno = models.IntegerField('顺序号')
+
+    def __str__(self):
+        return self.testcase.casename
+
+    class Meta:
+        verbose_name_plural = '顺序运行用例'
 
 class Argument(models.Model):
     name = models.CharField(max_length=100)

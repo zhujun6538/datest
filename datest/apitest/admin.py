@@ -362,13 +362,19 @@ class TestcaseAdmin(admin.ModelAdmin):
             self.message_user(request, '测试运行完成，请查看测试报告')
     runcase.short_description = '运行所有用例'
 
+class Testcaselistinline(admin.TabularInline):
+    model = Testcaselist
+    extra = 1
+    autocomplete_fields = ['testcase']
+
 @admin.register(TESTSUITE)
 class TESTSUITEAdmin(admin.ModelAdmin):
     list_display = ['name','baseurl','ctime','creater','get_testcase','edit']
-    filter_horizontal = ['case']
     actions = ['gen_yaml','runsuite','jrunsuite']
+    filter_horizontal = ['case']
     exclude = ['creater','runtime']
     list_display_links = ['edit']
+    inlines = [Testcaselistinline,]
 
     def save_model(self, request, obj, form, change):
         obj.creater = request.user

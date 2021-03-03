@@ -84,14 +84,25 @@ WSGI_APPLICATION = 'datest.wsgi.application'
 #     }
 # }
 
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.mysql',
+#         'NAME': 'datest',
+#         'HOST': '127.0.0.1',
+#         'PORT': '3306',
+#         'USER': 'root',
+#         'PASSWORD': '',
+#     }
+# }
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'datest',
-        'HOST': '127.0.0.1',
-        'PORT': '3306',
+        'HOST': 'cd-cdb-ef5dl3fu.sql.tencentcdb.com',
+        'PORT': '62172',
         'USER': 'root',
-        'PASSWORD': '',
+        'PASSWORD': 'z65388674',
     }
 }
 

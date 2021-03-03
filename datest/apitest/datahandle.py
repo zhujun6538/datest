@@ -64,7 +64,6 @@ def get_casedata(suitename,case,baseurl='',setupfunc='',callfunc=''):
 def get_suitedata(obj):
     testdata = []
     suitename = obj.name
-    cases = obj.case.all()
     baseurl = obj.baseurl.url
     try:
         setupfunc = obj.setupfunc.name
@@ -72,9 +71,19 @@ def get_suitedata(obj):
     except Exception as e:
         setupfunc = ''
         callfunc = ''
-    for case in cases:
-        testcase = get_casedata(suitename,case,baseurl,setupfunc,callfunc)
-        testdata.append(testcase)
+    if obj.isorder is False:
+        testcases = obj.case.all()
+        for case in cases:
+            testcase = get_casedata(suitename, case, baseurl, setupfunc, callfunc)
+            testdata.append(testcase)
+    else:
+        cases = obj.testcaselist_set.all().order_by('runno')
+        for case in cases:
+            testcase = get_casedata(suitename, case.testcase, baseurl, setupfunc, callfunc)
+            testdata.append(testcase)
+
+
+
     return testdata
 
 def get_exceldata(filepath):
