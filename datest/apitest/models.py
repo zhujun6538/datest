@@ -79,7 +79,7 @@ class Testcase(models.Model):
     creater = models.ForeignKey('auth.user', verbose_name='创建人',on_delete=models.CASCADE)
 
     def __str__(self):
-        return str(self.project.name)  + '-' + str(self.api.name)  + '-' + self.casename
+        return self.caseno + '-' + self.casename
 
     class Meta:
         verbose_name_plural = '测试用例'

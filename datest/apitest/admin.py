@@ -231,6 +231,7 @@ class TestcaseAdmin(admin.ModelAdmin):
         for obj in query_set:
             oid = obj.id
             obj.id = None
+            obj.caseno = obj.api.code + '-' + datetime.datetime.now().strftime('%Y%m%d%H%M%S') + str(random.randint(1, 1000))
             obj.save()
             oldobj = Testcase.objects.get(id = oid)
             for par in list(oldobj.headerparam_set.all()):
