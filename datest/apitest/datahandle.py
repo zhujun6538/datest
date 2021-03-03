@@ -72,7 +72,7 @@ def get_suitedata(obj):
         setupfunc = ''
         callfunc = ''
     if obj.isorder is False:
-        testcases = obj.case.all()
+        cases = obj.case.all()
         for case in cases:
             testcase = get_casedata(suitename, case, baseurl, setupfunc, callfunc)
             testdata.append(testcase)
