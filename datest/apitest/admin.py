@@ -34,16 +34,21 @@ AdminSite.index_title = "api测试"
 filedir = os.path.dirname(__file__)
 @admin.register(Api)
 class ApiAdmin(admin.ModelAdmin):
-    list_display = ['code','name','project','method','group','isValid','url','edit']
+    list_display = ['code','name','project','method','group','isValid','url','get_casenum','edit']
     search_fields = ['name','code']
     list_display_links = ['edit']
     list_filter = ['group','project']
     actions = ['get_excel']
     change_list_template = 'admin/apitest/api/option_changelist.html'
+    save_on_top = True
 
     def edit(self,obj):
         return format_html('<a href="{}">{}</a>',reverse('admin:apitest_api_change', args=(obj.id,)),'编辑')
     edit.short_description = '操作'
+
+    def get_casenum(self,obj):
+        return obj.testcase_set.count()
+    get_casenum.short_description = '用例数'
 
     def get_excel(self, request, query_set):
         fieldsname = [field.name for field in self.model._meta.fields]
@@ -225,6 +230,7 @@ class TestcaseAdmin(admin.ModelAdmin):
         for obj in query_set:
             oid = obj.id
             obj.id = None
+            obj.caseno = obj.api.code + '-' + datetime.datetime.now().strftime('%Y%m%d%H%M%S') + str(random.randint(1, 1000))
             obj.save()
             oldobj = Testcase.objects.get(id = oid)
             for par in list(oldobj.headerparam_set.all()):
