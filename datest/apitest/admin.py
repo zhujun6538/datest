@@ -215,9 +215,10 @@ class TestcaseAdmin(admin.ModelAdmin):
     edit.short_description = '操作'
 
     def save_model(self, request, obj, form, change):
-        obj.caseno = datetime.datetime.now().strftime('%Y%m%d%H%M%S') + str(random.randint(1,1000))
-        obj.project = obj.api.project
-        obj.creater = request.user
+        if change is False:
+            obj.caseno = obj.api.code + '-' + datetime.datetime.now().strftime('%Y%m%d%H%M%S') + str(random.randint(1,1000))
+            obj.casename = obj.api.name + '-' + obj.casename
+            obj.creater = request.user
         super().save_model(request, obj, form, change)
 
     def copy(self,request,query_set):
