@@ -1,7 +1,14 @@
+"""
+@project: datest
+@author: MZM
+@file: productor.py
+@ide: PyCharm
+@time: 2021/3/4 16:14
+@desc：测试过程中存储测试响应数据，通过&包围的字符根据jsonpath读取测试数据的对象字段值
+"""
+
 import json
 import re
-import time
-import allure
 import jsonpath
 
 

@@ -1,10 +1,18 @@
+"""
+@project: datest
+@author: MZM
+@file: testapi.py
+@ide: PyCharm
+@time: 2021/3/4 16:14
+@desc：pytest测试脚本文件
+"""
+
 import os
 import time
 import allure
 import pytest
-from zthttpfunc import ZTPostWithFunctions
 from productor import *
-from process import *
+from callfunc import *
 
 filepath = os.path.dirname(__file__)
 

@@ -44,12 +44,19 @@ class ApiAdmin(admin.ModelAdmin):
 
 
     def get_search_results(self, request, queryset, search_term):
+        '''
+        get_search_results方法将显示的对象列表修改为与提供的搜索词匹配的对象。它接受请求，应用当前过滤器的查询集以及用户提供的搜索词。它返回一个元组，该元组包含为实现搜索而进行修改的queryset和一个布尔值，指示结果是否可能包含重复项。
+        :param request:
+        :param queryset:
+        :param search_term:
+        :return:
+        '''
         if request.path == '/admin/apitest/api/autocomplete/':
             queryset = queryset.filter(isValid=True)
         return super().get_search_results(request, queryset, search_term)
 
     def edit(self,obj):
-        return format_html('<a href="{}">{}</a> <a href="{}">{}</a>',reverse('admin:apitest_api_change', args=(obj.id,)),'编辑',reverse('admin:apitest_api_delete', args=(obj.id,)),'删除')
+        return format_html('<a href="{}" style="white-space:nowrap;">{}</a> <a href="{}" style="white-space:nowrap;">{}</a>',reverse('admin:apitest_api_change', args=(obj.id,)),'编辑',reverse('admin:apitest_api_delete', args=(obj.id,)),'删除')
     edit.short_description = '操作'
 
     def get_casenum(self,obj):
@@ -62,6 +69,12 @@ class ApiAdmin(admin.ModelAdmin):
     unvalid.short_description = '失效'
 
     def get_excel(self, request, query_set):
+        '''
+        导出xls文件
+        :param request:
+        :param query_set:
+        :return:
+        '''
         fieldsname = [field.name for field in self.model._meta.fields]
         response = HttpResponse(content_type='application/msexcel')
         response['Content-Disposition'] = 'attachment ; filename = "api.xlsx"'
@@ -85,6 +98,11 @@ class ApiAdmin(admin.ModelAdmin):
         return my_urls + urls
 
     def import_excel(self, request):
+        '''
+        导入xls文件
+        :param request:
+        :return:
+        '''
         if request.method == 'POST':
             xfile = request.FILES['x_file'].file
             with open(filedir + '\\data\\uploadfile\\temp.xls', 'wb') as f:
@@ -219,8 +237,7 @@ class TestcaseAdmin(admin.ModelAdmin):
     change_list_template = 'admin/apitest/testcase/option_changelist.html'
     list_per_page = 50
     readonly_fields = ('responsedata',)
-
-
+    list_editable = ['api']
 
     def get_search_results(self, request, queryset, search_term):
         if request.path == '/admin/apitest/testcase/autocomplete/':
@@ -233,7 +250,7 @@ class TestcaseAdmin(admin.ModelAdmin):
         lastreports = TESTREPORT.objects.filter(testcases=obj).order_by('-testtime')
         if len(lastreports) != 0:
             reportlink = '查看报告'
-            reporturl = reverse('admin:apitest_testreport_change', args=(lastreports[0].id,))
+            reporturl = lastreports[0].file.url
         return format_html('<a href="{}" style="white-space:nowrap;">{}</a> <a href="{}" style="white-space:nowrap;">{}</a> <a href="{}" style="white-space:nowrap;" target="_blank">{}</a>',reverse('admin:apitest_testcase_change', args=(obj.id,)),'编辑',reverse('admin:apitest_testcase_delete', args=(obj.id,)),'删除',reporturl,reportlink)
     edit.short_description = '操作'
 
@@ -265,6 +282,12 @@ class TestcaseAdmin(admin.ModelAdmin):
     copy.short_description = '复制'
 
     def get_excel(self, request, query_set):
+        '''
+        导出xls
+        :param request:
+        :param query_set:
+        :return:
+        '''
         fieldsname = [field.name for field in self.model._meta.fields]
         response = HttpResponse(content_type='application/msexcel')
         response['Content-Disposition'] = 'attachment ; filename = "testcase.xlsx"'
@@ -293,6 +316,7 @@ class TestcaseAdmin(admin.ModelAdmin):
         return my_urls + urls
 
     def import_excel(self, request):
+        '''导出xls'''
         if request.method == 'POST':
             xfile = request.FILES['x_file'].file
             with open(filedir + '\\data\\uploadfile\\temp.xls', 'wb') as f:
@@ -334,15 +358,18 @@ class TestcaseAdmin(admin.ModelAdmin):
                         hkeyobj = addorget(Assertkey, assertkey)
                         hvobj = addorget(Assertval, assertvalue)
                         AssertParam.objects.create(testcase=testcaseobj, paramkey=hkeyobj, paramval=hvobj)
-
-
-
             self.message_user(request, str(num) + "个用例批量导入成功")
             return redirect("..")
         form = CsvImportForm()
         return render(request, 'admin/csv_form.html', {'form': form})
 
     def gen_yml(self,request,query_set):
+        '''
+        获取选中用例的数据拼接为数组
+        :param request:
+        :param query_set:
+        :return:
+        '''
         testdata = []
         for obj in query_set:
             testcase = get_casedata('批量运行用例',obj)
@@ -351,6 +378,12 @@ class TestcaseAdmin(admin.ModelAdmin):
         return testcases
 
     def get_caseyml(self,request,query_set):
+        '''
+        根据gen_yml输出的数组在apitest/runner/data下生成yaml格式的测试用例文件
+        :param request:
+        :param query_set:
+        :return:
+        '''
         testcases = self.gen_yml(request,query_set)
         try:
             write_case(f'{filedir}/runner/data/test.yaml', testcases)
@@ -360,6 +393,12 @@ class TestcaseAdmin(admin.ModelAdmin):
     get_caseyml.short_description = '生成文件'
 
     def runcase(self,request,query_set):
+        '''
+        通过apitest/runner下的testrunner脚本运行yaml测试用例文件，根据测试结果新建测试报告对象
+        :param request:
+        :param query_set:
+        :return:
+        '''
         casenum = query_set.all().count()
         caseids = query_set.values_list('id', flat=True)
         Testcase.objects.select_for_update().filter(id__in = caseids)
@@ -367,6 +406,7 @@ class TestcaseAdmin(admin.ModelAdmin):
             testcases = self.gen_yml(request,query_set)
             try:
                 for obj in query_set:
+                    thisname = datetime.datetime.now().strftime('%Y%m%d%H%M%S') + '测试报告'
                     testcase = get_casedata('运行测试用例', obj)
                     write_case(f'{filedir}/runner/data/test.yaml', [[testcase]])
                     report = testrunner.pyrun(args='')
@@ -374,7 +414,6 @@ class TestcaseAdmin(admin.ModelAdmin):
                     result = testresult['result']
                     failed = testresult['failed']
                     passed = testresult['passed']
-                    thisname = datetime.datetime.now().strftime('%Y%m%d%H%M%S') + '测试报告'
                     with open(report + '/index.html','r',encoding='utf-8') as f:
                         thisfile = File(f)
                         thisfile.name = thisfile.name.split('report/')[1]
@@ -389,7 +428,7 @@ class TestcaseAdmin(admin.ModelAdmin):
             except Exception as e:
                 self.message_user(request,'发生异常' + str(e))
                 testreport = TESTREPORT.objects.create(reportname=thisname, testnum=casenum, result='N',runner=request.user, errors=str(e))
-            self.message_user(request, str(query_set.values_list('caseno')) + '测试运行完成，请查看测试报告')
+            self.message_user(request,str(query_set.values_list('caseno')) + '测试运行完成，请查看测试报告')
     runcase.short_description = '运行选中用例'
 
 class Testcaselistinline(admin.TabularInline):
@@ -406,9 +445,16 @@ class TESTSUITEAdmin(admin.ModelAdmin):
     list_display_links = ['edit']
     inlines = [Testcaselistinline,]
 
-
+    
 
     def formfield_for_manytomany(self, db_field, request, **kwargs):
+        '''
+        formfield_for_manytomany可以重写该方法。
+        :param db_field:
+        :param request:
+        :param kwargs:
+        :return:
+        '''
         if db_field.name == "case":
             kwargs["queryset"] = Testcase.objects.filter(isValid=True)
         return super().formfield_for_manytomany(db_field, request, **kwargs)
@@ -434,6 +480,12 @@ class TESTSUITEAdmin(admin.ModelAdmin):
     edit.short_description = '操作'
 
     def gen_yaml(self,request,query_set):
+        '''
+        获取选中测试集合中的用例数据拼接为数组
+        :param request:
+        :param query_set:
+        :return:
+        '''
         testcases = []
         for obj in query_set:
             rundatas = get_suitedata(obj)
@@ -446,6 +498,12 @@ class TESTSUITEAdmin(admin.ModelAdmin):
     gen_yaml.short_description = '生成文件'
 
     def runsuite(self,request,query_set):
+        '''
+        通过apitest/runner下的testrunner脚本运行yaml测试用例文件，根据测试结果新建测试报告对象
+        :param request:
+        :param query_set:
+        :return:
+        '''
         thisname = datetime.datetime.now().strftime('%Y%m%d%H%M%S') + '测试报告'
         for obj in query_set:
             testsuite = get_suitedata(obj)
@@ -481,6 +539,12 @@ class TESTSUITEAdmin(admin.ModelAdmin):
     runsuite.short_description = '运行套件'
 
     def jrunsuite(self,request,query_set):
+        '''
+        调用jenkins的构建接口
+        :param request:
+        :param query_set:
+        :return:
+        '''
         testsuites = []
         for obj in query_set:
             rundatas = get_suitedata(obj)
@@ -506,6 +570,12 @@ class TestbatchAdmin(admin.ModelAdmin):
     exclude = ('runtime',)
 
     def runbatch(self,request,query_set):
+        '''
+        通过apitest/runner下的testrunner脚本运行yaml测试用例文件，根据测试结果新建测试报告对象
+        :param request:
+        :param query_set:
+        :return:
+        '''
         thisname = datetime.datetime.now().strftime('%Y%m%d%H%M%S') + '测试报告'
         for batch in query_set:
             for obj in batch.testsuite.all():
@@ -561,15 +631,17 @@ class TESTREPORTAdmin(admin.ModelAdmin):
     readonly_fields = params
     list_display_links = ['filelink']
 
-    def get_form(self, request, obj=None, change=False, **kwargs):
-        form = super().get_form(request, obj, change, **kwargs)
-        return form
-
     def filelink(self,obj):
-        return format_html('<a href="{}" target="_blank">{}</a> <a href="{}">{}</a>',obj.file.url,'查看报告',reverse('admin:apitest_testreport_change', args=(obj.id,)),'详情')
+        failcaselist = obj.failcase.all()
+        cids = ''
+        for case in failcaselist:
+            cids = cids + str(case.id) + ','
+        caselisturl = reverse('admin:apitest_testcase_changelist') + '?id__in=' +  cids[:-1]
+        return format_html('<a href="{}" target="_blank">{}</a> <a href="{}">{}</a> <a href="{}">{}</a>',obj.file.url,'查看报告',reverse('admin:apitest_testreport_change', args=(obj.id,)),'详情',caselisturl,'查看失败用例')
     filelink.short_description = '操作'
 
     def delete_model(self,request,obj):
+        '''删除对象同时删除本地文件'''
         reportfile = obj.file.url.rsplit('/',1)[0]
         if os.path.exists(filedir+reportfile):
             shutil.rmtree(filedir+reportfile)

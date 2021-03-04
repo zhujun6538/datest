@@ -1,3 +1,12 @@
+"""
+@project: datest
+@author: MZM
+@file: datahandle.py
+@ide: PyCharm
+@time: 2021/3/4 16:14
+@desc：本文件根据数据库的数据生成测试用例等数据，供后台脚本调用
+"""
+
 import json
 import os
 
@@ -16,10 +25,26 @@ def get_paramval(s,type):
         return False
 
 def write_case(filepath, data):
+    '''
+    写入yaml文件
+    :param filepath:
+    :param data:
+    :return:
+    '''
     with open(filepath, 'w', encoding='utf-8') as f:
         yaml.dump(data, f, Dumper=yaml.RoundTripDumper)
 
 def get_casedata(suitename,case,baseurl='',setupfunc='',callfunc='',sleeptime=0):
+    '''
+    根据Testcase对象生成测试用例字典
+    :param suitename:
+    :param case: 测试用例模块选中的所有用例
+    :param baseurl:
+    :param setupfunc:
+    :param callfunc:
+    :param sleeptime:
+    :return:
+    '''
     testcase = {}
     data = {}
     caselink = reverse('admin:apitest_testcase_change',args=(case.id,))
@@ -39,7 +64,7 @@ def get_casedata(suitename,case,baseurl='',setupfunc='',callfunc='',sleeptime=0)
         testcase['callfunc'] = callfunc
     else:
         if case.callfunc == None:
-            testcase['callfunc'] = 'manuel_process'
+            testcase['callfunc'] = 'default_func'
         else:
             testcase['callfunc'] = case.callfunc.name
     for header in case.api.header.all():
@@ -64,6 +89,11 @@ def get_casedata(suitename,case,baseurl='',setupfunc='',callfunc='',sleeptime=0)
     return testcase
 
 def get_suitedata(obj):
+    '''
+    根据测试套件对象获取所有测试用例列表
+    :param obj:
+    :return:
+    '''
     testdata = []
     suitename = obj.name
     baseurl = obj.baseurl.url
@@ -84,12 +114,14 @@ def get_suitedata(obj):
         for case in cases:
             testcase = get_casedata(suitename, case.testcase, baseurl, setupfunc, callfunc,sleeptime)
             testdata.append(testcase)
-
-
-
     return testdata
 
 def get_exceldata(filepath):
+    '''
+    导入时从xls文件读取数据
+    :param filepath:
+    :return:
+    '''
     data = xlrd.open_workbook(filepath)
     sheet = data.sheet_by_index(0)
     sheetkeys = sheet.row_values(0)

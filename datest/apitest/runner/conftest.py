@@ -1,3 +1,12 @@
+"""
+@project: datest
+@author: MZM
+@file: conftest.py
+@ide: PyCharm
+@time: 2021/3/4 16:14
+@desc：pytest的自定义fixture函数和重写的hook函数
+"""
+
 import json
 import logging
 import os
@@ -15,12 +24,22 @@ def getlogger():
 
 @pytest.fixture(params=Reader.read_case(filepath + '/data/test.yaml'))
 def testdata(request):
+    '''
+    根据文件的测试用例列表依次返回单条测试用例传给pytest脚本
+    :param request:
+    :return:
+    '''
     logging.info('---------------------------------------' + request.param['caseno'] + '---------------------------------------')
     return request.param
     logging.info('---------------------------------------' + request.param['caseno'] + '---------------------------------------')
 
 @pytest.hookimpl(hookwrapper=True)
 def pytest_runtestloop(session):
+    '''
+    存储测试结果和成功失败用例数量
+    :param session:
+    :return:
+    '''
     result = yield
     if result.get_result() is True:
         Saver.testresult['result'] = 'Y'
@@ -32,6 +51,12 @@ def pytest_runtestloop(session):
 
 @pytest.hookimpl(hookwrapper=True)
 def pytest_runtest_makereport(item,call):
+    '''
+    存储成功失败用例编号
+    :param item:
+    :param call:
+    :return:
+    '''
     result = yield
     if call.when is 'call':
         if result.get_result().outcome == 'passed':
@@ -41,5 +66,12 @@ def pytest_runtest_makereport(item,call):
 
 @pytest.hookimpl(hookwrapper=True)
 def pytest_terminal_summary(terminalreporter,exitstatus,config):
+    '''
+    将测试结果存入环境变量
+    :param terminalreporter:
+    :param exitstatus:
+    :param config:
+    :return:
+    '''
     result = yield
     os.environ.setdefault('TESTRESULT', json.dumps(Saver.testresult))
