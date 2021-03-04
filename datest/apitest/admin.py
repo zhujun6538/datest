@@ -38,9 +38,10 @@ class ApiAdmin(admin.ModelAdmin):
     search_fields = ['name','code']
     list_display_links = ['edit']
     list_filter = ['group','project','isValid']
-    actions = ['get_excel']
+    actions = ['get_excel','unvalid']
     change_list_template = 'admin/apitest/api/option_changelist.html'
     save_on_top = True
+
 
     def get_search_results(self, request, queryset, search_term):
         if request.path == '/admin/apitest/api/autocomplete/':
@@ -48,13 +49,17 @@ class ApiAdmin(admin.ModelAdmin):
         return super().get_search_results(request, queryset, search_term)
 
     def edit(self,obj):
-        return format_html('<a href="{}">{}</a>',reverse('admin:apitest_api_change', args=(obj.id,)),'编辑')
+        return format_html('<a href="{}">{}</a> <a href="{}">{}</a>',reverse('admin:apitest_api_change', args=(obj.id,)),'编辑',reverse('admin:apitest_api_delete', args=(obj.id,)),'删除')
     edit.short_description = '操作'
 
     def get_casenum(self,obj):
         casenum = obj.testcase_set.count()
         return format_html('<a href="{}">{}</a>',f'/admin/apitest/testcase/?api__id__exact={obj.id}' , str(casenum))
     get_casenum.short_description = '用例数'
+
+    def unvalid(self, request, query_set):
+        query_set.update(isValid=False)
+    unvalid.short_description = '失效'
 
     def get_excel(self, request, query_set):
         fieldsname = [field.name for field in self.model._meta.fields]
@@ -204,20 +209,22 @@ class TestcaseAdmin(admin.ModelAdmin):
     list_display = ['caseno','casename','isValid', 'group', 'api', 'runtime', 'edit']
     list_display_links = ['edit']
     search_fields = ['caseno','casename']
-    radio_fields = {"isValid": admin.HORIZONTAL, "datamode": admin.HORIZONTAL}
+    radio_fields = {"datamode": admin.HORIZONTAL}
     autocomplete_fields = ['api']
     inlines = [HeaderParaminline,RequestParaminline, AssertParaminline,Runparaminline]
     save_on_top = True
-    list_filter = ['group', 'project','callfunc']
-    actions = ['get_excel','copy','get_caseyml','runcase']
+    list_filter = ['group', 'project','callfunc','isValid']
+    actions = ['get_excel','copy','get_caseyml','runcase','unvalid']
     fields = ('casename','group','isValid','baseurl','api','datamode','requestdata','setupfunc','callfunc','responsedata')
     change_list_template = 'admin/apitest/testcase/option_changelist.html'
     list_per_page = 50
     readonly_fields = ('responsedata',)
 
+
+
     def get_search_results(self, request, queryset, search_term):
         if request.path == '/admin/apitest/testcase/autocomplete/':
-            queryset = queryset.filter(isValid='Y')
+            queryset = queryset.filter(isValid=True)
         return super().get_search_results(request, queryset, search_term)
 
     def edit(self,obj):
@@ -227,14 +234,18 @@ class TestcaseAdmin(admin.ModelAdmin):
         if len(lastreports) != 0:
             reportlink = '查看报告'
             reporturl = reverse('admin:apitest_testreport_change', args=(lastreports[0].id,))
-        return format_html('<a href="{}" style="white-space:nowrap;">{}</a> <a href="{}" style="white-space:nowrap;" target="_blank">{}</a>',reverse('admin:apitest_testcase_change', args=(obj.id,)),'编辑',reporturl,reportlink)
+        return format_html('<a href="{}" style="white-space:nowrap;">{}</a> <a href="{}" style="white-space:nowrap;">{}</a> <a href="{}" style="white-space:nowrap;" target="_blank">{}</a>',reverse('admin:apitest_testcase_change', args=(obj.id,)),'编辑',reverse('admin:apitest_testcase_delete', args=(obj.id,)),'删除',reporturl,reportlink)
     edit.short_description = '操作'
 
+    def unvalid(self, request, query_set):
+        query_set.update(isValid=False)
+    unvalid.short_description = '失效'
 
     def save_model(self, request, obj, form, change):
         if change is False:
             obj.caseno = obj.api.code + '-' + datetime.datetime.now().strftime('%Y%m%d%H%M%S') + str(random.randint(1,1000))
             obj.casename = obj.api.name + '-' + obj.casename
+            obj.project = obj.api.project
             obj.creater = request.user
         super().save_model(request, obj, form, change)
 
@@ -302,7 +313,7 @@ class TestcaseAdmin(admin.ModelAdmin):
                     callfunc = CALLFUNC.objects.get(name=data['callfunc'])
                 else:
                     callfunc = None
-                testcaseobj = Testcase.objects.create(caseno = caseno,casename=data['casename'],project= project[0],group=group[0],api = api,isValid='Y',baseurl=baseurl[0],datamode = data['datamode'],requestdata=data['requestdata'],creater=request.user,setupfunc=setupfunc,callfunc=callfunc)
+                testcaseobj = Testcase.objects.create(caseno = caseno,casename=data['casename'],project= project[0],group=group[0],api = api,isValid=True,baseurl=baseurl[0],datamode = data['datamode'],requestdata=data['requestdata'],creater=request.user,setupfunc=setupfunc,callfunc=callfunc)
                 num += 1
                 def addorget(mod, value):
                     try:
@@ -395,9 +406,11 @@ class TESTSUITEAdmin(admin.ModelAdmin):
     list_display_links = ['edit']
     inlines = [Testcaselistinline,]
 
+
+
     def formfield_for_manytomany(self, db_field, request, **kwargs):
         if db_field.name == "case":
-            kwargs["queryset"] = Testcase.objects.filter(isValid='Y')
+            kwargs["queryset"] = Testcase.objects.filter(isValid=True)
         return super().formfield_for_manytomany(db_field, request, **kwargs)
 
     def save_model(self, request, obj, form, change):
@@ -417,7 +430,7 @@ class TESTSUITEAdmin(admin.ModelAdmin):
             reporturl = lastreports.file.url
             return format_html('<a href="{}" style="white-space:nowrap;" >{}</a> <a href="{}" style="white-space:nowrap;" target="_blank">{}</a>',reverse('admin:apitest_testsuite_change', args=(obj.id,)),'编辑',reporturl,'查看报告')
         else:
-            return format_html('<a href="{}" style="white-space:nowrap;" >{}</a>',reverse('admin:apitest_testsuite_change', args=(obj.id,)), '编辑')
+            return format_html('<a href="{}" style="white-space:nowrap;" >{}</a> <a href="{}" style="white-space:nowrap;" >{}</a>',reverse('admin:apitest_testsuite_change', args=(obj.id,)), '编辑',reverse('admin:apitest_testsuite_delete', args=(obj.id,)), '删除')
     edit.short_description = '操作'
 
     def gen_yaml(self,request,query_set):
