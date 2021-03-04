@@ -1,23 +1,25 @@
 - - setupfunc: ${ztrequest($request)}
-    callfunc: manuel_process
+    callfunc: yb
     extract: []
     suitename: "\u8FD0\u884C\u6D4B\u8BD5\u7528\u4F8B"
-    group: "\u540C\u6B65"
-    caseno: P0160013-20210303185338555
-    casename: "\u6267\u884C\u6587\u4E66\u5217\u8868\u67E5\u8BE2-\u67E5\u8BE2\u6210\
-      \u529F\u6709\u7ED3\u679C"
+    group: "\u5F02\u6B65"
+    caseno: P0060004-20210303171610672
+    casename: "\u4F01\u4E1A\u5DE5\u5546\u4E8C\u8981\u7D20\u9A8C\u8BC1-\u9A8C\u8BC1\
+      \u4E0D\u4E00\u81F4"
     isValid: true
     method: POST
-    url: /ectcispserver/api/entcreditapi/query
+    url: /ectcispserver/api/entcreditapi/asyncQueryApply
     baseurl: https://112.65.144.19:9179
     data:
-      prodCode: P0160013
+      prodCode: P0060004
+      entName: "\u5317\u4EAC\u666E\u601D\u6295\u8D44\u6709\u9650\u516C\u53F8"
+      entityId: ' 91110105697678742F'
     params: {}
     headers:
       Content-Type: application/json
     asserts:
     - - eq
-      - body.resultData.P0160013Status
-      - '4'
+      - body.resultData.P0060004Data.matchList[*].matchMsg | [0]
+      - "\u9A8C\u8BC1\u4E00\u81F4"
     sleeptime: 0
-    caselink: /admin/apitest/testcase/1517/change/
+    caselink: /admin/apitest/testcase/1504/change/

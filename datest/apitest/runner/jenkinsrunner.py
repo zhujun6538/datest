@@ -11,7 +11,6 @@ testdata = f'{filepath}/test_api.py'
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 
-
 def pyrun():
     try:
         shutil.rmtree(f'{filepath}/jenkins-report/')
