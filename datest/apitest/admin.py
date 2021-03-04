@@ -38,7 +38,7 @@ class ApiAdmin(admin.ModelAdmin):
     search_fields = ['name','code']
     list_display_links = ['edit']
     list_filter = ['group','project','isValid']
-    actions = ['get_excel']
+    actions = ['get_excel','myfunc']
     change_list_template = 'admin/apitest/api/option_changelist.html'
     save_on_top = True
 
@@ -52,7 +52,8 @@ class ApiAdmin(admin.ModelAdmin):
     edit.short_description = '操作'
 
     def get_casenum(self,obj):
-        return obj.testcase_set.count()
+        casenum = obj.testcase_set.count()
+        return format_html('<a href="{}">{}</a>',f'/admin/apitest/testcase/?api__id__exact={obj.id}' , str(casenum))
     get_casenum.short_description = '用例数'
 
     def get_excel(self, request, query_set):
@@ -225,7 +226,7 @@ class TestcaseAdmin(admin.ModelAdmin):
         lastreports = TESTREPORT.objects.filter(testcases=obj).order_by('-testtime')
         if len(lastreports) != 0:
             reportlink = '查看报告'
-            reporturl = lastreports[0].file.url
+            reporturl = reverse('admin:apitest_testreport_change', args=(lastreports[0].id,))
         return format_html('<a href="{}" style="white-space:nowrap;">{}</a> <a href="{}" style="white-space:nowrap;" target="_blank">{}</a>',reverse('admin:apitest_testcase_change', args=(obj.id,)),'编辑',reporturl,reportlink)
     edit.short_description = '操作'
 
