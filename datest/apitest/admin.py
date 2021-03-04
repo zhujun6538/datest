@@ -19,7 +19,7 @@ from django.urls import reverse, path
 from django.utils import timezone
 from django.utils.html import format_html
 from openpyxl import Workbook
-
+from rest_framework.reverse import reverse as rvs
 from .forms import CsvImportForm
 from .models import *
 from .datahandle import *
@@ -251,7 +251,7 @@ class TestcaseAdmin(admin.ModelAdmin):
         if len(lastreports) != 0:
             reportlink = '查看报告'
             reporturl = lastreports[0].file.url
-        return format_html('<a href="{}" style="white-space:nowrap;">{}</a> <a href="{}" style="white-space:nowrap;">{}</a> <a href="{}" style="white-space:nowrap;" target="_blank">{}</a>',reverse('admin:apitest_testcase_change', args=(obj.id,)),'编辑',reverse('admin:apitest_testcase_delete', args=(obj.id,)),'删除',reporturl,reportlink)
+        return format_html('<a href="{}" style="white-space:nowrap;" target="_blank">{}</a> <a href="{}" style="white-space:nowrap;">{}</a> <a href="{}" style="white-space:nowrap;">{}</a> <a href="{}" style="white-space:nowrap;" target="_blank">{}</a>',rvs('testcase-detail',args=[obj.id]) + 'postcase','发送',reverse('admin:apitest_testcase_change', args=(obj.id,)),'编辑',reverse('admin:apitest_testcase_delete', args=(obj.id,)),'删除',reporturl,reportlink)
     edit.short_description = '操作'
 
     def unvalid(self, request, query_set):

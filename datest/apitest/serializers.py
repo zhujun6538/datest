@@ -7,4 +7,14 @@ class PostdataSerializer(serializers.HyperlinkedModelSerializer):
 
     class Meta:
         model = Postdata
-        fields = ('id','apiurl','reqdata','repdata')
+        fields = []
+        for field in model._meta.fields:
+            fields.append(field.name)
+
+class TestcaseSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Testcase
+        fields = []
+        for field in model._meta.fields:
+            fields.append(field.name)
