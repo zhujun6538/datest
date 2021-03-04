@@ -3,23 +3,21 @@
     extract: []
     suitename: "\u8FD0\u884C\u6D4B\u8BD5\u7528\u4F8B"
     group: "\u540C\u6B65"
-    caseno: P0990006-20210302175637137
-    casename: "\u65B0\u6CE8\u518C\u4F01\u4E1A\u63A8\u9001\u63A5\u53E3\u65B0\u6CE8\u518C\
-      \u4F01\u4E1A\u63A8\u9001\u63A5\u53E3-\u67E5\u8BE2\u6210\u529F\u6709\u7ED3\u679C"
+    caseno: P0160013-20210303185338555
+    casename: "\u6267\u884C\u6587\u4E66\u5217\u8868\u67E5\u8BE2-\u67E5\u8BE2\u6210\
+      \u529F\u6709\u7ED3\u679C"
     isValid: true
     method: POST
     url: /ectcispserver/api/entcreditapi/query
     baseurl: https://112.65.144.19:9179
     data:
-      prodCode: P0990006
-      esDateFrom: '2020-08-01'
-      esDateTo: '2020-08-01'
-      pageNo: '1'
+      prodCode: P0160013
     params: {}
     headers:
       Content-Type: application/json
     asserts:
     - - eq
-      - body.resultData.P0990006Status
+      - body.resultData.P0160013Status
       - '4'
     sleeptime: 0
+    caselink: /admin/apitest/testcase/1517/change/

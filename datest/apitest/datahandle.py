@@ -2,6 +2,7 @@ import json
 import os
 
 import xlrd
+from django.urls import reverse
 from ruamel import yaml
 
 def get_paramval(s,type):
@@ -21,6 +22,7 @@ def write_case(filepath, data):
 def get_casedata(suitename,case,baseurl='',setupfunc='',callfunc='',sleeptime=0):
     testcase = {}
     data = {}
+    caselink = reverse('admin:apitest_testcase_change',args=(case.id,))
     if case.api.method in ['POST','PUT'] and case.datamode == 'JSON':
         data = json.loads(case.requestdata,encoding='utf-8')
     headers = {}
@@ -55,8 +57,8 @@ def get_casedata(suitename,case,baseurl='',setupfunc='',callfunc='',sleeptime=0)
         testcase['extract'].append(extdata.param)
     testcase['suitename'] ,testcase['group'] ,testcase['caseno'], testcase['casename'], \
     testcase['isValid'], testcase['method'],testcase['url'], \
-    testcase['baseurl'],testcase['data'], testcase['params'], testcase['headers'], testcase['asserts'], testcase['sleeptime']   = \
-        suitename,case.group.name, case.caseno, case.api.name + case.casename, case.isValid, case.api.method , case.api.url, case.baseurl.url,data, params, headers, asserts, sleeptime
+    testcase['baseurl'],testcase['data'], testcase['params'], testcase['headers'], testcase['asserts'], testcase['sleeptime'] ,testcase['caselink']  = \
+        suitename,case.group.name, case.caseno, case.casename, case.isValid, case.api.method , case.api.url, case.baseurl.url,data, params, headers, asserts, sleeptime, caselink
     if case.beforecase!=None:
         testcase['before'] = get_casedata(suitename,case.beforecase,baseurl)
     return testcase

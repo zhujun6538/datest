@@ -220,8 +220,6 @@ class TestcaseAdmin(admin.ModelAdmin):
     list_per_page = 50
     readonly_fields = ('responsedata',)
 
-    
-
     def get_search_results(self, request, queryset, search_term):
         if request.path == '/admin/apitest/testcase/autocomplete/':
             queryset = queryset.filter(isValid=True)
@@ -389,8 +387,8 @@ class TestcaseAdmin(admin.ModelAdmin):
             except Exception as e:
                 self.message_user(request,'发生异常' + str(e))
                 testreport = TESTREPORT.objects.create(reportname=thisname, testnum=casenum, result='N',runner=request.user, errors=str(e))
-            self.message_user(request, '测试运行完成，请查看测试报告')
-    runcase.short_description = '运行所有用例'
+            self.message_user(request,str(query_set.values_list('caseno')) + '测试运行完成，请查看测试报告')
+    runcase.short_description = '运行选中用例'
 
 class Testcaselistinline(admin.TabularInline):
     model = Testcaselist
@@ -476,6 +474,7 @@ class TESTSUITEAdmin(admin.ModelAdmin):
             except Exception as e:
                 self.message_user(request,'发生异常' + str(e))
                 testreport  = TESTREPORT.objects.create(reportname=thisname, testnum=casenum, result='N', runner=request.user,errors = str(e))
+                raise e
         self.message_user(request, '测试运行完成，请查看测试报告')
     runsuite.short_description = '运行套件'
 
@@ -559,6 +558,10 @@ class TESTREPORTAdmin(admin.ModelAdmin):
     fields = params
     readonly_fields = params
     list_display_links = ['filelink']
+
+    def get_form(self, request, obj=None, change=False, **kwargs):
+        form = super().get_form(request, obj, change, **kwargs)
+        return form
 
     def filelink(self,obj):
         return format_html('<a href="{}" target="_blank">{}</a> <a href="{}">{}</a>',obj.file.url,'查看报告',reverse('admin:apitest_testreport_change', args=(obj.id,)),'详情')
