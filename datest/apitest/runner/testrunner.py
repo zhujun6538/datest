@@ -39,6 +39,10 @@ def pyrun(args='',reruns=0,reruns_delay=0):
     testargs = []
     for arg in args:
         testargs.append(arg[0])
+    testargs.append('--reruns')
+    testargs.append(str(reruns))
+    testargs.append('--reruns-delay')
+    testargs.append(str(reruns_delay))
     testargs.append(testdata)
     testargs.append('--alluredir')
     testargs.append(datadir)
