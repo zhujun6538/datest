@@ -1,3 +1,5 @@
+import datetime
+
 from django.db import models
 
 # Create your models here.
@@ -200,6 +202,7 @@ class TESTSUITE(models.Model):
     setupfunc = models.ForeignKey('FUNC', verbose_name='请求前置方法',on_delete=models.SET_NULL, null=True, blank=True)
     callfunc = models.ForeignKey('CALLFUNC', verbose_name='自定义运行方法',on_delete=models.SET_NULL, null=True, blank=True)
     case = models.ManyToManyField('Testcase',verbose_name='用例集', related_name='case_suites',null=True,blank=True)
+    sleeptime = models.IntegerField('运行延时',default=0)
     ctime = models.DateTimeField('创建时间',auto_now_add=True)
     runtime = models.DateTimeField('运行时间',null=True)
     creater = models.ForeignKey('auth.user',verbose_name='创建人',on_delete=models.CASCADE)
