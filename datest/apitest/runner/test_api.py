@@ -15,6 +15,7 @@ class Test_Openapi(object):
         allure.dynamic.feature(testdata['suitename'])
         allure.dynamic.story(testdata['group'])
         allure.dynamic.title(testdata['casename'])
+        time.sleep(testdata['sleeptime'])
         Callfunc().__getattribute__(testdata['callfunc'])(testdata)
 
 

@@ -18,7 +18,7 @@ def write_case(filepath, data):
     with open(filepath, 'w', encoding='utf-8') as f:
         yaml.dump(data, f, Dumper=yaml.RoundTripDumper)
 
-def get_casedata(suitename,case,baseurl='',setupfunc='',callfunc=''):
+def get_casedata(suitename,case,baseurl='',setupfunc='',callfunc='',sleeptime=0):
     testcase = {}
     data = {}
     if case.api.method in ['POST','PUT'] and case.datamode == 'JSON':
@@ -55,8 +55,8 @@ def get_casedata(suitename,case,baseurl='',setupfunc='',callfunc=''):
         testcase['extract'].append(extdata.param)
     testcase['suitename'] ,testcase['group'] ,testcase['caseno'], testcase['casename'], \
     testcase['isValid'], testcase['method'],testcase['url'], \
-    testcase['baseurl'],testcase['data'], testcase['params'], testcase['headers'], testcase['asserts']   = \
-        suitename,case.group.name, case.caseno, case.api.name + case.casename, case.isValid, case.api.method , case.api.url, case.baseurl.url,data, params, headers, asserts
+    testcase['baseurl'],testcase['data'], testcase['params'], testcase['headers'], testcase['asserts'], testcase['sleeptime']   = \
+        suitename,case.group.name, case.caseno, case.api.name + case.casename, case.isValid, case.api.method , case.api.url, case.baseurl.url,data, params, headers, asserts, sleeptime
     if case.beforecase!=None:
         testcase['before'] = get_casedata(suitename,case.beforecase,baseurl)
     return testcase
@@ -65,6 +65,7 @@ def get_suitedata(obj):
     testdata = []
     suitename = obj.name
     baseurl = obj.baseurl.url
+    sleeptime = obj.sleeptime
     try:
         setupfunc = obj.setupfunc.name
         callfunc = obj.callfunc.name
@@ -74,12 +75,12 @@ def get_suitedata(obj):
     if obj.isorder is False:
         cases = obj.case.all()
         for case in cases:
-            testcase = get_casedata(suitename, case, baseurl, setupfunc, callfunc)
+            testcase = get_casedata(suitename, case, baseurl, setupfunc, callfunc,sleeptime)
             testdata.append(testcase)
     else:
         cases = obj.testcaselist_set.all().order_by('runno')
         for case in cases:
-            testcase = get_casedata(suitename, case.testcase, baseurl, setupfunc, callfunc)
+            testcase = get_casedata(suitename, case.testcase, baseurl, setupfunc, callfunc,sleeptime)
             testdata.append(testcase)
 
 
