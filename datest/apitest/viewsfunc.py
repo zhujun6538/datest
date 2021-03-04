@@ -9,7 +9,12 @@ import hmac
 import requests
 import base64
 
-def apipost(url,data):
+def apipost(httpMethod='GET',endpoint="https://112.65.144.19:9179",requestUri='',data='',headers={
+        "Accept":"application/json, text/plain, */*",
+        "Accept-Encoding":"gzip, deflate",
+        "Content-Type":"application/json",
+        "User-Agent":"Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.122 Safari/537.36"
+     }):
     # @Time:  2021/1/19 16:11
     # @Authon: wanggang
     # @File: case.py
@@ -43,14 +48,9 @@ def apipost(url,data):
 
         # 请求头
         #请求头
-    headers ={
-        "Accept":"application/json, text/plain, */*",
-        "Accept-Encoding":"gzip, deflate",
-        "Content-Type":"application/json",
-        "User-Agent":"Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.122 Safari/537.36"
-     }
+    headers =headers
     #请求方式
-    httpMethod = "POST"
+    httpMethod = httpMethod
 
     # url host
 
@@ -58,13 +58,13 @@ def apipost(url,data):
     #
     # 测试环境都是https://112.65 .144.19:9179
 
-    endpoint="https://112.65.144.19:9179"
+    endpoint=endpoint
 
     #请求路径Uri同步请求地址
 
     # requestUri = "/ectcispserver/api/entcreditapi/asyncQueryApply"
 
-    requestUri = url
+    requestUri = requestUri
 
     # requestUri = "/ectcispserver/api/entcreditapi/asyncQueryResult"
 
@@ -107,7 +107,7 @@ def apipost(url,data):
     formdata['queryMode'] = "0"
     formdata['signature'] = signature
     # 发送报文
-    req = requests.post(endpoint + requestUri,params=formdata, headers=headers, verify=False)
+    req = requests.request(method=httpMethod,url=endpoint + requestUri,params=formdata, headers=headers, verify=False)
     print(req.status_code)
     print(req.text)
     return req
