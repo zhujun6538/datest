@@ -107,7 +107,7 @@ def apipost(httpMethod='GET',endpoint="https://112.65.144.19:9179",requestUri=''
     formdata['queryMode'] = "0"
     formdata['signature'] = signature
     # 发送报文
-    req = requests.request(method=httpMethod,url=endpoint + requestUri,params=formdata, headers=headers, verify=False)
-    print(req.status_code)
-    print(req.text)
-    return req
+    res = requests.request(method=httpMethod,url=endpoint + requestUri,params=formdata, headers=headers, verify=False)
+    print(res.status_code)
+    print(res.text)
+    return res

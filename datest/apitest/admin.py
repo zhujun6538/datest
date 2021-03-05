@@ -566,8 +566,28 @@ class TESTSUITEAdmin(admin.ModelAdmin):
 class TestbatchAdmin(admin.ModelAdmin):
     list_display = ['batchno','ctime','runtime']
     filter_horizontal = ['testsuite']
-    actions = ['runbatch',]
+    actions = ['gen_yaml','runbatch',]
     exclude = ('runtime',)
+
+    def gen_yaml(self,request,query_set):
+        '''
+        获取选中测试集合中的用例数据拼接为数组
+        :param request:
+        :param query_set:
+        :return:
+        '''
+        testcases = []
+        for batch in query_set:
+            for obj in batch.testsuite.all():
+                rundatas = get_suitedata(obj)
+                testcases.append(rundatas)
+        try:
+            write_case(f'{filedir}/runner/data/test.yaml', testcases)
+        except Exception as e:
+            self.message_user(request,'发生异常' + str(e))
+        self.message_user(request, '测试文件已生成')
+    gen_yaml.short_description = '生成文件'
+
 
     def runbatch(self,request,query_set):
         '''
@@ -609,6 +629,32 @@ class TestbatchAdmin(admin.ModelAdmin):
                     testreport  = TESTREPORT.objects.create(reportname=thisname, testnum=casenum, result='N', runner=request.user,errors = str(e))
         self.message_user(request, '测试运行完成，请查看测试报告')
     runbatch.short_description = '运行批次'
+
+    def jrunsuite(self,request,query_set):
+        '''
+        调用jenkins的构建接口
+        :param request:
+        :param query_set:
+        :return:
+        '''
+        testcases = []
+        for batch in query_set:
+            for obj in batch.testsuite.all():
+                rundatas = get_suitedata(obj)
+                testcases.append(rundatas)
+        try:
+            write_case(f'{filedir}/runner/data/test.yaml', testcases)
+        except Exception as e:
+            self.message_user(request,'发生异常' + str(e))
+        server = jenkins.Jenkins(url='http://127.0.0.1:8888/', username='admin', password='z111111')
+        last_build_number = server.get_job_info('apitest')['lastCompletedBuild']['number']
+        this_build_number = last_build_number + 1
+        server.build_job('apitest', token='111111')
+        url = 'http://127.0.0.1:8888/job/apitest/'+ str(this_build_number)
+        Jenkinsreport.objects.create(testno=this_build_number,url=url)
+        self.message_user(request, 'Jenkins已进行构建')
+    jrunsuite.short_description = 'jenkins运行套件'
+
 
 @admin.register(Argument)
 class ArgumentAdmin(admin.ModelAdmin):

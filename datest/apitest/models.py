@@ -215,7 +215,7 @@ class TESTSUITE(models.Model):
         return self.name
 
     class Meta:
-        verbose_name_plural = '测试集合'
+        verbose_name_plural = '测试套件'
 
 class Testcaselist(models.Model):
     testsuite = models.ForeignKey('TESTSUITE',verbose_name='测试套件', on_delete=models.CASCADE)
