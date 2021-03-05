@@ -28,9 +28,10 @@ class EventAdminSite(AdminSite):
         # Sort the apps alphabetically.
         app_list = sorted(app_dict.values(), key=lambda x: x['name'].lower())
         # Sort the models alphabetically within each app.
-        for i in range(len(app_list)-1):
-            app_list[i]['models'].sort(key=lambda x: ordering[x['object_name']])
-        app_list[0]['models'].pop(4)
+        if app_list != []:
+            for i in range(len(app_list)-1):
+                app_list[i]['models'].sort(key=lambda x: ordering[x['object_name']])
+            app_list[0]['models'].pop(4)
         return app_list
 
     def app_index(self, request, app_label, extra_context=None):
@@ -56,8 +57,9 @@ class EventAdminSite(AdminSite):
             "Testbatch": 9,
             "TESTREPORT": 10
         }
-        app_dict['models'].sort(key=lambda x: ordering[x['object_name']])
-        app_dict['models'].pop(4)
+        if app_dict!= {}:
+            app_dict['models'].sort(key=lambda x: ordering[x['object_name']])
+            app_dict['models'].pop(4)
         app_name = apps.get_app_config(app_label).verbose_name
         context = {
             **self.each_context(request),
