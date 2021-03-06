@@ -8,6 +8,7 @@ from .models import *
 from .serializers import *
 from .viewsfunc import *
 from httprunner.builtin import comparators
+from .datahandle import get_casedata
 # Create your views here.
 
 class PostdataViewset(viewsets.ModelViewSet):
@@ -24,8 +25,9 @@ class TestcaseViewset(viewsets.ModelViewSet):
 
     @action(methods=['get'],detail='testcase-detail',url_path='postcase',url_name='testcase-postcase')
     def runcase(self,request, *args, **kwargs):
-        case = Testcase.objects.get(pk=kwargs['pk'])
-        res = apipost(httpMethod=case.api.method,endpoint=case.baseurl.url,requestUri=case.api.url, data=case.requestdata)
+        caseobj = Testcase.objects.get(pk=kwargs['pk'])
+        case = get_casedata('',caseobj)
+        res = apipost(httpMethod=case['method'],headers=case['headers'],endpoint=case['baseurl'],requestUri=case['url'], json=case['data'],files=case['formdata'])
         resp_obj_meta = {
             "status_code": res.status_code,
             "headers": res.headers,
@@ -33,13 +35,15 @@ class TestcaseViewset(viewsets.ModelViewSet):
             "body": json.loads(res.text,encoding='utf-8'),
         }
         try:
-            for assdata in case.assertparam_set.all():
+            checkresult = []
+            for assdata in caseobj.assertparam_set.all():
                 check_value = jmespath.search(assdata.paramkey.value, resp_obj_meta)
                 expect_value = assdata.paramval.value
                 result = comparators.equal(check_value,expect_value)
+                checkresult.append({'断言':'成功','check_path':assdata.paramkey.value,'check_value':check_value,'expect_value':expect_value})
         except JMESPathError as ex:
             return Response({'JMESPathError':str(ex)})
         except AssertionError as e:
-            return Response({'assert':'失败','check_value':check_value,'expect_value':expect_value,'data':json.loads(case.requestdata,encoding='utf-8'),'response':json.loads(res.text,encoding='utf-8')})
-        result = {'assert':'成功','check_value':check_value,'expect_value':expect_value,'data':json.loads(case.requestdata,encoding='utf-8'),'response':json.loads(res.text,encoding='utf-8')}
+            checkresult.append({'断言': '失败', 'check_path': assdata.paramkey.value, 'check_value': check_value,'expect_value': expect_value})
+        result = {'校验结果':checkresult,'headers':case['headers'],'jsondata':case['data'],'formdata':case['formdata'],'响应':resp_obj_meta.get('body')}
         return Response(result)

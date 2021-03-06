@@ -41,6 +41,7 @@ class PostWithFunctions(HttpRunner):
         .setup_hook(testdata['setupfunc']) \
         .__getattribute__(testdata['method'].lower())(testdata['url']) \
         .with_json(testdata['data'])\
+        .with_data(testdata['formdata'])\
         .with_params(**testdata['params'])\
         .with_headers(**testdata['headers']) \
         .teardown_hook('${afterresponse($response)}') \

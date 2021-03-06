@@ -31,7 +31,6 @@ class EventAdminSite(AdminSite):
         if app_list != []:
             for i in range(len(app_list)-1):
                 app_list[i]['models'].sort(key=lambda x: ordering[x['object_name']])
-            app_list[0]['models'].pop(4)
         return app_list
 
     def app_index(self, request, app_label, extra_context=None):
@@ -59,7 +58,6 @@ class EventAdminSite(AdminSite):
         }
         if app_dict!= {}:
             app_dict['models'].sort(key=lambda x: ordering[x['object_name']])
-            app_dict['models'].pop(4)
         app_name = apps.get_app_config(app_label).verbose_name
         context = {
             **self.each_context(request),

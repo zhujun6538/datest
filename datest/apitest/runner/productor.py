@@ -8,6 +8,7 @@
 """
 
 import json
+import random
 import re
 import jsonpath
 
@@ -45,4 +46,3 @@ class Saver:
             return
         handledata = extractor(params, cls.httphist, expr='&(.*?)&')
         return eval(handledata)
-
