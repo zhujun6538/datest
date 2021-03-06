@@ -9,10 +9,26 @@
 
 import json
 import os
+import random
+import re
 
 import xlrd
 from django.urls import reverse
 from ruamel import yaml
+
+def getrand(value):
+    '''
+     获取随机数
+    :param data:
+    :return:
+    '''
+    for randi in re.findall("{R(\d*?)}",value):
+        rands =''.join([str(random.randint(1,9)) for i in range(int(randi))])
+        value = value.replace("{R" + randi + "}",rands)
+        return value
+
+def toint(value):
+    return int(re.findall("{I(\d*?)}", value)[0])
 
 def get_paramval(s,type):
     if type == 'int':
@@ -34,6 +50,20 @@ def write_case(filepath, data):
     with open(filepath, 'w', encoding='utf-8') as f:
         yaml.dump(data, f, Dumper=yaml.RoundTripDumper)
 
+def clean(value):
+    if re.search("{R(\d*?)}", value):
+        value = getrand(value)
+    elif re.search("{I(\d*?)}", value):
+        value = toint(value)
+    elif re.search("{T}", value):
+        value = True
+    elif re.search("{F}", value):
+        value = False
+    return value
+
+
+    return value
+
 def get_casedata(suitename,case,baseurl='',setupfunc='',callfunc='',sleeptime=0):
     '''
     根据Testcase对象生成测试用例字典
@@ -50,6 +80,17 @@ def get_casedata(suitename,case,baseurl='',setupfunc='',callfunc='',sleeptime=0)
     caselink = reverse('admin:apitest_testcase_change',args=(case.id,))
     if case.api.method in ['POST','PUT'] and case.datamode == 'JSON':
         data = json.loads(case.requestdata,encoding='utf-8')
+        for key,value in data:
+            value[key] = clean(value)
+    elif case.api.method in ['POST','PUT'] and case.datamode == 'FORM-DATA':
+        try:
+            formdata = {}
+            for line in case.requestdata.splitlines():
+                formdata[line.split(':')[0]] = (None, clean(line.split(':')[1].lstrip(' ')))
+        except Exception as e:
+            formdata = {}
+            for fdata in case.formdataparam_set.all():
+                formdata[fdata.paramkey.value] = (None, fdata.paramval.value)
     headers = {}
     if baseurl != '':
         testcase['baseurl'] = baseurl
@@ -69,21 +110,22 @@ def get_casedata(suitename,case,baseurl='',setupfunc='',callfunc='',sleeptime=0)
             testcase['callfunc'] = case.callfunc.name
     for header in case.api.header.all():
         headers[header.key] = header.value
-    asserts = []
     for exheader in case.headerparam_set.all():
         headers[exheader.paramkey.value] = exheader.paramval.value
     params = {}
     for pdata in case.requestparam_set.all():
         params[pdata.paramkey.value]= pdata.paramval.value
+    asserts = []
     for adata in case.assertparam_set.all():
         asserts.append([adata.mode, adata.paramkey.value, get_paramval(adata.paramval.value,adata.paramval.type)])
+
     testcase['extract'] = []
     for extdata in case.runparam_set.all():
         testcase['extract'].append(extdata.param)
     testcase['suitename'] ,testcase['group'] ,testcase['caseno'], testcase['casename'], \
     testcase['isValid'], testcase['method'],testcase['url'], \
-    testcase['baseurl'],testcase['data'], testcase['params'], testcase['headers'], testcase['asserts'], testcase['sleeptime'] ,testcase['caselink']  = \
-        suitename,case.group.name, case.caseno, case.casename, case.isValid, case.api.method , case.api.url, case.baseurl.url,data, params, headers, asserts, sleeptime, caselink
+    testcase['baseurl'],testcase['data'], testcase['params'], testcase['formdata'], testcase['headers'], testcase['asserts'], testcase['sleeptime'] ,testcase['caselink']  = \
+        suitename,case.group.name, case.caseno, case.casename, case.isValid, case.api.method , case.api.url, case.baseurl.url,data, params, formdata, headers, asserts, sleeptime, caselink
     if case.beforecase!=None:
         testcase['before'] = get_casedata(suitename,case.beforecase,baseurl)
     return testcase

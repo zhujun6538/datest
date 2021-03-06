@@ -98,11 +98,15 @@ WSGI_APPLICATION = 'datest.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'datest',
+        'NAME': 'datest2',
         'HOST': 'cd-cdb-ef5dl3fu.sql.tencentcdb.com',
         'PORT': '62172',
         'USER': 'root',
         'PASSWORD': 'z65388674',
+        'OPTIONS': {
+            'init_command': 'SET sql_mode="STRICT_TRANS_TABLES"',
+            'charset': 'utf8'
+        },
     }
 }
 

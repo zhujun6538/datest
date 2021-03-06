@@ -23,7 +23,8 @@ from rest_framework import routers
 from apitest import views
 
 router = routers.DefaultRouter()
-router.register(r'apitest',views.PostdataViewset)
+router.register(r'postdata',views.PostdataViewset)
+router.register(r'testcase',views.TestcaseViewset)
 
 urlpatterns = [
     path('admin/', admin.site.urls),

@@ -162,6 +162,11 @@ class HeadervalAdmin(admin.ModelAdmin):
     def has_module_permission(self,request):
         return False
 
+class FormdataParaminline(admin.TabularInline):
+    model = FormdataParam
+    extra = 1
+    autocomplete_fields = ['paramkey','paramval']
+
 class AssertParaminline(admin.TabularInline):
     model = AssertParam
     extra = 1
@@ -185,6 +190,20 @@ class ReqquestkeyAdmin(admin.ModelAdmin):
 
 @admin.register(Reqquestval)
 class ReqquestvalAdmin(admin.ModelAdmin):
+    search_fields = ['value']
+
+    def has_module_permission(self,request):
+        return False
+
+@admin.register(Formdatakey)
+class FormdatakeyAdmin(admin.ModelAdmin):
+    search_fields = ['value']
+
+    def has_module_permission(self,request):
+        return False
+
+@admin.register(Formdataval)
+class FormdatavalAdmin(admin.ModelAdmin):
     search_fields = ['value']
 
     def has_module_permission(self,request):
@@ -229,7 +248,7 @@ class TestcaseAdmin(admin.ModelAdmin):
     search_fields = ['caseno','casename']
     radio_fields = {"datamode": admin.HORIZONTAL}
     autocomplete_fields = ['api']
-    inlines = [HeaderParaminline,RequestParaminline, AssertParaminline,Runparaminline]
+    inlines = [HeaderParaminline,RequestParaminline,FormdataParaminline, AssertParaminline,Runparaminline]
     save_on_top = True
     list_filter = ['group', 'project','callfunc','isValid']
     actions = ['get_excel','copy','get_caseyml','runcase','unvalid']
@@ -275,6 +294,8 @@ class TestcaseAdmin(admin.ModelAdmin):
             oldobj = Testcase.objects.get(id = oid)
             for par in list(oldobj.headerparam_set.all()):
                 HeaderParam.objects.create(testcase=obj,paramkey=par.paramkey,paramval=par.paramval)
+            for par in list(oldobj.formdataparam_set.all()):
+                FormdataParam.objects.create(testcase=obj,paramkey=par.paramkey,paramval=par.paramval)
             for par in list(oldobj.requestparam_set.all()):
                 RequestParam.objects.create(testcase=obj,paramkey=par.paramkey,paramval=par.paramval)
             for par in list(oldobj.assertparam_set.all()):

@@ -20,7 +20,7 @@ class Api(models.Model):
     name = models.CharField('名称',max_length=100)
     project = models.ForeignKey(Project,verbose_name='所属项目',on_delete=models.SET_NULL,null=True)
     group = models.ForeignKey('ApiGroup',verbose_name='所属分组',on_delete=models.SET_NULL,null=True)
-    header = models.ManyToManyField('Header',verbose_name='请求头',related_name='header_apis',null=True,blank=True)
+    header = models.ManyToManyField('Header',verbose_name='请求头',related_name='header_apis',blank=True)
     method = models.CharField('请求方法',choices=[('GET', "GET"),('POST', "POST"),('DELETE', "DELETE")],max_length=10)
     description = models.TextField('描述',max_length=1000)
     isValid = models.BooleanField('是否有效',default=True)
@@ -72,7 +72,7 @@ class Testcase(models.Model):
     baseurl = models.ForeignKey('BASEURL',verbose_name='环境地址',on_delete=models.SET_NULL,null=True,default=1)
     api = models.ForeignKey('Api',verbose_name='测试接口',on_delete=models.SET_NULL,null=True)
     datamode = models.CharField('请求参数类型',choices=[('JSON', "JSON"), ('FORM-DATA', "FORM-DATA")], max_length=10)
-    requestdata = models.TextField('请求报文',max_length=1000,null=True,blank=True)
+    requestdata = models.TextField('请求报文',max_length=1000,null=True,blank=True,default='{}')
     setupfunc = models.ForeignKey('FUNC',verbose_name='请求前置方法',on_delete=models.SET_NULL,null=True,blank=True)
     callfunc = models.ForeignKey('CALLFUNC',verbose_name='自定义运行方法',on_delete=models.SET_NULL,null=True,blank=True)
     responsedata = models.TextField('响应报文',max_length=10000,null=True,blank=True)
@@ -153,6 +153,18 @@ class RequestParam(models.Model):
     class Meta:
         verbose_name_plural = '请求参数'
 
+class FormdataParam(models.Model):
+    testcase = models.ForeignKey('Testcase', on_delete=models.CASCADE)
+    paramkey = models.ForeignKey('Formdatakey',verbose_name='参数', on_delete=models.SET_NULL,null=True)
+    paramval = models.ForeignKey('Formdataval',verbose_name='值', on_delete=models.SET_NULL,null=True)
+    description = models.CharField('描述',max_length=1000, null=True, blank=True)
+
+    def __str__(self):
+        return self.paramkey.value + '-' + self.paramval.value
+
+    class Meta:
+        verbose_name_plural = 'FORMDATA参数'
+
 class AssertParam(models.Model):
     testcase = models.ForeignKey('Testcase', on_delete=models.CASCADE)
     paramkey = models.ForeignKey('Assertkey',verbose_name='参数', on_delete=models.SET_NULL, null=True)
@@ -165,6 +177,19 @@ class AssertParam(models.Model):
 
     class Meta:
         verbose_name_plural = '校验参数'
+
+class Formdatakey(models.Model):
+    value = models.CharField(max_length=100)
+
+    def __str__(self):
+        return self.value
+
+class Formdataval(models.Model):
+    value = models.CharField(max_length=100)
+    type = models.CharField('类型', choices=[('str', "string"), ('int', "int"), ('True', "True"), ('False', "False")], max_length=10,default='str')
+
+    def __str__(self):
+        return self.value
 
 class Reqquestkey(models.Model):
     value = models.CharField(max_length=100)
@@ -201,12 +226,12 @@ class TESTSUITE(models.Model):
     baseurl = models.ForeignKey('BASEURL',verbose_name='环境地址',on_delete=models.SET_NULL,null=True)
     setupfunc = models.ForeignKey('FUNC', verbose_name='请求前置方法',on_delete=models.SET_NULL, null=True, blank=True)
     callfunc = models.ForeignKey('CALLFUNC', verbose_name='自定义运行方法',on_delete=models.SET_NULL, null=True, blank=True)
-    case = models.ManyToManyField('Testcase',verbose_name='用例集', related_name='case_suites',null=True,blank=True)
+    case = models.ManyToManyField('Testcase',verbose_name='用例集', related_name='case_suites',blank=True)
     sleeptime = models.IntegerField('运行延时',default=0)
     ctime = models.DateTimeField('创建时间',auto_now_add=True)
     runtime = models.DateTimeField('运行时间',null=True)
     creater = models.ForeignKey('auth.user',verbose_name='创建人',on_delete=models.CASCADE)
-    args = models.ManyToManyField('Argument',verbose_name='pytest运行参数', related_name='Argument_suites',null=True,blank=True)
+    args = models.ManyToManyField('Argument',verbose_name='pytest运行参数', related_name='Argument_suites',blank=True)
     reruns = models.IntegerField('失败重跑次数',null=True,blank=True,default=0)
     reruns_delay = models.IntegerField('重跑间隔时间',null=True, blank=True,default=0)
     isorder = models.BooleanField('是否顺序执行',default=False)
