@@ -30,6 +30,9 @@ def testdata(request):
     :return:
     '''
     logging.info('---------------------------------------' + request.param['caseno'] + '---------------------------------------')
+    request.param['headers'] = json.loads(Saver.handle_params(json.dumps(request.param['headers'], ensure_ascii=False)))
+    request.param['data'] = json.loads(Saver.handle_params(json.dumps(request.param['data'], ensure_ascii=False)))
+    request.param['formdata'] = json.loads(Saver.handle_params(json.dumps(request.param['formdata'], ensure_ascii=False)))
     return request.param
     logging.info('---------------------------------------' + request.param['caseno'] + '---------------------------------------')
 
