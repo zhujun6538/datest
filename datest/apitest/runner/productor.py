@@ -25,24 +25,45 @@ def extractor(data, dics, expr):
 
 class Saver:
     caseno = ''
-    httphist = {}
+    hist = {}
     testresult = {}
     testresult['result'] = 'N'
     testresult['passedcase'] = []
     testresult['failedcase'] = []
 
+    @classmethod
+    def save_request(cls, data,json):
+        cls.hist[cls.caseno] = {}
+        try:
+            cls.hist[cls.caseno]['requestdata'] = data
+        except Exception as e:
+            cls.hist[cls.caseno] = data
+        cls.hist[cls.caseno]['requestjson'] = json
 
     @classmethod
     def save_response(cls, value):
         try:
-            cls.httphist[cls.caseno] = json.loads(value)
-            print(cls.httphist)
+            cls.hist[cls.caseno]['response'] = json.loads(value)
         except Exception as e:
-            cls.httphist[cls.caseno] = value
+            cls.hist[cls.caseno]['response'] = value
+
+    @classmethod
+    def save_data(cls, key, value):
+        try:
+            cls.hist[cls.caseno][key] = json.loads(value)
+        except Exception as e:
+            cls.hist[cls.caseno][key] = value
 
     @classmethod
     def handle_params(cls, params):
         if params is '':
             return
-        handledata = extractor(params, cls.httphist, expr='&(.*?)&')
-        return eval(handledata)
+        handledata = extractor(params, cls.hist, expr='&(.*?)&')
+        return handledata
+
+    @classmethod
+    def handle_datas(cls, params):
+        if params[1] is '':
+            return [None,'']
+        handledata = extractor(params[1], cls.hist, expr='&(.*?)&')
+        return [None,handledata]

@@ -12,6 +12,7 @@ import time
 from httpfunc import PostWithFunctions
 from loguru import logger
 from productor import Saver
+from database import getSqldata
 
 
 class Callfunc(object):
@@ -23,22 +24,12 @@ class Callfunc(object):
         '''
         PostWithFunctions(testdata).test_start()
 
-    def yb(self,testdata):
-        '''
-        自定义测试方法，可自己添加
-        :param testdata:
-        :return:
-        '''
-        testdata1 = testdata.copy()
-        testdata2 = testdata.copy()
-        testdata1['asserts'] = [['eq', 'body.resultCode', '00000'], ['eq', 'body.resultDesc', '成功']]
-        PostWithFunctions(testdata1).run()
-        orderno = f"&$.{Saver.caseno}..orderNo&"
-        testdata2['data'] = Saver.handle_params('{"orderNo":"%s"}' % (orderno))
-        testdata2['url'] = testdata2['url'].replace('Apply', 'Result')
-        issuc = False
-        for i in range(3):
-            time.sleep(2)
-            issuc = PostWithFunctions(testdata2).run()
-            if issuc:
-                break
+    def adduser(self,testdata):
+        PostWithFunctions(testdata).test_start()
+        db = getSqldata()
+        username = testdata['formdata'].get('username')[1]
+        sql = f"select id from s_user where username = '{username}'"
+        id = db.query(sql)[0][0]
+        Saver.save_data('id',id)
+        db.conn.close()
+

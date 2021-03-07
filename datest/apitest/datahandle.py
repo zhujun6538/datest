@@ -78,11 +78,11 @@ def get_casedata(suitename,case,baseurl='',setupfunc='',callfunc='',sleeptime=0)
     testcase = {}
     data = {}
     caselink = reverse('admin:apitest_testcase_change',args=(case.id,))
-    if case.api.method in ['POST','PUT'] and case.datamode == 'JSON':
+    if case.datamode == 'JSON':
         data = json.loads(case.requestdata,encoding='utf-8')
         for key,value in data:
             value[key] = clean(value)
-    elif case.api.method in ['POST','PUT'] and case.datamode == 'FORM-DATA':
+    elif case.datamode == 'FORM-DATA':
         try:
             formdata = {}
             for line in case.requestdata.splitlines():

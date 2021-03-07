@@ -279,8 +279,7 @@ class TestcaseAdmin(admin.ModelAdmin):
 
     def save_model(self, request, obj, form, change):
         if change is False:
-            obj.caseno = obj.api.code + '-' + datetime.datetime.now().strftime('%Y%m%d%H%M%S') + str(random.randint(1,1000))
-            obj.casename = obj.api.name + '-' + obj.casename
+            obj.caseno = datetime.datetime.now().strftime('%Y%m%d%H%M%S') + str(random.randint(1,1000))
             obj.project = obj.api.project
             obj.creater = request.user
         super().save_model(request, obj, form, change)
@@ -289,7 +288,7 @@ class TestcaseAdmin(admin.ModelAdmin):
         for obj in query_set:
             oid = obj.id
             obj.id = None
-            obj.caseno = obj.api.code + '-' + datetime.datetime.now().strftime('%Y%m%d%H%M%S') + str(random.randint(1, 1000))
+            obj.caseno = datetime.datetime.now().strftime('%Y%m%d%H%M%S') + str(random.randint(1, 1000))
             obj.save()
             oldobj = Testcase.objects.get(id = oid)
             for par in list(oldobj.headerparam_set.all()):

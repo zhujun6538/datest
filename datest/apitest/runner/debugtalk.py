@@ -35,6 +35,7 @@ def prerequest(request):
         :return:
         '''
         logging.info(f'url:{url},headers:{headers},params:{params},data:{str(data)},json:{json.dumps(jsondata)}')
+        Saver.save_request(data,json)
     newpost(url=request['url'], headers=request['headers'],data = request['data'], params=request['params'],jsondata=request['req_json'])
 
 def afterresponse(response):

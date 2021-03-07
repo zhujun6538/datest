@@ -23,8 +23,6 @@ class PostWithFunctions(HttpRunner):
         :param testdata: 单条测试用例数据
         '''
         Saver.caseno = testdata['caseno']
-        testdata['headers'] = Saver.handle_params(json.dumps(testdata['headers'], ensure_ascii=False))
-        testdata['data'] = Saver.handle_params(json.dumps(testdata['data'], ensure_ascii=False))
         self.config = (
             Config(testdata['caseno'] + '-' + testdata['casename'])
                 .variables(
