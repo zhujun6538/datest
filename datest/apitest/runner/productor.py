@@ -45,4 +45,4 @@ class Saver:
         if params is '':
             return
         handledata = extractor(params, cls.httphist, expr='&(.*?)&')
-        return eval(handledata)
+        return handledata

@@ -46,7 +46,6 @@ class PostWithFunctions(HttpRunner):
         .validate() \
 
         for ast in testdata['asserts']:
-            if ast[0] == 'eq':
-                running = running.assert_equal(ast[1], ast[2])
+            running = running.__getattribute__(ast[0].lower())(ast[1], ast[2])
         self.teststeps.append(Step(running
     ))
