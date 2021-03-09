@@ -77,14 +77,14 @@ def get_casedata(suitename,case,baseurl='',setupfunc='',callfunc='',sleeptime=0)
     '''
     testcase = {}
     data = {}
+    formdata = {}
     caselink = reverse('admin:apitest_testcase_change',args=(case.id,))
     if case.datamode == 'JSON':
         data = json.loads(case.requestdata,encoding='utf-8')
-        for key,value in data:
-            value[key] = clean(value)
+        for key,value in data.items():
+            data[key] = clean(value)
     elif case.datamode == 'FORM-DATA':
         try:
-            formdata = {}
             for line in case.requestdata.splitlines():
                 formdata[line.split(':')[0]] = (None, clean(line.split(':')[1].lstrip(' ')))
         except Exception as e:

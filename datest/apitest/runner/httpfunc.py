@@ -9,11 +9,10 @@
 @desc：根据用户在django系统操作的选中数据进行发送请求，存储响应，对响应结果进行断言
 """
 
-import json
 import os
 from httprunner import HttpRunner, Config, Step, RunRequest
-from loguru import logger
 from productor import Saver
+
 filedir = os.path.dirname(__file__)
 
 class PostWithFunctions(HttpRunner):
@@ -46,7 +45,6 @@ class PostWithFunctions(HttpRunner):
         .validate() \
 
         for ast in testdata['asserts']:
-            if ast[0] == 'eq':
-                running = running.assert_equal(ast[1], ast[2])
+            running = running.__getattribute__(ast[0].lower())(ast[1], ast[2])
         self.teststeps.append(Step(running
     ))
