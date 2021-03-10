@@ -434,6 +434,7 @@ class TestcaseAdmin(admin.ModelAdmin):
                     write_case(f'{filedir}/runner/data/test.yaml', [[testcase]])
                     report = testrunner.pyrun(args='')
                     testresult = json.loads(os.environ.get('TESTRESULT'),encoding='utf-8')
+                    os.environ.pop('TESTRESULT')
                     result = testresult['result']
                     failed = testresult['failed']
                     passed = testresult['passed']
