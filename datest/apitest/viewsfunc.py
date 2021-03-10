@@ -78,7 +78,7 @@ def apipost(httpMethod='GET',endpoint="https://112.65.144.19:9179",requestUri=''
 
     timestamp = time.strftime("%Y%m%d%H%M%S", t) #查询参数字符串格式
 
-    args = data
+    args = json.dumps(data,ensure_ascii=False)
 
     # args = '{"orderNo":"01401420210201521000004719"}'
 

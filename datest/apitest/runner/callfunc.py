@@ -31,14 +31,14 @@ class Callfunc(object):
         '''
         testdata1 = testdata.copy()
         testdata2 = testdata.copy()
-        testdata1['asserts'] = [['eq', 'body.resultCode', '00000'], ['eq', 'body.resultDesc', '成功']]
+        testdata1['asserts'] = [['assert_equal', 'body.resultCode', '00000'], ['assert_equal', 'body.resultDesc', '成功']]
         PostWithFunctions(testdata1).run()
         orderno = f"&$.{Saver.caseno}..orderNo&"
-        testdata2['data'] = Saver.handle_params('{"orderNo":"%s"}' % (orderno))
+        testdata2['data'] = eval(Saver.handle_params('{"orderNo":"%s"}' % (orderno)))
         testdata2['url'] = testdata2['url'].replace('Apply', 'Result')
         issuc = False
         for i in range(3):
-            time.sleep(2)
+            time.sleep(1)
             issuc = PostWithFunctions(testdata2).run()
             if issuc:
                 break

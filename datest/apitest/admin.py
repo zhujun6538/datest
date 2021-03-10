@@ -243,12 +243,12 @@ class CALLFUNCAdmin(admin.ModelAdmin):
 
 @admin.register(Testcase)
 class TestcaseAdmin(admin.ModelAdmin):
-    list_display = ['caseno','casename','isValid', 'group', 'api', 'runtime', 'edit']
+    list_display = ['caseno','casename','isValid', 'group', 'api', 'edit']
     list_display_links = ['edit']
     search_fields = ['caseno','casename']
     radio_fields = {"datamode": admin.HORIZONTAL}
     autocomplete_fields = ['api']
-    inlines = [HeaderParaminline,RequestParaminline,FormdataParaminline, AssertParaminline,Runparaminline]
+    inlines = [HeaderParaminline,RequestParaminline,FormdataParaminline, AssertParaminline]
     save_on_top = True
     list_filter = ['group', 'project','callfunc','isValid']
     actions = ['get_excel','copy','get_caseyml','runcase','unvalid']
@@ -425,6 +425,8 @@ class TestcaseAdmin(admin.ModelAdmin):
         Testcase.objects.select_for_update().filter(id__in = caseids)
         with transaction.atomic():
             testcases = self.gen_yml(request,query_set)
+            passedall = 0
+            failedall = 0
             try:
                 for obj in query_set:
                     thisname = datetime.datetime.now().strftime('%Y%m%d%H%M%S') + '测试报告'
@@ -446,10 +448,12 @@ class TestcaseAdmin(admin.ModelAdmin):
                     testreport.testcases.add(obj)
                     testreport.save()
                     obj.runtime = timezone.now()
+                    passedall += passed
+                    failedall += failed
             except Exception as e:
                 self.message_user(request,'发生异常' + str(e))
                 testreport = TESTREPORT.objects.create(reportname=thisname, testnum=casenum, result='N',runner=request.user, errors=str(e))
-            self.message_user(request,str(query_set.values_list('caseno')) + '测试运行完成，请查看测试报告')
+            self.message_user(request,str(list(query_set.values_list('caseno'))) + f'测试运行完成，测试用例成功数量{passedall}，测试用例失败数量{failedall}，请查看测试报告')
     runcase.short_description = '运行选中用例'
 
 class Testcaselistinline(admin.TabularInline):
@@ -526,6 +530,8 @@ class TESTSUITEAdmin(admin.ModelAdmin):
         :return:
         '''
         thisname = datetime.datetime.now().strftime('%Y%m%d%H%M%S') + '测试报告'
+        passedall = 0
+        failedall = 0
         for obj in query_set:
             testsuite = get_suitedata(obj)
             casenum = obj.case.count()
@@ -552,11 +558,13 @@ class TESTSUITEAdmin(admin.ModelAdmin):
                     case.runtime = timezone.now()
                     case.save()
                 testreport.save()
+                passedall += passed
+                failedall += failed
             except Exception as e:
                 self.message_user(request,'发生异常' + str(e))
                 testreport  = TESTREPORT.objects.create(reportname=thisname, testnum=casenum, result='N', runner=request.user,errors = str(e))
                 raise e
-        self.message_user(request, '测试运行完成，请查看测试报告')
+        self.message_user(request, str(list(query_set.values_list('name'))) + f'测试运行完成，本次测试结果：{result}，测试用例成功数量{passedall}，测试用例失败数量{failedall}，请查看测试报告')
     runsuite.short_description = '运行套件'
 
     def jrunsuite(self,request,query_set):

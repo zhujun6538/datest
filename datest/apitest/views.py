@@ -27,7 +27,7 @@ class TestcaseViewset(viewsets.ModelViewSet):
     def runcase(self,request, *args, **kwargs):
         caseobj = Testcase.objects.get(pk=kwargs['pk'])
         case = get_casedata('',caseobj)
-        res = apipost(httpMethod=case['method'],headers=case['headers'],endpoint=case['baseurl'],requestUri=case['url'], json=case['data'],files=case['formdata'])
+        res = apipost(httpMethod=case['method'],headers=case['headers'],endpoint=case['baseurl'],requestUri=case['url'], data=case['data'])
         resp_obj_meta = {
             "status_code": res.status_code,
             "headers": res.headers,

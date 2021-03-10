@@ -170,7 +170,7 @@ class AssertParam(models.Model):
     paramkey = models.ForeignKey('Assertkey',verbose_name='参数', on_delete=models.SET_NULL, null=True)
     paramval = models.ForeignKey('Assertval',verbose_name='值', on_delete=models.SET_NULL, null=True)
     description = models.CharField('描述',max_length=1000, null=True, blank=True)
-    mode = models.CharField('模式', choices=[('assert_equal', "equils"), ('assert_contains', "contains"),('assert_regex_match', "regex_match"), ('assert_json_contains', "jsoncontains"), ('jre', "jsonmatch")], max_length=100,default='eq')
+    mode = models.CharField('模式', choices=[('assert_equal', "equils"), ('assert_contains', "contains"),('assert_regex_match', "regex_match"), ('assert_json_contains', "jsoncontains"), ('assert_jsonmatch', "jsonmatch")], max_length=100,default='eq')
 
     def __str__(self):
         return self.paramkey.value + '-' + self.paramval.value
