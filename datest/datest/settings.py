@@ -25,7 +25,7 @@ SECRET_KEY = 'qfty3w1#2be&mw83ek_)8q!*pn8_!yap^3ynikm#=h_8&d=qa5'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
@@ -46,13 +46,17 @@ MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
-    'django.middleware.csrf.CsrfViewMiddleware',
+    # 'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
 ROOT_URLCONF = 'datest.urls'
+
+MIDDLEWARE_CLASSES = [
+    'dwebsocket.middleware.WebSocketMiddleware'
+]
 
 TEMPLATES = [
     {
@@ -149,3 +153,7 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'apitest/data')
 # https://docs.djangoproject.com/en/3.1/howto/static-files/
 
 STATIC_URL = '/static/'
+STATIC_ROOT = 'static'
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, "/static/"),
+]

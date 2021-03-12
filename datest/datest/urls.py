@@ -21,13 +21,16 @@ from django.views.static import serve
 from . import settings
 from rest_framework import routers
 from apitest import views
+from django.views import static
 
 router = routers.DefaultRouter()
 router.register(r'postdata',views.PostdataViewset)
 router.register(r'testcase',views.TestcaseViewset)
+router.register(r'debugtalk',views.DebugTalkViewset)
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     url(r'^', include(router.urls)),
     re_path(r"data/(?P<path>.*)$", serve, {"document_root": settings.MEDIA_ROOT}),
+    url(r'^static/(?P<path>.*)$', static.serve,{'document_root': settings.STATIC_ROOT}, name='static'),
 ]
