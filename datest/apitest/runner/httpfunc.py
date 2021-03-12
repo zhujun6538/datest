@@ -10,10 +10,13 @@
 """
 
 import json
+import logging
 import os
 from httprunner import HttpRunner, Config, Step, RunRequest
-from loguru import logger
+from httprunner.loader import load_project_meta
+
 from productor import Saver
+
 filedir = os.path.dirname(__file__)
 
 class PostWithFunctions(HttpRunner):
@@ -22,6 +25,7 @@ class PostWithFunctions(HttpRunner):
         根据用户在django系统操作的选中数据进行发送请求，存储响应，对响应结果进行断言
         :param testdata: 单条测试用例数据
         '''
+
         Saver.caseno = testdata['caseno']
         self.config = (
             Config(testdata['caseno'] + '-' + testdata['casename'])
@@ -31,6 +35,9 @@ class PostWithFunctions(HttpRunner):
                 .base_url(testdata['baseurl'])
                 .verify(False)
         )
+
+        self.with_project_meta(load_project_meta(filedir + '\\projects\\' +testdata['project'] + '\\'))
+
 
         self.teststeps = []
 

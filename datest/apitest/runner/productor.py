@@ -36,7 +36,6 @@ class Saver:
     def save_response(cls, value):
         try:
             cls.httphist[cls.caseno] = json.loads(value)
-            print(cls.httphist)
         except Exception as e:
             cls.httphist[cls.caseno] = value
 

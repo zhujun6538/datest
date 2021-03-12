@@ -21,7 +21,8 @@ class EventAdminSite(AdminSite):
             "Testcase": 7,
             "TESTSUITE": 8,
             "Testbatch": 9,
-            "TESTREPORT": 10
+            "TESTREPORT": 10,
+            "DebugTalk": 11
         }
         app_dict = self._build_app_dict(request)
         # a.sort(key=lambda x: b.index(x[0]))
@@ -54,7 +55,8 @@ class EventAdminSite(AdminSite):
             "Testcase": 7,
             "TESTSUITE": 8,
             "Testbatch": 9,
-            "TESTREPORT": 10
+            "TESTREPORT": 10,
+            "DebugTalk": 11
         }
         if app_dict!= {}:
             app_dict['models'].sort(key=lambda x: ordering[x['object_name']])

@@ -124,8 +124,8 @@ def get_casedata(suitename,case,baseurl='',setupfunc='',callfunc='',sleeptime=0)
         testcase['extract'].append(extdata.param)
     testcase['suitename'] ,testcase['group'] ,testcase['caseno'], testcase['casename'], \
     testcase['isValid'], testcase['method'],testcase['url'], \
-    testcase['baseurl'],testcase['data'], testcase['params'], testcase['formdata'], testcase['headers'], testcase['asserts'], testcase['sleeptime'] ,testcase['caselink']  = \
-        suitename,case.group.name, case.caseno, case.casename, case.isValid, case.api.method , case.api.url, case.baseurl.url,data, params, formdata, headers, asserts, sleeptime, caselink
+    testcase['baseurl'],testcase['data'], testcase['params'], testcase['formdata'], testcase['headers'], testcase['asserts'], testcase['sleeptime'] ,testcase['caselink'] ,testcase['project'] = \
+        suitename,case.group.name, case.caseno, case.casename, case.isValid, case.api.method , case.api.url, case.baseurl.url,data, params, formdata, headers, asserts, sleeptime, caselink,case.project.name
     if case.beforecase!=None:
         testcase['before'] = get_casedata(suitename,case.beforecase,baseurl)
     return testcase

@@ -4,7 +4,15 @@ from django.db import models
 
 # Create your models here.
 
-class Project(models.Model):
+class BaseModel(models.Model):
+    updatetime = models.DateTimeField('更新时间', auto_now=True, null=True)
+    createtime = models.DateTimeField('创建时间', auto_now_add=True, null=True)
+    creater = models.ForeignKey('auth.user', verbose_name='创建人',on_delete=models.CASCADE)
+
+    class Meta:
+        abstract = True
+
+class Project(BaseModel):
     name = models.CharField(max_length=100)
     sonpj = models.ForeignKey('self',on_delete=models.SET_NULL,null=True,blank=True)
     banben = models.CharField(max_length=100,null=True)
@@ -15,7 +23,15 @@ class Project(models.Model):
     class Meta:
         verbose_name_plural = '测试项目'
 
-class Api(models.Model):
+class DebugTalk(models.Model):
+    class Meta:
+        verbose_name_plural = '驱动py文件'
+
+    project = models.OneToOneField(Project, on_delete=models.CASCADE)
+    file = models.CharField(max_length=100)
+    content = models.TextField(max_length=10000,null=True,blank=True)
+
+class Api(BaseModel):
     code = models.CharField('代码',max_length=100)
     name = models.CharField('名称',max_length=100)
     project = models.ForeignKey(Project,verbose_name='所属项目',on_delete=models.SET_NULL,null=True)
@@ -32,7 +48,7 @@ class Api(models.Model):
     class Meta:
         verbose_name_plural = '接口名称'
 
-class ApiGroup(models.Model):
+class ApiGroup(BaseModel):
     name = models.CharField(max_length=100)
     project = models.ForeignKey(Project,on_delete=models.SET_NULL,null=True)
 
@@ -42,7 +58,7 @@ class ApiGroup(models.Model):
     class Meta:
         verbose_name_plural = '接口分组'
 
-class TestcaseGroup(models.Model):
+class TestcaseGroup(BaseModel):
     name = models.CharField(max_length=100)
     project = models.ForeignKey(Project, on_delete=models.SET_NULL, null=True)
 
@@ -62,7 +78,7 @@ class Header(models.Model):
     class Meta:
         verbose_name_plural = '请求头'
 
-class Testcase(models.Model):
+class Testcase(BaseModel):
     caseno = models.CharField('用例编号',max_length=100)
     casename = models.CharField('用例名称',max_length=100)
     project = models.ForeignKey(Project, verbose_name='所属项目', on_delete=models.SET_NULL, null=True)
@@ -76,9 +92,8 @@ class Testcase(models.Model):
     setupfunc = models.ForeignKey('FUNC',verbose_name='请求前置方法',on_delete=models.SET_NULL,null=True,blank=True)
     callfunc = models.ForeignKey('CALLFUNC',verbose_name='自定义运行方法',on_delete=models.SET_NULL,null=True,blank=True)
     responsedata = models.TextField('响应报文',max_length=10000,null=True,blank=True)
-    createtime = models.DateTimeField('创建时间',auto_now_add=True,null=True)
     runtime = models.DateTimeField('运行时间',null=True,blank=True)
-    creater = models.ForeignKey('auth.user', verbose_name='创建人',on_delete=models.CASCADE)
+
 
     def __str__(self):
         return str(self.group) + '-' + self.caseno + '-' + self.casename
@@ -99,6 +114,7 @@ class BASEURL(models.Model):
 
 class FUNC(models.Model):
     name = models.CharField(max_length=100)
+    project = models.ForeignKey(Project, on_delete=models.SET_NULL, null=True)
     description = models.TextField(max_length=1000,null=True,blank=True)
 
     def __str__(self):
@@ -220,7 +236,7 @@ class Assertval(models.Model):
             return self.value[0:20] + '...'
         return self.value
 
-class TESTSUITE(models.Model):
+class TESTSUITE(BaseModel):
     name = models.CharField('套件名称',max_length=100)
     project = models.ForeignKey(Project,verbose_name='所属项目', on_delete=models.SET_NULL, null=True)
     baseurl = models.ForeignKey('BASEURL',verbose_name='环境地址',on_delete=models.SET_NULL,null=True)
@@ -228,7 +244,6 @@ class TESTSUITE(models.Model):
     callfunc = models.ForeignKey('CALLFUNC', verbose_name='自定义运行方法',on_delete=models.SET_NULL, null=True, blank=True)
     case = models.ManyToManyField('Testcase',verbose_name='用例集', related_name='case_suites',blank=True)
     sleeptime = models.IntegerField('运行延时',default=0)
-    ctime = models.DateTimeField('创建时间',auto_now_add=True)
     runtime = models.DateTimeField('运行时间',null=True)
     creater = models.ForeignKey('auth.user',verbose_name='创建人',on_delete=models.CASCADE)
     args = models.ManyToManyField('Argument',verbose_name='pytest运行参数', related_name='Argument_suites',blank=True)
@@ -260,10 +275,9 @@ class Argument(models.Model):
     def __str__(self):
         return self.name
 
-class Testbatch(models.Model):
+class Testbatch(BaseModel):
     batchno = models.CharField(max_length=100)
     testsuite = models.ManyToManyField('TESTSUITE', related_name='TESTSUITE_batch')
-    ctime = models.DateTimeField(auto_now_add=True)
     runtime = models.DateTimeField(null=True)
 
     def __str__(self):

@@ -18,3 +18,11 @@ class TestcaseSerializer(serializers.ModelSerializer):
         fields = []
         for field in model._meta.fields:
             fields.append(field.name)
+
+class DebugTalkSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = DebugTalk
+        fields = []
+        for field in model._meta.fields:
+            fields.append(field.name)

@@ -34,13 +34,14 @@ AdminSite.index_title = "api测试"
 filedir = os.path.dirname(__file__)
 @admin.register(Api)
 class ApiAdmin(admin.ModelAdmin):
-    list_display = ['code','name','project','method','group','isValid','url','get_casenum','edit']
+    list_display = ['code','name','creater','project','method','group','isValid','url','get_casenum','edit']
     search_fields = ['name','code']
     list_display_links = ['edit']
     list_filter = ['group','project','isValid']
     actions = ['get_excel','unvalid']
     change_list_template = 'admin/apitest/api/option_changelist.html'
     save_on_top = True
+    exclude = ('creater',)
 
 
     def get_search_results(self, request, queryset, search_term):
@@ -126,7 +127,36 @@ class ApiAdmin(admin.ModelAdmin):
 
 @admin.register(Project)
 class ProjectAdmin(admin.ModelAdmin):
-    list_display = ['name','sonpj','banben']
+    list_display = ['name','creater','sonpj','banben']
+    exclude = ('creater',)
+
+    def save_model(self, request, obj, form, change):
+        projectpath = filedir + '/runner/projects/' + obj.name
+        if not os.path.exists(projectpath):
+            os.mkdir(projectpath)
+        with open(projectpath + '/debugtalk.py','w+',encoding='utf-8') as f:
+            pass
+        if not change:
+            obj.creater = request.user
+            super().save_model(request, obj, form, change)
+            DebugTalk.objects.create(project=obj,file='/runner/projects/' + obj.name + '/debugtalk.py',content='')
+        super().save_model(request, obj, form, change)
+
+
+@admin.register(DebugTalk)
+class DebugTalkAdmin(admin.ModelAdmin):
+    list_display = ['project','file','edit']
+
+    def edit(self,obj):
+        return format_html('<a href="{}" style="white-space:nowrap;">{}</a> <a href="{}" style="white-space:nowrap;">{}</a>',rvs('debugtalk-detail',args=[obj.id]) + 'edit','编辑',reverse('admin:apitest_debugtalk_delete', args=(obj.id,)),'删除')
+    edit.short_description = '操作'
+
+    def delete_model(self,request,obj):
+        '''删除对象同时删除本地文件'''
+        super().delete_model(request,obj)
+        debugtalkfile = obj.file.rsplit('/',1)[0]
+        if os.path.exists(filedir+debugtalkfile):
+            shutil.rmtree(filedir+debugtalkfile)
 
 @admin.register(ApiGroup)
 class ApiGroupAdmin(admin.ModelAdmin):
@@ -243,7 +273,7 @@ class CALLFUNCAdmin(admin.ModelAdmin):
 
 @admin.register(Testcase)
 class TestcaseAdmin(admin.ModelAdmin):
-    list_display = ['caseno','casename','isValid', 'group', 'api', 'edit']
+    list_display = ['caseno','casename','creater','isValid', 'group', 'api', 'edit']
     list_display_links = ['edit']
     search_fields = ['caseno','casename']
     radio_fields = {"datamode": admin.HORIZONTAL}
@@ -464,7 +494,7 @@ class Testcaselistinline(admin.TabularInline):
 
 @admin.register(TESTSUITE)
 class TESTSUITEAdmin(admin.ModelAdmin):
-    list_display = ['name','baseurl','ctime','creater','get_testcase','edit']
+    list_display = ['name','createtime','creater','get_testcase','edit']
     actions = ['gen_yaml','runsuite','jrunsuite']
     filter_horizontal = ['case']
     exclude = ['creater','runtime']
@@ -482,7 +512,7 @@ class TESTSUITEAdmin(admin.ModelAdmin):
         :return:
         '''
         if db_field.name == "case":
-            kwargs["queryset"] = Testcase.objects.filter(isValid=True)
+            kwargs["queryset"] = Testcase.objects.filter(isValid=True).order_by('api__code')
         return super().formfield_for_manytomany(db_field, request, **kwargs)
 
     def save_model(self, request, obj, form, change):
@@ -497,12 +527,17 @@ class TESTSUITEAdmin(admin.ModelAdmin):
     get_testcase.short_description = '用例数量'
 
     def edit(self,obj):
+        caselist = obj.case.all()
+        cids = ''
+        for case in caselist:
+            cids = cids + str(case.id) + ','
+        caselisturl = reverse('admin:apitest_testcase_changelist') + '?id__in=' + cids[:-1]
         if obj.suite_report.count() != 0:
             lastreports = TESTREPORT.objects.filter(testsuite=obj).latest('testtime')
             reporturl = lastreports.file.url
-            return format_html('<a href="{}" style="white-space:nowrap;" >{}</a> <a href="{}" style="white-space:nowrap;" target="_blank">{}</a>',reverse('admin:apitest_testsuite_change', args=(obj.id,)),'编辑',reporturl,'查看报告')
+            return format_html('<a href="{}" style="white-space:nowrap;" >{}</a> <a href="{}" style="white-space:nowrap;" target="_blank">{}</a> <a href="{}">{}</a>',reverse('admin:apitest_testsuite_change', args=(obj.id,)),'编辑',reporturl,'查看报告',caselisturl,'查看用例')
         else:
-            return format_html('<a href="{}" style="white-space:nowrap;" >{}</a> <a href="{}" style="white-space:nowrap;" >{}</a>',reverse('admin:apitest_testsuite_change', args=(obj.id,)), '编辑',reverse('admin:apitest_testsuite_delete', args=(obj.id,)), '删除')
+            return format_html('<a href="{}" style="white-space:nowrap;" >{}</a> <a href="{}" style="white-space:nowrap;" >{}</a> <a href="{}">{}</a>',reverse('admin:apitest_testsuite_change', args=(obj.id,)), '编辑',reverse('admin:apitest_testsuite_delete', args=(obj.id,)), '删除',caselisturl,'查看用例')
     edit.short_description = '操作'
 
     def gen_yaml(self,request,query_set):
@@ -594,10 +629,10 @@ class TESTSUITEAdmin(admin.ModelAdmin):
 
 @admin.register(Testbatch)
 class TestbatchAdmin(admin.ModelAdmin):
-    list_display = ['batchno','ctime','runtime']
+    list_display = ['batchno','creater','createtime','runtime']
     filter_horizontal = ['testsuite']
     actions = ['gen_yaml','runbatch',]
-    exclude = ('runtime',)
+    exclude = ('runtime','creater',)
 
     def gen_yaml(self,request,query_set):
         '''
