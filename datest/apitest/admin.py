@@ -199,7 +199,7 @@ class FormdataParaminline(admin.TabularInline):
 
 class AssertParaminline(admin.TabularInline):
     model = AssertParam
-    extra = 1
+    extra = 0
     autocomplete_fields = ['paramkey','paramval']
 
 class RequestParaminline(admin.TabularInline):
