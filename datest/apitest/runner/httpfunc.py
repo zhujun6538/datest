@@ -36,7 +36,7 @@ class PostWithFunctions(HttpRunner):
                 .verify(False)
         )
 
-        self.with_project_meta(load_project_meta(filedir + '\\projects\\' +testdata['project'] + '\\'))
+        self.with_project_meta(load_project_meta(filedir + '\\projectdata\\' +testdata['project'] + '\\'))
 
 
         self.teststeps = []

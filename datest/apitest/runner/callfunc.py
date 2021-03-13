@@ -27,7 +27,7 @@ class Callfunc(object):
     def adduser(self,testdata):
         PostWithFunctions(testdata).test_start()
         db = getSqldata()
-        username = testdata['formdata'].get('username')[1]
+        username = Saver.hist[testdata['caseno']]['requestdata']['username'][1]
         sql = f"select id from s_user where username = '{username}'"
         id = db.query(sql)[0][0]
         Saver.save_data('id',id)

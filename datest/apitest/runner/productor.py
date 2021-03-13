@@ -55,6 +55,10 @@ class Saver:
             cls.hist[cls.caseno][key] = value
 
     @classmethod
+    def clear_data(cls):
+        cls.hist.clear()
+
+    @classmethod
     def handle_params(cls, params):
         if params is '':
             return

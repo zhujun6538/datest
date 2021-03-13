@@ -34,8 +34,8 @@ AdminSite.index_title = "api测试"
 filedir = os.path.dirname(__file__)
 @admin.register(Api)
 class ApiAdmin(admin.ModelAdmin):
-    list_display = ['code','name','creater','project','method','group','isValid','url','get_casenum','edit']
-    search_fields = ['name','code']
+    list_display = ['id','name','creater','project','method','group','isValid','url','get_casenum','edit']
+    search_fields = ['name']
     list_display_links = ['edit']
     list_filter = ['group','project','isValid']
     actions = ['get_excel','unvalid']
@@ -43,6 +43,9 @@ class ApiAdmin(admin.ModelAdmin):
     save_on_top = True
     exclude = ('creater',)
 
+    def save_model(self, request, obj, form, change):
+        obj.creater = request.user
+        super().save_model(request, obj, form, change)
 
     def get_search_results(self, request, queryset, search_term):
         '''
@@ -114,7 +117,7 @@ class ApiAdmin(admin.ModelAdmin):
                 project = Project.objects.get_or_create(name=data['project'],defaults = {'banben':'1'})
                 group = ApiGroup.objects.get_or_create(name=data['group'],defaults = {'project':project[0]})
                 headers = json.loads(data['headers'])
-                api = Api.objects.get_or_create(code=data['code'],name=data['name'],defaults = {'project':project[0],'group':group[0],'method' : data['method'],'description':data['description'],'isValid':True,'url':data['url']})
+                api = Api.objects.get_or_create(id=data['id'],name=data['name'],defaults = {'project':project[0],'group':group[0],'method' : data['method'],'description':data['description'],'isValid':True,'url':data['url']})
                 for key,value in headers.items():
                     header = Header.objects.get_or_create(key=key,value=value)
                     api[0].header.add(header[0])
@@ -131,7 +134,7 @@ class ProjectAdmin(admin.ModelAdmin):
     exclude = ('creater',)
 
     def save_model(self, request, obj, form, change):
-        projectpath = filedir + '/runner/projects/' + obj.name
+        projectpath = filedir + '/runner/projectdata/' + obj.name
         if not os.path.exists(projectpath):
             os.mkdir(projectpath)
         with open(projectpath + '/debugtalk.py','w+',encoding='utf-8') as f:
@@ -139,7 +142,7 @@ class ProjectAdmin(admin.ModelAdmin):
         if not change:
             obj.creater = request.user
             super().save_model(request, obj, form, change)
-            DebugTalk.objects.create(project=obj,file='/runner/projects/' + obj.name + '/debugtalk.py',content='')
+            DebugTalk.objects.create(project=obj,file='/runner/projectdata/' + obj.name + '/debugtalk.py',content='')
         super().save_model(request, obj, form, change)
 
 
@@ -164,7 +167,11 @@ class ApiGroupAdmin(admin.ModelAdmin):
 
 @admin.register(TestcaseGroup)
 class TestcaseGroupAdmin(admin.ModelAdmin):
-    list_display = ['name']
+    exclude = ['creater',]
+
+    def save_model(self, request, obj, form, change):
+        obj.creater = request.user
+        super().save_model(request, obj, form, change)
 
 @admin.register(Header)
 class HeaderAdmin(admin.ModelAdmin):
@@ -278,7 +285,7 @@ class TestcaseAdmin(admin.ModelAdmin):
     search_fields = ['caseno','casename']
     radio_fields = {"datamode": admin.HORIZONTAL}
     autocomplete_fields = ['api']
-    inlines = [HeaderParaminline,RequestParaminline,FormdataParaminline, AssertParaminline]
+    inlines = [HeaderParaminline,RequestParaminline,FormdataParaminline, AssertParaminline,]
     save_on_top = True
     list_filter = ['group', 'project','callfunc','isValid']
     actions = ['get_excel','copy','get_caseyml','runcase','unvalid']
@@ -378,7 +385,7 @@ class TestcaseAdmin(admin.ModelAdmin):
                 project = Project.objects.get_or_create(name=data['project'],defaults = {'banben':'1'})
                 group = TestcaseGroup.objects.get_or_create(name=data['group'],defaults = {'project':project[0]})
                 baseurl = BASEURL.objects.get_or_create(url=data['baseurl'],defaults = {'name':'新建环境','project':project[0]})
-                api = Api.objects.get(code=data['api'])
+                api = Api.objects.get(id=data['api'])
                 if data['setupfunc'] != '':
                     setupfunc = FUNC.objects.get(name = data['setupfunc'])
                 else:

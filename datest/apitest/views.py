@@ -3,6 +3,7 @@ import io
 import jmespath
 from django.http import HttpResponseRedirect
 from django.shortcuts import render
+from django.urls import reverse
 from jmespath.exceptions import JMESPathError
 from rest_framework import viewsets, renderers, permissions, authentication
 from rest_framework.response import Response,SimpleTemplateResponse
@@ -54,9 +55,9 @@ class DebugTalkViewset(viewsets.ModelViewSet):
             code = changed.replace('new_line', '\r\n')
             obj.content = code
             obj.save()
-            with io.open(obj.file, 'w', encoding='utf-8') as stream:
+            with io.open(filepath, 'w', encoding='utf-8') as stream:
                 stream.write(code)
-            return HttpResponseRedirect(f'/admin/apitest/debugtalk/')
+            return HttpResponseRedirect('/admin/apitest/debugtalk/')
 
 
 
@@ -77,23 +78,15 @@ class TestcaseViewset(viewsets.ModelViewSet):
             "cookies": res.cookies,
             "body": json.loads(res.content,encoding='utf-8'),
         }
-        result = {'id':caseobj.id,'headers':case['headers'],'jsondata':json.dumps(case['data'],sort_keys=True,indent=4,ensure_ascii=False),'formdata':case['formdata'],'respdata':json.dumps(resp_obj_meta.get('body'),sort_keys=True,indent=4,ensure_ascii=False)}
+        result = {'id':caseobj.id,'headers':case['headers'],'reqdata':{'jsondata':json.dumps(case['data'],sort_keys=True,indent=4,ensure_ascii=False),'formdata':case['formdata']},'respdata':json.dumps(resp_obj_meta.get('body'),sort_keys=True,indent=4,ensure_ascii=False)}
         return Response(result,template_name='postman/edit.html')
 
     @action(methods=['post'],detail='testcase-detail',url_path='genassertdata',url_name='testcase-genassertdata')
     def gen_assert_data(self,request, *args, **kwargs):
         caseobj = Testcase.objects.get(pk=kwargs['pk'])
-        datano = caseobj.api.code
         body = json.loads(request.POST.get('content'),encoding='utf-8')
-        assertparam = {}
-        for key, value in body['resultData'][datano + 'Data'].items():
+        for key, value in body.items():
             akobj = Assertkey.objects.get_or_create(value='$..' + key)[0]
-            if type(value) is list:
-                assertvalue = "\[(\{.*?\})*\]"
-            elif type(value) is dict:
-                assertvalue = "\{.*?\}"
-            elif type(value) is str:
-                assertvalue = ".*?"
-            avobj = Assertval.objects.get_or_create(value=assertvalue)[0]
-            AssertParam.objects.get_or_create(testcase=caseobj,paramkey=akobj,defaults = {'paramval':avobj,'mode':'assert_jsonmatch'})
+            avobj = Assertval.objects.get_or_create(value=str(value))[0]
+            AssertParam.objects.get_or_create(testcase=caseobj,paramkey=akobj,defaults = {'paramval':avobj,'mode':'assert_equal'})
         return HttpResponseRedirect('/admin/apitest/testcase/')

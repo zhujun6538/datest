@@ -19,6 +19,7 @@ filepath = os.path.dirname(__file__)
 @pytest.fixture(scope='session', autouse=True)
 def getlogger():
     logging.info('开始测试')
+    Saver.clear_data()
     yield
     logging.info('结束测试')
 

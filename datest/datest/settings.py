@@ -23,7 +23,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'qfty3w1#2be&mw83ek_)8q!*pn8_!yap^3ynikm#=h_8&d=qa5'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = ['*']
 
@@ -103,10 +103,10 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'datest2',
-        'HOST': 'cd-cdb-ef5dl3fu.sql.tencentcdb.com',
-        'PORT': '62172',
+        'HOST': '127.0.0.1',
+        'PORT': '3306',
         'USER': 'root',
-        'PASSWORD': 'z65388674',
+        'PASSWORD': '',
         'OPTIONS': {
             'init_command': 'SET sql_mode="STRICT_TRANS_TABLES"',
             'charset': 'utf8'
