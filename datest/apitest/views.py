@@ -4,14 +4,12 @@ import jmespath
 from django.http import HttpResponseRedirect
 from django.shortcuts import render
 from django.urls import reverse
-from jmespath.exceptions import JMESPathError
 from rest_framework import viewsets, renderers, permissions, authentication
 from rest_framework.response import Response,SimpleTemplateResponse
 from rest_framework.decorators import api_view, action
 from .models import *
 from .serializers import *
 from .viewsfunc import *
-from httprunner.builtin import comparators
 from .datahandle import get_casedata
 # Create your views here.
 
