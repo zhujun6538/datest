@@ -287,6 +287,7 @@ class TestcaseAdmin(admin.ModelAdmin):
     list_per_page = 50
     readonly_fields = ('responsedata',)
     list_editable = ['api']
+    ordering = ('api__code',)
 
     def get_search_results(self, request, queryset, search_term):
         if request.path == '/admin/apitest/testcase/autocomplete/':
