@@ -16,16 +16,7 @@ import xlrd
 from django.urls import reverse
 from ruamel import yaml
 
-def getrand(value):
-    '''
-     获取随机数
-    :param data:
-    :return:
-    '''
-    for randi in re.findall("{R(\d*?)}",value):
-        rands =''.join([str(random.randint(1,9)) for i in range(int(randi))])
-        value = value.replace("{R" + randi + "}",rands)
-        return value
+
 
 def toint(value):
     return int(re.findall("{I(\d*?)}", value)[0])
@@ -51,9 +42,7 @@ def write_case(filepath, data):
         yaml.dump(data, f, Dumper=yaml.RoundTripDumper)
 
 def clean(value):
-    if re.search("{R(\d*?)}", value):
-        value = getrand(value)
-    elif re.search("{I(\d*?)}", value):
+    if re.search("{I(\d*?)}", value):
         value = toint(value)
     elif re.search("{T}", value):
         value = True
@@ -98,7 +87,7 @@ def get_casedata(suitename,case,baseurl='',setupfunc='',callfunc='',sleeptime=0)
         testcase['setupfunc'] = setupfunc
     else:
         if case.setupfunc == None:
-            testcase['setupfunc'] = '${prerequest($request)}'
+            testcase['setupfunc'] = ''
         else:
             testcase['setupfunc'] = case.setupfunc.name
     if callfunc != '':
@@ -142,9 +131,11 @@ def get_suitedata(obj):
     sleeptime = obj.sleeptime
     try:
         setupfunc = obj.setupfunc.name
-        callfunc = obj.callfunc.name
     except Exception as e:
         setupfunc = ''
+    try:
+        callfunc = obj.callfunc.name
+    except Exception as e:
         callfunc = ''
     if obj.isorder is False:
         cases = obj.case.all()
