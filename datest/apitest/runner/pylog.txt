@@ -1,2 +1,5 @@
 INFO     root:conftest.py:21 开始测试
 INFO     root:conftest.py:33 ---------------------------------------20210313161428585---------------------------------------
+INFO     root:debugtalk.py:99 响应码：200
+INFO     root:debugtalk.py:101 响应数据：{"msg":"登录成功","code":0,"data":""}
+INFO     root:conftest.py:24 结束测试

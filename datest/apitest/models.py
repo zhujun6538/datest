@@ -27,9 +27,9 @@ class DebugTalk(models.Model):
     class Meta:
         verbose_name_plural = '驱动py文件'
 
-    project = models.OneToOneField(Project, on_delete=models.CASCADE)
-    file = models.CharField(max_length=100)
-    content = models.TextField(max_length=10000,null=True,blank=True)
+    project = models.OneToOneField(Project, verbose_name='项目', on_delete=models.CASCADE)
+    file = models.CharField('文件地址',max_length=100)
+    content = models.TextField('内容',max_length=10000,null=True,blank=True)
 
 class Api(BaseModel):
     name = models.CharField('名称',max_length=100)

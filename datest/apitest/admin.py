@@ -606,6 +606,11 @@ class TestbatchAdmin(admin.ModelAdmin):
     actions = ['gen_yaml','runbatch',]
     exclude = ('runtime','creater',)
 
+    def save_model(self, request, obj, form, change):
+        if change is not True:
+            obj.creater = request.user
+        super().save_model(request, obj, form, change)
+
     def gen_yaml(self,request,query_set):
         '''
         获取选中测试集合中的用例数据拼接为数组

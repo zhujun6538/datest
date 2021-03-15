@@ -1,4 +1,4 @@
-- - setupfunc: ${prerequest($request)}
+- - setupfunc: ''
     callfunc: default_func
     extract: []
     suitename: "\u8FD0\u884C\u6D4B\u8BD5\u7528\u4F8B"
@@ -27,7 +27,7 @@
     asserts:
     - - assert_equal
       - body.code
-      - '0'
+      - 0
     - - assert_equal
       - body.data
       - ''
