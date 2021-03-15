@@ -88,12 +88,17 @@ class TestcaseViewset(viewsets.ModelViewSet):
         assertparam = {}
         for key, value in body['resultData'][datano + 'Data'].items():
             akobj = Assertkey.objects.get_or_create(value='$..' + key)[0]
+            assertmode = 'assert_jsonmatch'
             if type(value) is list:
                 assertvalue = "\[(\{.*?\})*\]"
             elif type(value) is dict:
                 assertvalue = "\{.*?\}"
             elif type(value) is str:
                 assertvalue = ".*?"
+            elif value is False:
+                assertvalue = 'False'
+            elif value is True:
+                assertvalue = 'True'
             avobj = Assertval.objects.get_or_create(value=assertvalue)[0]
-            AssertParam.objects.get_or_create(testcase=caseobj,paramkey=akobj,defaults = {'paramval':avobj,'mode':'assert_jsonmatch'})
+            AssertParam.objects.get_or_create(testcase=caseobj,paramkey=akobj,defaults = {'paramval':avobj,'mode':assertmode})
         return HttpResponseRedirect('/admin/apitest/testcase/')

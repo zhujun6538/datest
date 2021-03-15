@@ -43,6 +43,10 @@ class ApiAdmin(admin.ModelAdmin):
     save_on_top = True
     exclude = ('creater',)
 
+    def save_model(self, request, obj, form, change):
+        if change is False:
+            obj.creater = request.user
+        super().save_model(request, obj, form, change)
 
     def get_search_results(self, request, queryset, search_term):
         '''
