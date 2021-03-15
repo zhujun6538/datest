@@ -10,11 +10,11 @@
 3. 使用django的权限和认证模块，无需自己开发，减少工作量，减少因此造成的缺陷。
 
 ## 主要功能
-![blockchain](https://ss0.bdstatic.com/70cFvHSh_Q1YnxGkpoWK1HF6hhy/it/
+![blockchain](https://ss0.bdstatic.com/70cFvHSh_Q1YnxGkpoWK1HF6hhy/it/)
 本测试平台分为后台，中台，前台三个部分，后台由django框架管理测试类数据，中台根据后台配置的数据生成测试文件，运行测试用例、测试套件、测试批次，前台可直接请求接口并进行验证，根据响应自动生成断言，编辑测试驱动方法等。
 
 ## 主要模块
-![blockchain](https://ss0.bdstatic.com/70cFvHSh_Q1YnxGkpoWK1HF6hhy/it/
+![blockchain](https://ss0.bdstatic.com/70cFvHSh_Q1YnxGkpoWK1HF6hhy/it/)
 
 ## 操作说明
 ### 一. 接口管理
