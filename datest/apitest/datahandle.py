@@ -87,7 +87,7 @@ def get_casedata(suitename,case,baseurl='',setupfunc='',callfunc='',sleeptime=0)
         testcase['setupfunc'] = setupfunc
     else:
         if case.setupfunc == None:
-            testcase['setupfunc'] = '${prerequest($request)}'
+            testcase['setupfunc'] = ''
         else:
             testcase['setupfunc'] = case.setupfunc.name
     if callfunc != '':

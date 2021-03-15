@@ -29,7 +29,7 @@ from .runner import testrunner
 
 # admin.site.unregister(User)
 # admin.site.unregister(Group)
-AdminSite.site_header = "证通自动化测试后台"
+AdminSite.site_header = "datest接口自动化测试平台"
 AdminSite.index_title = "api测试"
 filedir = os.path.dirname(__file__)
 @admin.register(Api)
@@ -44,7 +44,8 @@ class ApiAdmin(admin.ModelAdmin):
     exclude = ('creater',)
 
     def save_model(self, request, obj, form, change):
-        obj.creater = request.user
+        if change is False:
+            obj.creater = request.user
         super().save_model(request, obj, form, change)
 
     def get_search_results(self, request, queryset, search_term):
