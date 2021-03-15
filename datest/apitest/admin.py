@@ -499,7 +499,10 @@ class TESTSUITEAdmin(admin.ModelAdmin):
     get_testcase.short_description = '用例数量'
 
     def edit(self,obj):
-        caselist = obj.case.all()
+        if obj.isorder == False:
+            caselist = obj.case.all()
+        else:
+            caselist = obj.testcaselist_set.all()
         cids = ''
         for case in caselist:
             cids = cids + str(case.id) + ','

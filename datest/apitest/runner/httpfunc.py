@@ -14,7 +14,6 @@ import logging
 import os
 from httprunner import HttpRunner, Config, Step, RunRequest
 from httprunner.loader import load_project_meta
-
 from productor import Saver
 
 filedir = os.path.dirname(__file__)
@@ -38,11 +37,11 @@ class PostWithFunctions(HttpRunner):
 
         self.with_project_meta(load_project_meta(filedir + '\\projectdata\\' +testdata['project'] + '\\'))
 
-
         self.teststeps = []
 
         running = RunRequest(testdata['casename'])\
         .with_variables() \
+        .setup_hook('${prerequest($request)}') \
         .setup_hook(testdata['setupfunc']) \
         .__getattribute__(testdata['method'].lower())(testdata['url']) \
         .with_json(testdata['data'])\

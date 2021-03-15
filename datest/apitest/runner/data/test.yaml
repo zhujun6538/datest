@@ -1,14 +1,14 @@
-- - setupfunc: ''
+- - baseurl: http://127.0.0.1
+    setupfunc: ''
     callfunc: default_func
     extract: []
-    suitename: "\u8FD0\u884C\u6D4B\u8BD5\u7528\u4F8B"
+    suitename: "\u7528\u6237\u6B63\u786E\u767B\u5F55"
     group: "\u540E\u53F0"
     caseno: '20210313161428585'
     casename: "admin\u6210\u529F\u767B\u5F55\u540E\u53F0"
     isValid: true
     method: POST
     url: /shopxo/admin.php?s=/admin/login.html
-    baseurl: http://127.0.0.1
     data: {}
     params: {}
     formdata:
@@ -36,4 +36,329 @@
       - "\u767B\u5F55\u6210\u529F"
     sleeptime: 0
     caselink: /admin/apitest/testcase/1/change/
+    project: shopxo
+  - baseurl: http://127.0.0.1
+    setupfunc: ''
+    callfunc: adduser
+    extract: []
+    suitename: "\u7528\u6237\u6B63\u786E\u767B\u5F55"
+    group: "\u540E\u53F0"
+    caseno: '20210313194703456'
+    casename: "\u65B0\u5EFA\u7528\u6237-\u65B0\u5EFA\u6709\u6548\u7528\u6237"
+    isValid: true
+    method: POST
+    url: /shopxo/admin.php?s=/user/save.html
+    data: {}
+    params: {}
+    formdata:
+      username:
+      - 
+      - user${getrand(6)}
+      ' nickname':
+      - 
+      - ''
+      ' mobile':
+      - 
+      - ''
+      ' email':
+      - 
+      - ''
+      ' alipay_openid':
+      - 
+      - ''
+      ' baidu_openid':
+      - 
+      - ''
+      ' toutiao_openid':
+      - 
+      - ''
+      ' qq_openid':
+      - 
+      - ''
+      ' qq_unionid':
+      - 
+      - ''
+      ' weixin_openid':
+      - 
+      - ''
+      ' weixin_unionid':
+      - 
+      - ''
+      ' weixin_web_openid':
+      - 
+      - ''
+      ' birthday':
+      - 
+      - ''
+      ' address':
+      - 
+      - ''
+      ' gender':
+      - 
+      - '0'
+      ' integral':
+      - 
+      - ''
+      ' referrer':
+      - 
+      - ''
+      ' pwd':
+      - 
+      - '111111'
+      ' id':
+      - 
+      - ''
+      ' status':
+      - 
+      - '0'
+    headers:
+      Cookie: OUTFOX_SEARCH_USER_ID_NCOO=1549330950.5833638; ECS[visit_times]=9; csrftoken=845ST2qg8ILRQxVENFduWBZPuGqGbESqnb0LeMsJM5dHbAs7gaxIu1pvgX8kVdUu;
+        sessionid=ld1i3xzg7nrjmlfjeuajtaghqjtvimhw; PHPSESSID=sn9edcb9dgncur7e7558uqbcj6
+      User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML,
+        like Gecko) Chrome/88.0.4324.190 Safari/537.36
+      X-Requested-With: XMLHttpRequest
+    asserts:
+    - - assert_equal
+      - body.code
+      - 0
+    - - assert_equal
+      - body.data
+      - ''
+    - - assert_equal
+      - body.msg
+      - "\u64CD\u4F5C\u6210\u529F"
+    sleeptime: 0
+    caselink: /admin/apitest/testcase/2/change/
+    project: shopxo
+  - baseurl: http://127.0.0.1
+    setupfunc: ''
+    callfunc: default_func
+    extract: []
+    suitename: "\u7528\u6237\u6B63\u786E\u767B\u5F55"
+    group: "\u540E\u53F0"
+    caseno: '20210313205815348'
+    casename: "\u7528\u6237\u767B\u5F55-\u6709\u6548\u7528\u6237\u767B\u5F55"
+    isValid: true
+    method: POST
+    url: /shopxo/index.php?s=/index/user/login.html
+    data: {}
+    params: {}
+    formdata:
+      accounts:
+      - 
+      - '&$..20210313194703456.requestdata.username[1]&'
+      pwd:
+      - 
+      - '111111'
+    headers:
+      Cookie: OUTFOX_SEARCH_USER_ID_NCOO=1549330950.5833638; ECS[visit_times]=9; csrftoken=845ST2qg8ILRQxVENFduWBZPuGqGbESqnb0LeMsJM5dHbAs7gaxIu1pvgX8kVdUu;
+        sessionid=ld1i3xzg7nrjmlfjeuajtaghqjtvimhw; PHPSESSID=sn9edcb9dgncur7e7558uqbcj6
+      User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML,
+        like Gecko) Chrome/88.0.4324.190 Safari/537.36
+      X-Requested-With: XMLHttpRequest
+    asserts:
+    - - assert_equal
+      - body.code
+      - 0
+    - - assert_equal
+      - body.msg
+      - "\u767B\u5F55\u6210\u529F"
+    sleeptime: 0
+    caselink: /admin/apitest/testcase/3/change/
+    project: shopxo
+  - baseurl: http://127.0.0.1
+    setupfunc: ''
+    callfunc: default_func
+    extract: []
+    suitename: "\u7528\u6237\u6B63\u786E\u767B\u5F55"
+    group: "\u540E\u53F0"
+    caseno: '20210313214024965'
+    casename: "\u7F16\u8F91\u7528\u6237"
+    isValid: true
+    method: POST
+    url: /shopxo/admin.php?s=/user/save.html
+    data: {}
+    params: {}
+    formdata:
+      username:
+      - 
+      - userXXXXXX
+      ' nickname':
+      - 
+      - ''
+      ' mobile':
+      - 
+      - ''
+      ' email':
+      - 
+      - ''
+      ' alipay_openid':
+      - 
+      - ''
+      ' baidu_openid':
+      - 
+      - ''
+      ' toutiao_openid':
+      - 
+      - ''
+      ' qq_openid':
+      - 
+      - ''
+      ' qq_unionid':
+      - 
+      - ''
+      ' weixin_openid':
+      - 
+      - ''
+      ' weixin_unionid':
+      - 
+      - ''
+      ' weixin_web_openid':
+      - 
+      - ''
+      ' birthday':
+      - 
+      - ''
+      ' address':
+      - 
+      - ''
+      ' gender':
+      - 
+      - '0'
+      ' integral':
+      - 
+      - '0'
+      ' referrer':
+      - 
+      - '0'
+      ' pwd':
+      - 
+      - '222222'
+      ' id':
+      - 
+      - '&$..20210313194703456.id&'
+      ' status':
+      - 
+      - '0'
+    headers:
+      Cookie: OUTFOX_SEARCH_USER_ID_NCOO=1549330950.5833638; ECS[visit_times]=9; csrftoken=845ST2qg8ILRQxVENFduWBZPuGqGbESqnb0LeMsJM5dHbAs7gaxIu1pvgX8kVdUu;
+        sessionid=ld1i3xzg7nrjmlfjeuajtaghqjtvimhw; PHPSESSID=sn9edcb9dgncur7e7558uqbcj6
+      User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML,
+        like Gecko) Chrome/88.0.4324.190 Safari/537.36
+      X-Requested-With: XMLHttpRequest
+    asserts:
+    - - assert_equal
+      - body.code
+      - 0
+    - - assert_equal
+      - body.msg
+      - "\u64CD\u4F5C\u6210\u529F"
+    sleeptime: 0
+    caselink: /admin/apitest/testcase/6/change/
+    project: shopxo
+  - baseurl: http://127.0.0.1
+    setupfunc: ''
+    callfunc: default_func
+    extract: []
+    suitename: "\u7528\u6237\u6B63\u786E\u767B\u5F55"
+    group: "\u540E\u53F0"
+    caseno: '20210313214139586'
+    casename: "\u7528\u6237\u767B\u5F55-\u7F16\u8F91\u6210\u529F\u7528\u6237\u767B\
+      \u5F55"
+    isValid: true
+    method: POST
+    url: /shopxo/index.php?s=/index/user/login.html
+    data: {}
+    params: {}
+    formdata:
+      accounts:
+      - 
+      - userXXXXXX
+      pwd:
+      - 
+      - '222222'
+    headers:
+      Cookie: OUTFOX_SEARCH_USER_ID_NCOO=1549330950.5833638; ECS[visit_times]=9; csrftoken=845ST2qg8ILRQxVENFduWBZPuGqGbESqnb0LeMsJM5dHbAs7gaxIu1pvgX8kVdUu;
+        sessionid=ld1i3xzg7nrjmlfjeuajtaghqjtvimhw; PHPSESSID=sn9edcb9dgncur7e7558uqbcj6
+      User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML,
+        like Gecko) Chrome/88.0.4324.190 Safari/537.36
+      X-Requested-With: XMLHttpRequest
+    asserts:
+    - - assert_equal
+      - body.code
+      - 0
+    - - assert_equal
+      - body.msg
+      - "\u767B\u5F55\u6210\u529F"
+    sleeptime: 0
+    caselink: /admin/apitest/testcase/7/change/
+    project: shopxo
+  - baseurl: http://127.0.0.1
+    setupfunc: ''
+    callfunc: default_func
+    extract: []
+    suitename: "\u7528\u6237\u6B63\u786E\u767B\u5F55"
+    group: "\u540E\u53F0"
+    caseno: '20210313215026891'
+    casename: "\u5220\u9664\u65B0\u5EFA\u7528\u6237"
+    isValid: true
+    method: POST
+    url: /shopxo/admin.php?s=/user/delete.html
+    data: {}
+    params: {}
+    formdata:
+      ids:
+      - 
+      - '&$..20210313194703456.id&'
+    headers:
+      Cookie: OUTFOX_SEARCH_USER_ID_NCOO=1549330950.5833638; ECS[visit_times]=9; csrftoken=845ST2qg8ILRQxVENFduWBZPuGqGbESqnb0LeMsJM5dHbAs7gaxIu1pvgX8kVdUu;
+        sessionid=ld1i3xzg7nrjmlfjeuajtaghqjtvimhw; PHPSESSID=sn9edcb9dgncur7e7558uqbcj6
+      User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML,
+        like Gecko) Chrome/88.0.4324.190 Safari/537.36
+      X-Requested-With: XMLHttpRequest
+    asserts:
+    - - assert_equal
+      - body.code
+      - 0
+    - - assert_equal
+      - body.msg
+      - "\u5220\u9664\u6210\u529F"
+    sleeptime: 0
+    caselink: /admin/apitest/testcase/8/change/
+    project: shopxo
+  - baseurl: http://127.0.0.1
+    setupfunc: ''
+    callfunc: default_func
+    extract: []
+    suitename: "\u7528\u6237\u6B63\u786E\u767B\u5F55"
+    group: "\u540E\u53F0"
+    caseno: '20210313215717714'
+    casename: "\u7528\u6237\u767B\u5F55-\u5220\u9664\u7528\u6237\u767B\u5F55"
+    isValid: true
+    method: POST
+    url: /shopxo/index.php?s=/index/user/login.html
+    data: {}
+    params: {}
+    formdata:
+      accounts:
+      - 
+      - '&$..20210313214024965.requestdata.username[1]&'
+      pwd:
+      - 
+      - '&$..20210313214024965.requestdata.pwd[1]&'
+    headers:
+      Cookie: OUTFOX_SEARCH_USER_ID_NCOO=1549330950.5833638; ECS[visit_times]=9; csrftoken=845ST2qg8ILRQxVENFduWBZPuGqGbESqnb0LeMsJM5dHbAs7gaxIu1pvgX8kVdUu;
+        sessionid=ld1i3xzg7nrjmlfjeuajtaghqjtvimhw; PHPSESSID=sn9edcb9dgncur7e7558uqbcj6
+      User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML,
+        like Gecko) Chrome/88.0.4324.190 Safari/537.36
+      X-Requested-With: XMLHttpRequest
+    asserts:
+    - - assert_equal
+      - body.code
+      - -3
+    - - assert_equal
+      - body.msg
+      - "\u5E10\u53F7\u4E0D\u5B58\u5728"
+    sleeptime: 0
+    caselink: /admin/apitest/testcase/9/change/
     project: shopxo
