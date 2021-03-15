@@ -32,5 +32,5 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     url(r'^', include(router.urls)),
     re_path(r"data/(?P<path>.*)$", serve, {"document_root": settings.MEDIA_ROOT}),
-    # url(r'^static/(?P<path>.*)$', static.serve,{'document_root': settings.STATIC_ROOT}, name='static'),
+    # url(r'^static/(?P<path>.*)$', static.serve,{'document_root': settings.STATIC_ROOT}, name='static'),# DEBUG = False时启用
 ]
