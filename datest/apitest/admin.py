@@ -39,7 +39,6 @@ class ApiAdmin(admin.ModelAdmin):
     list_display_links = ['edit']
     list_filter = ['group','project','isValid']
     actions = ['get_excel','unvalid']
-    change_list_template = 'admin/apitest/api/option_changelist.html'
     save_on_top = True
     exclude = ('creater',)
 
@@ -94,40 +93,6 @@ class ApiAdmin(admin.ModelAdmin):
         wb.save(response)
         return response
     get_excel.short_description = '导出'
-
-    def get_urls(self):
-        urls = super().get_urls()
-        my_urls = [
-            path('import-csv/',self.import_excel),
-        ]
-        return my_urls + urls
-
-    def import_excel(self, request):
-        '''
-        导入xls文件
-        :param request:
-        :return:
-        '''
-        if request.method == 'POST':
-            xfile = request.FILES['x_file'].file
-            with open(filedir + '\\data\\uploadfile\\temp.xls', 'wb') as f:
-                f.write(xfile.read())
-            apidatas = get_exceldata(filedir + '\\data\\uploadfile\\temp.xls')
-            apinum = 0
-            for data in apidatas:
-                project = Project.objects.get_or_create(name=data['project'],defaults = {'banben':'1'})
-                group = ApiGroup.objects.get_or_create(name=data['group'],defaults = {'project':project[0]})
-                headers = json.loads(data['headers'])
-                api = Api.objects.get_or_create(id=data['id'],name=data['name'],defaults = {'project':project[0],'group':group[0],'method' : data['method'],'description':data['description'],'isValid':True,'url':data['url']})
-                for key,value in headers.items():
-                    header = Header.objects.get_or_create(key=key,value=value)
-                    api[0].header.add(header[0])
-                api[0].save()
-                apinum += 1
-            self.message_user(request, str(apinum) + "个API批量导入成功")
-            return redirect("..")
-        form = CsvImportForm()
-        return render(request, 'admin/csv_form.html', {'form': form})
 
 @admin.register(Project)
 class ProjectAdmin(admin.ModelAdmin):
