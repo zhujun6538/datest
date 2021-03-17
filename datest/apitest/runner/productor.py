@@ -40,6 +40,10 @@ class Saver:
             cls.httphist[cls.caseno] = value
 
     @classmethod
+    def clear_data(cls):
+        cls.httphist.clear()
+
+    @classmethod
     def handle_params(cls, params):
         if params is '':
             return

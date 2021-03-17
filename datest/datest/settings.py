@@ -23,7 +23,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'qfty3w1#2be&mw83ek_)8q!*pn8_!yap^3ynikm#=h_8&d=qa5'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
 ALLOWED_HOSTS = ['*']
 
@@ -99,17 +99,6 @@ DATABASES = {
     }
 }
 
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.mysql',
-#         'NAME': 'datest',
-#         'HOST': 'cd-cdb-ef5dl3fu.sql.tencentcdb.com',
-#         'PORT': '62172',
-#         'USER': 'root',
-#         'PASSWORD': 'z65388674',
-#     }
-# }
-
 # Password validation
 # https://docs.djangoproject.com/en/3.1/ref/settings/#auth-password-validators
 
@@ -148,8 +137,15 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'apitest/data')
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.1/howto/static-files/
 
+# DEBUG = True时启用
 STATIC_URL = '/static/'
-STATIC_ROOT = 'static'
 STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, "/static/"),
-]
+    os.path.join(BASE_DIR, "static"),
+    '/static/',]
+
+# DEBUG = False时启用
+# STATIC_URL = '/static/'
+# STATIC_ROOT = 'static'
+# STATICFILES_DIRS = [
+#     os.path.join(BASE_DIR, "/static/"),
+# ]
