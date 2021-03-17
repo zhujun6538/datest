@@ -16,7 +16,6 @@ import datetime
 import shutil
 
 filepath = os.path.dirname(__file__)
-testdata = f'{filepath}/test_api.py'
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 
@@ -43,6 +42,7 @@ def pyrun(args='',reruns=0,reruns_delay=0):
     testargs.append(str(reruns))
     testargs.append('--reruns-delay')
     testargs.append(str(reruns_delay))
+    testdata = f'{filepath}/test_api.py'
     testargs.append(testdata)
     testargs.append('--alluredir')
     testargs.append(datadir)

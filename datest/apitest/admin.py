@@ -727,8 +727,13 @@ class TESTREPORTAdmin(admin.ModelAdmin):
         cids = ''
         for case in failcaselist:
             cids = cids + str(case.id) + ','
-        caselisturl = reverse('admin:apitest_testcase_changelist') + '?id__in=' +  cids[:-1]
-        return format_html('<a href="{}" target="_blank">{}</a> <a href="{}">{}</a> <a href="{}">{}</a>',obj.file.url,'查看报告',reverse('admin:apitest_testreport_change', args=(obj.id,)),'详情',caselisturl,'查看失败用例')
+        if cids == '':
+            caselisturl = ''
+            caseliststr = '-'
+        else:
+            caselisturl = reverse('admin:apitest_testcase_changelist') + '?id__in=' +  cids[:-1]
+            caseliststr = '查看失败用例'
+        return format_html('<a href="{}" target="_blank">{}</a> <a href="{}">{}</a> <a href="{}">{}</a>',obj.file.url,'查看报告',reverse('admin:apitest_testreport_change', args=(obj.id,)),'详情',caselisturl,caseliststr)
     filelink.short_description = '操作'
 
     def delete_model(self,request,obj):
