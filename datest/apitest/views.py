@@ -7,6 +7,8 @@ from django.urls import reverse
 from rest_framework import viewsets, renderers, permissions, authentication
 from rest_framework.response import Response,SimpleTemplateResponse
 from rest_framework.decorators import api_view, action
+from rest_framework.routers import APIRootView
+
 from .models import *
 from .serializers import *
 from .viewsfunc import *
@@ -14,6 +16,12 @@ from .datahandle import get_casedata
 # Create your views here.
 
 filedir = os.path.dirname(__file__)
+
+class RootView(APIRootView):
+    permission_classes = (permissions.IsAuthenticatedOrReadOnly,)
+
+    def get(self, request, *args, **kwargs):
+        return HttpResponseRedirect(reverse('admin:index'))
 
 class PostdataViewset(viewsets.ModelViewSet):
     queryset = Postdata.objects.all()
