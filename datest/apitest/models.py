@@ -276,9 +276,9 @@ class Argument(models.Model):
         return self.name
 
 class Testbatch(BaseModel):
-    name = models.CharField(max_length=100)
-    testsuite = models.ManyToManyField('TESTSUITE', related_name='TESTSUITE_batch')
-    runtime = models.DateTimeField(null=True)
+    name = models.CharField('批次名称',max_length=100)
+    testsuite = models.ManyToManyField('TESTSUITE', verbose_name='测试套件',related_name='TESTSUITE_batch')
+    runtime = models.DateTimeField('运行时间',null=True)
     args = models.ManyToManyField('Argument', verbose_name='pytest运行参数', related_name='Argument_batch', blank=True)
     reruns = models.IntegerField('失败重跑次数', null=True, blank=True, default=0)
     reruns_delay = models.IntegerField('重跑间隔时间', null=True, blank=True, default=0)
