@@ -275,12 +275,15 @@ class Argument(models.Model):
         return self.name
 
 class Testbatch(BaseModel):
-    batchno = models.CharField(max_length=100)
+    name = models.CharField(max_length=100)
     testsuite = models.ManyToManyField('TESTSUITE', related_name='TESTSUITE_batch')
     runtime = models.DateTimeField(null=True)
+    args = models.ManyToManyField('Argument', verbose_name='pytest运行参数', related_name='Argument_batch', blank=True)
+    reruns = models.IntegerField('失败重跑次数', null=True, blank=True, default=0)
+    reruns_delay = models.IntegerField('重跑间隔时间', null=True, blank=True, default=0)
 
     def __str__(self):
-        return self.batchno
+        return self.name
 
     class Meta:
         verbose_name_plural = '测试批次'
@@ -302,6 +305,7 @@ class TESTREPORT(models.Model):
     testnum = models.IntegerField('用例数量')
     testsuite = models.ManyToManyField('Testsuite',verbose_name='测试套件', related_name='suite_report')
     testcases = models.ManyToManyField('Testcase',verbose_name='测试用例', related_name='case_report')
+    testbatch = models.ForeignKey('Testbatch', verbose_name='所属批次', on_delete=models.SET_NULL,null=True)
     result = models.CharField('运行结果', choices=[('Y', "成功"), ('N', "失败")], max_length=10)
     succase = models.ManyToManyField('Testcase', verbose_name='成功用例',related_name='case_succase',blank=True)
     failcase = models.ManyToManyField('Testcase', verbose_name='失败用例',related_name='case_failcase',blank=True)

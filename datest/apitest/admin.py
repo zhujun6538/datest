@@ -8,14 +8,12 @@ import jenkins
 import jsonpath
 from django.contrib import admin
 from django.contrib.admin import AdminSite
-from django.contrib.auth.models import User, Group
 from django.core.exceptions import MultipleObjectsReturned
 from django.core.files import File
 from django.db import transaction
-from django.forms import formset_factory, forms
 from django.http import HttpResponse
 from django.shortcuts import render, redirect
-from django.urls import reverse, path
+from django.urls import path
 from django.utils import timezone
 from django.utils.html import format_html
 from openpyxl import Workbook
@@ -444,10 +442,10 @@ class TestcaseAdmin(admin.ModelAdmin):
                         thisfile = File(f)
                         thisfile.name = thisfile.name.split('report/')[1]
                         testreport = TESTREPORT.objects.create(reportname=thisname,runner=request.user, file=thisfile,testnum=casenum,result=result,suc=passed, fail=failed)
-                        for passedcase in testresult['passedcase']:
-                            testreport.succase.add(Testcase.objects.get(caseno=passedcase))
-                        for failedcase in testresult['failedcase']:
-                            testreport.failcase.add(Testcase.objects.get(caseno=failedcase))
+                    for passedcase in testresult['passedcase']:
+                        testreport.succase.add(Testcase.objects.get(caseno=passedcase))
+                    for failedcase in testresult['failedcase']:
+                        testreport.failcase.add(Testcase.objects.get(caseno=failedcase))
                     testreport.testcases.add(obj)
                     testreport.save()
                     obj.runtime = timezone.now()
@@ -510,7 +508,7 @@ class TESTSUITEAdmin(admin.ModelAdmin):
         if obj.suite_report.count() != 0:
             lastreports = TESTREPORT.objects.filter(testsuite=obj).latest('testtime')
             reporturl = lastreports.file.url
-            return format_html('<a href="{}" style="white-space:nowrap;" >{}</a> <a href="{}" style="white-space:nowrap;" target="_blank">{}</a> <a href="{}">{}</a>',reverse('admin:apitest_testsuite_change', args=(obj.id,)),'编辑',reporturl,'查看报告',caselisturl,'查看用例')
+            return format_html('<a href="{}" style="white-space:nowrap;" >{}</a> <a href="{}" style="white-space:nowrap;" target="_blank">{}</a> <a href="{}">{}</a>',reverse('admin:apitest_testsuite_change', args=(obj.id,)),'编辑',reporturl,'查看报告',reverse('admin:apitest_testsuite_delete', args=(obj.id,)), '删除',caselisturl,'查看用例')
         else:
             return format_html('<a href="{}" style="white-space:nowrap;" >{}</a> <a href="{}" style="white-space:nowrap;" >{}</a> <a href="{}">{}</a>',reverse('admin:apitest_testsuite_change', args=(obj.id,)), '编辑',reverse('admin:apitest_testsuite_delete', args=(obj.id,)), '删除',caselisturl,'查看用例')
     edit.short_description = '操作'
@@ -559,10 +557,10 @@ class TESTSUITEAdmin(admin.ModelAdmin):
                     thisfile = File(f)
                     thisfile.name = thisfile.name.split('report/')[1]
                     testreport = TESTREPORT.objects.create(reportname=thisname, runner=request.user, file=thisfile,testnum=casenum, result=result,suc=passed, fail=failed)
-                    for passedcase in testresult['passedcase']:
-                        testreport.succase.add(Testcase.objects.get(caseno=passedcase))
-                    for failedcase in testresult['failedcase']:
-                        testreport.failcase.add(Testcase.objects.get(caseno=failedcase))
+                for passedcase in testresult['passedcase']:
+                    testreport.succase.add(Testcase.objects.get(caseno=passedcase))
+                for failedcase in testresult['failedcase']:
+                    testreport.failcase.add(Testcase.objects.get(caseno=failedcase))
                 testreport.testsuite.add(obj)
                 for case in obj.case.all():
                     testreport.testcases.add(case)
@@ -604,7 +602,7 @@ class TESTSUITEAdmin(admin.ModelAdmin):
 
 @admin.register(Testbatch)
 class TestbatchAdmin(admin.ModelAdmin):
-    list_display = ['batchno','creater','createtime','runtime']
+    list_display = ['name','creater','createtime','runtime','edit']
     filter_horizontal = ['testsuite']
     actions = ['gen_yaml','runbatch',]
     exclude = ('runtime','creater',)
@@ -633,6 +631,19 @@ class TestbatchAdmin(admin.ModelAdmin):
         self.message_user(request, '测试文件已生成')
     gen_yaml.short_description = '生成文件'
 
+    def edit(self,obj):
+        suitelist = obj.testsuite.all()
+        sids = ''
+        for suite in suitelist:
+            sids = sids + str(suite.id) + ','
+        suitelisturl = reverse('admin:apitest_testsuite_changelist') + '?id__in=' + sids[:-1]
+        if obj.testreport_set.count() != 0:
+            lastreports = TESTREPORT.objects.filter(testbatch=obj).latest('testtime')
+            reporturl = lastreports.file.url
+            return format_html('<a href="{}" style="white-space:nowrap;" >{}</a> <a href="{}" style="white-space:nowrap;" target="_blank">{}</a> <a href="{}">{}</a>',reverse('admin:apitest_testbatch_change', args=(obj.id,)),'编辑',reporturl,'查看报告',reverse('admin:apitest_testbatch_delete', args=(obj.id,)), '删除',suitelisturl,'查看套件')
+        else:
+            return format_html('<a href="{}" style="white-space:nowrap;" >{}</a> <a href="{}" style="white-space:nowrap;" >{}</a> <a href="{}">{}</a>',reverse('admin:apitest_testbatch_change', args=(obj.id,)), '编辑',reverse('admin:apitest_testbatch_delete', args=(obj.id,)), '删除',suitelisturl,'查看套件')
+    edit.short_description = '操作'
 
     def runbatch(self,request,query_set):
         '''
@@ -641,38 +652,51 @@ class TestbatchAdmin(admin.ModelAdmin):
         :param query_set:
         :return:
         '''
-        thisname = datetime.datetime.now().strftime('%Y%m%d%H%M%S') + '测试报告'
         for batch in query_set:
+            batch_reportname = datetime.datetime.now().strftime('%Y%m%d%H%M%S') + batch.name + '套件测试报告'
+            passedall = 0
+            failedall = 0
+            testbatch = []
             for obj in batch.testsuite.all():
                 testsuite = get_suitedata(obj)
-                casenum = obj.case.count()
-                args = obj.args.all().values_list('name')
-                try:
-                    write_case(f'{filedir}/runner/data/test.yaml',[testsuite])
-                    report = testrunner.pyrun(args,obj.reruns,obj.reruns_delay)
-                    testresult = json.loads(os.environ.get('TESTRESULT'), encoding='utf-8')
-                    os.environ.pop('TESTRESULT')
-                    result = testresult['result']
-                    failed = testresult['failed']
-                    passed = testresult['passed']
-                    with open(report + '/index.html','r',encoding='utf-8') as f:
-                        thisfile = File(f)
-                        thisfile.name = thisfile.name.split('report/')[1]
-                        testreport = TESTREPORT.objects.create(reportname=thisname, runner=request.user, file=thisfile,testnum=casenum, result=result,suc=passed, fail=failed)
-                        for passedcase in testresult['passedcase']:
-                            testreport.succase.add(Testcase.objects.get(caseno=passedcase))
-                        for failedcase in testresult['failedcase']:
-                            testreport.failcase.add(Testcase.objects.get(caseno=failedcase))
-                    testreport.testsuite.add(obj)
-                    for case in obj.case.all():
+                testbatch.extend(testsuite)
+            casenum = len(testbatch)
+            args = batch.args.all().values_list('name')
+            try:
+                write_case(f'{filedir}/runner/data/test.yaml',[testbatch])
+                report = testrunner.pyrun(args,batch.reruns,batch.reruns_delay)
+                testresult = json.loads(os.environ.get('TESTRESULT'), encoding='utf-8')
+                os.environ.pop('TESTRESULT')
+                result = testresult['result']
+                failed = testresult['failed']
+                passed = testresult['passed']
+                with open(report + '/index.html','r',encoding='utf-8') as f:
+                    thisfile = File(f)
+                    thisfile.name = thisfile.name.split('report/')[1]
+                    testreport = TESTREPORT.objects.create(reportname=batch_reportname, runner=request.user,testbatch=batch, file=thisfile,testnum=casenum, result=result,suc=passed, fail=failed)
+                for passedcase in testresult['passedcase']:
+                    testreport.succase.add(Testcase.objects.get(caseno=passedcase))
+                for failedcase in testresult['failedcase']:
+                    testreport.failcase.add(Testcase.objects.get(caseno=failedcase))
+                for suite in batch.testsuite.all():
+                    testreport.testsuite.add(suite)
+                    if suite.isorder == False:
+                        runcases = suite.case.all()
+                    else:
+                        runcases = suite.testcaselist_set.all()
+                        runcases = [case.testcase for case in runcases]
+                    for case in runcases:
                         testreport.testcases.add(case)
                         case.runtime = timezone.now()
                         case.save()
-                    testreport.save()
-                except Exception as e:
-                    self.message_user(request,'发生异常' + str(e))
-                    testreport  = TESTREPORT.objects.create(reportname=thisname, testnum=casenum, result='N', runner=request.user,errors = str(e))
-        self.message_user(request, '测试运行完成，请查看测试报告')
+                testreport.save()
+                passedall += passed
+                failedall += failed
+            except Exception as e:
+                self.message_user(request,'发生异常' + str(e))
+                testreport  = TESTREPORT.objects.create(reportname=batch_reportname, testnum=casenum,testbatch=batch, result='N', runner=request.user,errors = str(e))
+                raise e
+        self.message_user(request, '批次测试运行完成，请查看测试报告')
     runbatch.short_description = '运行批次'
 
     def jrunsuite(self,request,query_set):
