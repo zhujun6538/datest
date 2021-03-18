@@ -34,6 +34,7 @@ filedir = os.path.dirname(__file__)
 class ApiAdmin(admin.ModelAdmin):
     list_display = ['id','name','creater','project','method','group','isValid','url','get_casenum','edit']
     search_fields = ['name']
+    filter_horizontal = ['header']
     list_display_links = ['edit']
     list_filter = ['group','project','isValid']
     actions = ['get_excel','unvalid']
@@ -147,7 +148,7 @@ class BASEURLAdmin(admin.ModelAdmin):
 
 class HeaderParaminline(admin.TabularInline):
     model = HeaderParam
-    extra = 1
+    extra = 0
 
 @admin.register(Headerkey)
 class HeaderkeyAdmin(admin.ModelAdmin):
@@ -165,22 +166,22 @@ class HeadervalAdmin(admin.ModelAdmin):
 
 class FormdataParaminline(admin.TabularInline):
     model = FormdataParam
-    extra = 1
+    extra = 0
     autocomplete_fields = ['paramkey','paramval']
 
 class AssertParaminline(admin.TabularInline):
     model = AssertParam
-    extra = 1
+    extra = 0
     autocomplete_fields = ['paramkey','paramval']
 
 class RequestParaminline(admin.TabularInline):
     model = RequestParam
-    extra = 1
+    extra = 0
     autocomplete_fields = ['paramkey', 'paramval']
 
 class Runparaminline(admin.TabularInline):
     model = Runparam
-    extra = 1
+    extra = 0
 
 @admin.register(Reqquestkey)
 class ReqquestkeyAdmin(admin.ModelAdmin):
@@ -253,7 +254,7 @@ class TestcaseAdmin(admin.ModelAdmin):
     save_on_top = True
     list_filter = ['group', 'project','callfunc','isValid']
     actions = ['get_excel','copy','get_caseyml','runcase','unvalid']
-    fields = ('casename','group','isValid','baseurl','api','datamode','requestdata','setupfunc','callfunc','responsedata')
+    fields = ('casename','group','baseurl','api','datamode','requestdata','setupfunc','callfunc','isValid',)
     change_list_template = 'admin/apitest/testcase/option_changelist.html'
     list_per_page = 50
     readonly_fields = ('responsedata',)
@@ -265,8 +266,8 @@ class TestcaseAdmin(admin.ModelAdmin):
         return super().get_search_results(request, queryset, search_term)
 
     def edit(self,obj):
-        reportlink = '-'
-        reporturl = '#'
+        reportlink = ''
+        reporturl = ''
         lastreports = TESTREPORT.objects.filter(testcases=obj).order_by('-testtime')
         if len(lastreports) != 0:
             reportlink = '查看报告'
@@ -454,12 +455,12 @@ class TestcaseAdmin(admin.ModelAdmin):
             except Exception as e:
                 self.message_user(request,'发生异常' + str(e))
                 testreport = TESTREPORT.objects.create(reportname=thisname, testnum=casenum, result='N',runner=request.user, errors=str(e))
-            self.message_user(request,str(list(query_set.values_list('caseno'))) + f'测试运行完成，测试用例成功数量{passedall}，测试用例失败数量{failedall}，请查看测试报告')
+            self.message_user(request,str(list(query_set.values_list('caseno','casename'))) + f'测试运行完成，测试用例成功数量{passedall}，测试用例失败数量{failedall}，请查看测试报告')
     runcase.short_description = '运行选中用例'
 
 class Testcaselistinline(admin.TabularInline):
     model = Testcaselist
-    extra = 1
+    extra = 0
     autocomplete_fields = ['testcase']
 
 @admin.register(TESTSUITE)
@@ -508,9 +509,9 @@ class TESTSUITEAdmin(admin.ModelAdmin):
         if obj.suite_report.count() != 0:
             lastreports = TESTREPORT.objects.filter(testsuite=obj).latest('testtime')
             reporturl = lastreports.file.url
-            return format_html('<a href="{}" style="white-space:nowrap;" >{}</a> <a href="{}" style="white-space:nowrap;" target="_blank">{}</a> <a href="{}">{}</a>',reverse('admin:apitest_testsuite_change', args=(obj.id,)),'编辑',reporturl,'查看报告',reverse('admin:apitest_testsuite_delete', args=(obj.id,)), '删除',caselisturl,'查看用例')
+            return format_html('<a href="{}" style="white-space:nowrap;" >{}</a> <a href="{}" style="white-space:nowrap;" target="_blank">{}</a> <a href="{}">{}</a> <a href="{}">{}</a>',reverse('admin:apitest_testsuite_change', args=(obj.id,)),'编辑',reporturl,'查看报告',reverse('admin:apitest_testsuite_delete', args=(obj.id,)), '删除',caselisturl,'查看用例')
         else:
-            return format_html('<a href="{}" style="white-space:nowrap;" >{}</a> <a href="{}" style="white-space:nowrap;" >{}</a> <a href="{}">{}</a>',reverse('admin:apitest_testsuite_change', args=(obj.id,)), '编辑',reverse('admin:apitest_testsuite_delete', args=(obj.id,)), '删除',caselisturl,'查看用例')
+            return format_html('<a href="{}" style="white-space:nowrap;" >{}</a> <a href="{}" style="white-space:nowrap;" >{}</a> <a href="{}">{}</a> <a href="{}">{}</a>',reverse('admin:apitest_testsuite_change', args=(obj.id,)), '编辑',reverse('admin:apitest_testsuite_delete', args=(obj.id,)), '删除',caselisturl,'查看用例')
     edit.short_description = '操作'
 
     def gen_yaml(self,request,query_set):
@@ -547,6 +548,7 @@ class TESTSUITEAdmin(admin.ModelAdmin):
             args = obj.args.all().values_list('name')
             try:
                 write_case(f'{filedir}/runner/data/test.yaml',[testsuite])
+                runtime = timezone.now()
                 report = testrunner.pyrun(args,obj.reruns,obj.reruns_delay)
                 testresult = json.loads(os.environ.get('TESTRESULT'), encoding='utf-8')
                 os.environ.pop('TESTRESULT')
@@ -556,7 +558,7 @@ class TESTSUITEAdmin(admin.ModelAdmin):
                 with open(report + '/index.html','r',encoding='utf-8') as f:
                     thisfile = File(f)
                     thisfile.name = thisfile.name.split('report/')[1]
-                    testreport = TESTREPORT.objects.create(reportname=thisname, runner=request.user, file=thisfile,testnum=casenum, result=result,suc=passed, fail=failed)
+                    testreport = TESTREPORT.objects.create(reportname=thisname, runner=request.user, runtime = runtime,file=thisfile,testnum=casenum, result=result,suc=passed, fail=failed)
                 for passedcase in testresult['passedcase']:
                     testreport.succase.add(Testcase.objects.get(caseno=passedcase))
                 for failedcase in testresult['failedcase']:
@@ -571,7 +573,7 @@ class TESTSUITEAdmin(admin.ModelAdmin):
                 failedall += failed
             except Exception as e:
                 self.message_user(request,'发生异常' + str(e))
-                testreport  = TESTREPORT.objects.create(reportname=thisname, testnum=casenum, result='N', runner=request.user,errors = str(e))
+                testreport  = TESTREPORT.objects.create(reportname=thisname,runtime = runtime, testnum=casenum, result='N', runner=request.user,errors = str(e))
                 raise e
         self.message_user(request, str(list(query_set.values_list('name'))) + f'测试运行完成，本次测试结果：{result}，测试用例成功数量{passedall}，测试用例失败数量{failedall}，请查看测试报告')
     runsuite.short_description = '运行套件'
@@ -640,7 +642,7 @@ class TestbatchAdmin(admin.ModelAdmin):
         if obj.testreport_set.count() != 0:
             lastreports = TESTREPORT.objects.filter(testbatch=obj).latest('testtime')
             reporturl = lastreports.file.url
-            return format_html('<a href="{}" style="white-space:nowrap;" >{}</a> <a href="{}" style="white-space:nowrap;" target="_blank">{}</a> <a href="{}">{}</a>',reverse('admin:apitest_testbatch_change', args=(obj.id,)),'编辑',reporturl,'查看报告',reverse('admin:apitest_testbatch_delete', args=(obj.id,)), '删除',suitelisturl,'查看套件')
+            return format_html('<a href="{}" style="white-space:nowrap;" >{}</a> <a href="{}" style="white-space:nowrap;" target="_blank">{}</a> <a href="{}">{}</a> <a href="{}">{}</a>',reverse('admin:apitest_testbatch_change', args=(obj.id,)),'编辑',reporturl,'查看报告',reverse('admin:apitest_testbatch_delete', args=(obj.id,)), '删除',suitelisturl,'查看套件')
         else:
             return format_html('<a href="{}" style="white-space:nowrap;" >{}</a> <a href="{}" style="white-space:nowrap;" >{}</a> <a href="{}">{}</a>',reverse('admin:apitest_testbatch_change', args=(obj.id,)), '编辑',reverse('admin:apitest_testbatch_delete', args=(obj.id,)), '删除',suitelisturl,'查看套件')
     edit.short_description = '操作'
@@ -664,6 +666,7 @@ class TestbatchAdmin(admin.ModelAdmin):
             args = batch.args.all().values_list('name')
             try:
                 write_case(f'{filedir}/runner/data/test.yaml',[testbatch])
+                runtime = timezone.now()
                 report = testrunner.pyrun(args,batch.reruns,batch.reruns_delay)
                 testresult = json.loads(os.environ.get('TESTRESULT'), encoding='utf-8')
                 os.environ.pop('TESTRESULT')
@@ -673,7 +676,7 @@ class TestbatchAdmin(admin.ModelAdmin):
                 with open(report + '/index.html','r',encoding='utf-8') as f:
                     thisfile = File(f)
                     thisfile.name = thisfile.name.split('report/')[1]
-                    testreport = TESTREPORT.objects.create(reportname=batch_reportname, runner=request.user,testbatch=batch, file=thisfile,testnum=casenum, result=result,suc=passed, fail=failed)
+                    testreport = TESTREPORT.objects.create(reportname=batch_reportname, runner=request.user,runtime = runtime,testbatch=batch, file=thisfile,testnum=casenum, result=result,suc=passed, fail=failed)
                 for passedcase in testresult['passedcase']:
                     testreport.succase.add(Testcase.objects.get(caseno=passedcase))
                 for failedcase in testresult['failedcase']:
@@ -694,7 +697,7 @@ class TestbatchAdmin(admin.ModelAdmin):
                 failedall += failed
             except Exception as e:
                 self.message_user(request,'发生异常' + str(e))
-                testreport  = TESTREPORT.objects.create(reportname=batch_reportname, testnum=casenum,testbatch=batch, result='N', runner=request.user,errors = str(e))
+                testreport  = TESTREPORT.objects.create(reportname=batch_reportname, runtime = runtime,testnum=casenum,testbatch=batch, result='N', runner=request.user,errors = str(e))
                 raise e
         self.message_user(request, '批次测试运行完成，请查看测试报告')
     runbatch.short_description = '运行批次'
