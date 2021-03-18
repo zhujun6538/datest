@@ -23,7 +23,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'qfty3w1#2be&mw83ek_)8q!*pn8_!yap^3ynikm#=h_8&d=qa5'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = ['*']
 
@@ -153,13 +153,14 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'apitest/data')
 # https://docs.djangoproject.com/en/3.1/howto/static-files/
 
 # DEBUG = True时启用
-STATIC_URL = '/static/'
-STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, "static"),
-    '/static/',]
+# STATIC_URL = '/static/'
+# STATICFILES_DIRS = [
+#     os.path.join(BASE_DIR, "static"),
+#     '/static/',]
 
 ## DEBUG = False时启用
-# STATIC_ROOT = 'static'
-# STATICFILES_DIRS = [
-#     os.path.join(BASE_DIR, "/static/"),
-# ]
+STATIC_URL = '/static/'
+STATIC_ROOT = 'static'
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, "/static/"),
+]
