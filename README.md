@@ -75,7 +75,7 @@
 可对测试用例进行复制，生成新的用例编号。
 
 ##### 生成文件
-在apitest/runner/data下生成yaml格式的测试用例文件，可以直接运行apitest/runner下的testrunner脚本运行此yaml文件，主要是不会异步运行，只能根据此方式异步运行。
+在apitest/runner/data下生成yaml格式的测试用例文件，可以直接运行apitest/runner下的testrunner脚本运行此yaml文件，实现异步操作。
 
 ##### 运行选中用例
 逐个运行勾选的所有测试用例，并为每个用例生成allure测试报告及测试报告模块下测试结果数据。
