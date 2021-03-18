@@ -102,11 +102,11 @@ WSGI_APPLICATION = 'datest.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'datest2',
-        'HOST': '127.0.0.1',
-        'PORT': '3306',
+        'NAME': 'datest',
+        'HOST': 'cdb-qeg7jnpi.bj.tencentcdb.com',
+        'PORT': '10036',
         'USER': 'root',
-        'PASSWORD': '',
+        'PASSWORD': 'z65388674',
         'OPTIONS': {
             'init_command': 'SET sql_mode="STRICT_TRANS_TABLES"',
             'charset': 'utf8'
