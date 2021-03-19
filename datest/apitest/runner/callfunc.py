@@ -26,9 +26,14 @@ class Callfunc(object):
 
     def adduser(self,testdata):
         PostWithFunctions(testdata).test_start()
-        db = getSqldata()
+        db = getSqldata(host='140.143.4.104',
+                        port=3306,
+                        user='shopxo',
+                        password='z111111',
+                        database='shopxo',
+                        charset="utf8")
         username = Saver.hist[testdata['caseno']]['requestdata']['username'][1]
-        sql = f"select id from s_user where username = '{username}'"
+        sql = f"select id from s_user where username = \"{username}\""
         id = db.query(sql)[0][0]
         Saver.save_data('id',id)
         db.conn.close()
