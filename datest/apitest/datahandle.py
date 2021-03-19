@@ -83,6 +83,8 @@ def get_casedata(suitename,case,baseurl='',setupfunc='',callfunc='',sleeptime=0)
     headers = {}
     if baseurl != '':
         testcase['baseurl'] = baseurl
+    else:
+        testcase['baseurl'] = case.baseurl.url
     if setupfunc != '':
         testcase['setupfunc'] = setupfunc
     else:
@@ -113,8 +115,8 @@ def get_casedata(suitename,case,baseurl='',setupfunc='',callfunc='',sleeptime=0)
         testcase['extract'].append(extdata.param)
     testcase['suitename'] ,testcase['group'] ,testcase['caseno'], testcase['casename'], \
     testcase['isValid'], testcase['method'],testcase['url'], \
-    testcase['baseurl'],testcase['data'], testcase['params'], testcase['formdata'], testcase['headers'], testcase['asserts'], testcase['sleeptime'] ,testcase['caselink'] ,testcase['project'] = \
-        suitename,case.group.name, case.caseno, case.casename, case.isValid, case.api.method , case.api.url, case.baseurl.url,data, params, formdata, headers, asserts, sleeptime, caselink,case.project.name
+    testcase['data'], testcase['params'], testcase['formdata'], testcase['headers'], testcase['asserts'], testcase['sleeptime'] ,testcase['caselink'] ,testcase['project'] = \
+        suitename,case.group.name, case.caseno, case.casename, case.isValid, case.api.method , case.api.url, data, params, formdata, headers, asserts, sleeptime, caselink,case.project.name
     if case.beforecase!=None:
         testcase['before'] = get_casedata(suitename,case.beforecase,baseurl)
     return testcase
@@ -125,7 +127,7 @@ def get_suitedata(obj):
     :param obj:
     :return:
     '''
-    testdata = []
+    testsuite = []
     suitename = obj.name
     baseurl = obj.baseurl.url
     sleeptime = obj.sleeptime
@@ -141,13 +143,13 @@ def get_suitedata(obj):
         cases = obj.case.all()
         for case in cases:
             testcase = get_casedata(suitename, case, baseurl, setupfunc, callfunc,sleeptime)
-            testdata.append(testcase)
+            testsuite.append(testcase)
     else:
         cases = obj.testcaselist_set.all().order_by('runno')
         for case in cases:
             testcase = get_casedata(suitename, case.testcase, baseurl, setupfunc, callfunc,sleeptime)
-            testdata.append(testcase)
-    return testdata
+            testsuite.append(testcase)
+    return testsuite
 
 def get_exceldata(filepath):
     '''

@@ -3,14 +3,15 @@ import io
 import jmespath
 from django.http import HttpResponseRedirect
 from django.shortcuts import render
-from jmespath.exceptions import JMESPathError
+from django.urls import reverse
 from rest_framework import viewsets, renderers, permissions, authentication
 from rest_framework.response import Response,SimpleTemplateResponse
 from rest_framework.decorators import api_view, action
+from rest_framework.routers import APIRootView
+
 from .models import *
 from .serializers import *
 from .viewsfunc import *
-from httprunner.builtin import comparators
 from .datahandle import get_casedata
 # Create your views here.
 
@@ -54,7 +55,7 @@ class DebugTalkViewset(viewsets.ModelViewSet):
             code = changed.replace('new_line', '\r\n')
             obj.content = code
             obj.save()
-            with io.open(obj.file, 'w', encoding='utf-8') as stream:
+            with io.open(filepath, 'w', encoding='utf-8') as stream:
                 stream.write(code)
             return HttpResponseRedirect(f'/admin/apitest/debugtalk/')
 

@@ -604,6 +604,8 @@ class TESTSUITEAdmin(admin.ModelAdmin):
                     testreport.testcases.add(case)
                     case.runtime = timezone.now()
                     case.save()
+                obj.runtime = timezone.now()
+                obj.save()
                 testreport.save()
                 passedall += passed
                 failedall += failed
@@ -728,6 +730,8 @@ class TestbatchAdmin(admin.ModelAdmin):
                         testreport.testcases.add(case)
                         case.runtime = timezone.now()
                         case.save()
+                obj.runtime = timezone.now()
+                obj.save()
                 testreport.save()
                 passedall += passed
                 failedall += failed
