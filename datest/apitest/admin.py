@@ -3,6 +3,7 @@ import datetime
 import random
 import re
 import shutil
+import time
 
 import jenkins
 import jsonpath
@@ -466,7 +467,7 @@ class Testcaselistinline(admin.TabularInline):
 @admin.register(TESTSUITE)
 class TESTSUITEAdmin(admin.ModelAdmin):
     list_display = ['name','createtime','creater','get_testcase','edit']
-    actions = ['gen_yaml','runsuite','jrunsuite']
+    actions = ['gen_yaml','runsuite']
     filter_horizontal = ['case']
     exclude = ['creater','runtime']
     list_display_links = ['edit']
@@ -580,35 +581,11 @@ class TESTSUITEAdmin(admin.ModelAdmin):
         self.message_user(request, str(list(query_set.values_list('name'))) + f'测试运行完成，本次测试结果：{result}，测试用例成功数量{passedall}，测试用例失败数量{failedall}，请查看测试报告')
     runsuite.short_description = '运行套件'
 
-    def jrunsuite(self,request,query_set):
-        '''
-        调用jenkins的构建接口
-        :param request:
-        :param query_set:
-        :return:
-        '''
-        testsuites = []
-        for obj in query_set:
-            rundatas = get_suitedata(obj)
-            testsuites.append(rundatas)
-        try:
-            write_case(f'{filedir}/runner/data/test.yaml', testsuites)
-        except Exception as e:
-            self.message_user(request,'发生异常' + str(e))
-        server = jenkins.Jenkins(url='http://127.0.0.1:8888/', username='admin', password='z111111')
-        last_build_number = server.get_job_info('apitest')['lastCompletedBuild']['number']
-        this_build_number = last_build_number + 1
-        server.build_job('apitest', token='111111')
-        url = 'http://127.0.0.1:8888/job/apitest/'+ str(this_build_number)
-        Jenkinsreport.objects.create(testno=this_build_number,url=url)
-        self.message_user(request, 'Jenkins已进行构建')
-    jrunsuite.short_description = 'jenkins运行套件'
-
 @admin.register(Testbatch)
 class TestbatchAdmin(admin.ModelAdmin):
     list_display = ['name','creater','createtime','runtime','edit']
     filter_horizontal = ['testsuite']
-    actions = ['gen_yaml','runbatch',]
+    actions = ['gen_yaml','runbatch','jenkinsrun']
     exclude = ('runtime','creater',)
 
     def save_model(self, request, obj, form, change):
@@ -706,31 +683,42 @@ class TestbatchAdmin(admin.ModelAdmin):
         self.message_user(request, '批次测试运行完成，请查看测试报告')
     runbatch.short_description = '运行批次'
 
-    def jrunsuite(self,request,query_set):
+    def jenkinsrun(self,request,query_set):
         '''
         调用jenkins的构建接口
         :param request:
         :param query_set:
         :return:
         '''
-        testcases = []
         for batch in query_set:
+            testbatch = []
             for obj in batch.testsuite.all():
-                rundatas = get_suitedata(obj)
-                testcases.append(rundatas)
-        try:
-            write_case(f'{filedir}/runner/data/test.yaml', testcases)
-        except Exception as e:
-            self.message_user(request,'发生异常' + str(e))
-        server = jenkins.Jenkins(url='http://127.0.0.1:8888/', username='admin', password='z111111')
-        last_build_number = server.get_job_info('apitest')['lastCompletedBuild']['number']
-        this_build_number = last_build_number + 1
-        server.build_job('apitest', token='111111')
-        url = 'http://127.0.0.1:8888/job/apitest/'+ str(this_build_number)
-        Jenkinsreport.objects.create(testno=this_build_number,url=url)
-        self.message_user(request, 'Jenkins已进行构建')
-    jrunsuite.short_description = 'jenkins运行套件'
+                testsuite = get_suitedata(obj)
+                testbatch.extend(testsuite)
+            try:
+                write_case(f'{filedir}/runner/data/test.yaml', [testbatch])
+                server = jenkins.Jenkins(url='http://127.0.0.1:8888/', username='admin', password='z111111')
+                last_build_number = server.get_job_info('apitest')['lastCompletedBuild']['number']
+                this_build_number = last_build_number + 1
+                server.build_job('apitest', token='111111')
+                Jenkinsreport.objects.create(number=this_build_number,batch=batch)
+                self.message_user(request, 'Jenkins已进行构建')
+            except Exception as e:
+                self.message_user(request,'发生异常' + str(e))
+    jenkinsrun.short_description = 'jenkins运行套件'
 
+@admin.register(Jenkinsreport)
+class JenkinsreportAdmin(admin.ModelAdmin):
+    list_display = ['number','url','batch','runtime','result','getresult','receivetime']
+
+    def getresult(self,obj):
+        server = jenkins.Jenkins(url='http://127.0.0.1:8888/', username='admin', password='z111111')
+        result = server.get_build_info('apitest',obj.number)
+        log = server.get_build_console_output('apitest',obj.number)
+        duration = datetime.timedelta(microseconds=result['duration'])
+        runtime = datetime.datetime.fromtimestamp(float(result['timestamp']/1000))
+        Jenkinsreport.objects.filter(id=obj.id).update(url=result['url'],duration=duration,runtime=runtime,result=result['result'],output=log)
+        return '已更新'
 
 @admin.register(Argument)
 class ArgumentAdmin(admin.ModelAdmin):

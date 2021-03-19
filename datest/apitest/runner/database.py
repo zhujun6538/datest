@@ -7,7 +7,6 @@
 @desc： 
 """
 import pymysql
-import datest.settings
 
 
 class getSqldata():
