@@ -22,7 +22,8 @@ class EventAdminSite(AdminSite):
             "TESTSUITE": 8,
             "Testbatch": 9,
             "TESTREPORT": 10,
-            "DebugTalk": 11
+            "Jenkinsreport": 11,
+            "DebugTalk": 12
         }
         app_dict = self._build_app_dict(request)
         # a.sort(key=lambda x: b.index(x[0]))
@@ -31,7 +32,8 @@ class EventAdminSite(AdminSite):
         # Sort the models alphabetically within each app.
         if app_list != []:
             for i in range(len(app_list)-1):
-                app_list[i]['models'].sort(key=lambda x: ordering[x['object_name']])
+                if app_list[i]['name'] == 'api测试':
+                    app_list[i]['models'].sort(key=lambda x: ordering[x['object_name']])
         return app_list
 
     def app_index(self, request, app_label, extra_context=None):
@@ -56,7 +58,8 @@ class EventAdminSite(AdminSite):
             "TESTSUITE": 8,
             "Testbatch": 9,
             "TESTREPORT": 10,
-            "DebugTalk": 11
+            "Jenkinsreport": 11,
+            "DebugTalk": 12
         }
         if app_dict!= {}:
             app_dict['models'].sort(key=lambda x: ordering[x['object_name']])

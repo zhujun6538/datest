@@ -7,6 +7,7 @@
 @desc： 
 """
 from django.conf.urls import url,include
+from django.urls import path
 from rest_framework.routers import DefaultRouter
 from . import views
 from datest import settings
@@ -23,4 +24,5 @@ router.register(r'debugtalk',views.DebugTalkViewset)
 urlpatterns = [
     url(r'^',include(router.urls)),
     url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework')),
+    path(r'report/',views.jreport),
 ]

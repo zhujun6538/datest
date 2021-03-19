@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'datest.apps.MyAdminConfig',
     'rest_framework',
+    'django_apscheduler',
     'apitest',
 ]
 
