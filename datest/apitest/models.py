@@ -323,16 +323,20 @@ class TESTREPORT(models.Model):
         verbose_name_plural = '测试报告'
 
 class Jenkinsreport(models.Model):
-    testno = models.IntegerField()
+    number = models.IntegerField('序列号')
+    batch = models.ForeignKey('Testbatch',verbose_name='运行批次',on_delete=models.SET_NULL,null=True)
     url = models.URLField(max_length=100,null=True)
-    result = models.CharField('运行结果', choices=[('Y', "成功"), ('N', "失败")], max_length=10,null=True)
-    output = models.TextField(max_length=10000,null=True)
+    duration = models.DurationField('运行时长',null=True)
+    runtime = models.DateTimeField('运行时间',null=True)
+    result = models.CharField('运行结果', max_length=10,null=True)
+    output = models.TextField('运行日志',max_length=10000,null=True)
+    receivetime = models.DateTimeField('接收时间',auto_now=True,null=True)
 
     def __str__(self):
-        return self.testno
+        return self.number
 
     class Meta:
-        verbose_name_plural = 'Jenkins测试结果'
+        verbose_name_plural = 'Jenkins运行结果'
 
 class Postdata(models.Model):
     apiurl = models.CharField(max_length=100)

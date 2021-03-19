@@ -14,7 +14,6 @@ import logging
 import os
 from httprunner import HttpRunner, Config, Step, RunRequest
 from httprunner.loader import load_project_meta
-
 from productor import Saver
 
 filedir = os.path.dirname(__file__)
