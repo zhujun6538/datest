@@ -105,8 +105,7 @@ class ProjectAdmin(admin.ModelAdmin):
         projectpath = filedir + '/runner/projectdata/' + obj.name
         if not os.path.exists(projectpath):
             os.mkdir(projectpath)
-        with open(projectpath + '/debugtalk.py','w+',encoding='utf-8') as f:
-            pass
+        shutil.copyfile(filedir + '/runner/debugtalk.py',projectpath + '/debugtalk.py')
         if not change:
             obj.creater = request.user
             super().save_model(request, obj, form, change)
