@@ -283,36 +283,34 @@ class CALLFUNCAdmin(admin.ModelAdmin):
 def run_back_case(query_set):
     casenum = query_set.all().count()
     caseids = query_set.values_list('id', flat=True)
-    Testcase.objects.select_for_update().filter(id__in=caseids)
-    with transaction.atomic():
-        passedall = 0
-        failedall = 0
-        try:
-            for obj in query_set:
-                thisname = datetime.datetime.now().strftime('%Y%m%d%H%M%S') + '测试报告'
-                testcase = get_casedata('运行测试用例', obj)
-                write_case(f'{filedir}/runner/data/test.yaml', [[testcase]])
-                report = testrunner.pyrun(args='')
-                testresult = json.loads(os.environ.get('TESTRESULT'), encoding='utf-8')
-                os.environ.pop('TESTRESULT')
-                result = testresult['result']
-                failed = testresult['failed']
-                passed = testresult['passed']
-                with open(report + '/index.html', 'r', encoding='utf-8') as f:
-                    thisfile = File(f)
-                    thisfile.name = thisfile.name.split('report/')[1]
-                    testreport = TESTREPORT.objects.create(reportname=thisname, file=thisfile,testnum=casenum, result=result, suc=passed, fail=failed)
-                for passedcase in testresult['passedcase']:
-                    testreport.succase.add(Testcase.objects.get(caseno=passedcase))
-                for failedcase in testresult['failedcase']:
-                    testreport.failcase.add(Testcase.objects.get(caseno=failedcase))
-                testreport.testcases.add(obj)
-                testreport.save()
-                obj.runtime = timezone.now()
-                passedall += passed
-                failedall += failed
-        except Exception as e:
-            testreport = TESTREPORT.objects.create(reportname=thisname, testnum=casenum, result='N',errors=str(e))
+    passedall = 0
+    failedall = 0
+    try:
+        for obj in query_set:
+            thisname = datetime.datetime.now().strftime('%Y%m%d%H%M%S') + '测试报告'
+            testcase = get_casedata('运行测试用例', obj)
+            write_case(f'{filedir}/runner/data/test.yaml', [[testcase]])
+            report = testrunner.pyrun(args='')
+            testresult = json.loads(os.environ.get('TESTRESULT'), encoding='utf-8')
+            os.environ.pop('TESTRESULT')
+            result = testresult['result']
+            failed = testresult['failed']
+            passed = testresult['passed']
+            with open(report + '/index.html', 'r', encoding='utf-8') as f:
+                thisfile = File(f)
+                thisfile.name = thisfile.name.split('report/')[1]
+                testreport = TESTREPORT.objects.create(reportname=thisname, file=thisfile,testnum=casenum, result=result, suc=passed, fail=failed)
+            for passedcase in testresult['passedcase']:
+                testreport.succase.add(Testcase.objects.get(caseno=passedcase))
+            for failedcase in testresult['failedcase']:
+                testreport.failcase.add(Testcase.objects.get(caseno=failedcase))
+            testreport.testcases.add(obj)
+            testreport.save()
+            obj.runtime = timezone.now()
+            passedall += passed
+            failedall += failed
+    except Exception as e:
+        testreport = TESTREPORT.objects.create(reportname=thisname, testnum=casenum, result='N',errors=str(e))
 
 @admin.register(Testcase)
 class TestcaseAdmin(admin.ModelAdmin):
@@ -619,7 +617,7 @@ class TESTSUITEAdmin(admin.ModelAdmin):
                 failedall += failed
             except Exception as e:
                 self.message_user(request,'发生异常' + str(e))
-                testreport  = TESTREPORT.objects.create(reportname=thisname, testnum=casenum, result='N', runner=request.user,errors = str(e))
+                testreport  = TESTREPORT.objects.create(reportname=thisname, testnum=casenum, result='N', errors = str(e))
                 raise e
         self.message_user(request, str(list(query_set.values_list('name'))) + f'测试运行完成，本次测试结果：{result}，测试用例成功数量{passedall}，测试用例失败数量{failedall}，请查看测试报告')
     runsuite.short_description = '运行套件'
@@ -777,7 +775,7 @@ for k,v in TESTREPORT._meta.fields_map.items():
 
 @admin.register(TESTREPORT)
 class TESTREPORTAdmin(admin.ModelAdmin):
-    list_display = ['reportname', 'testtime', 'testnum', 'result', 'suc', 'fail', 'runner','filelink']
+    list_display = ['reportname', 'testtime', 'testnum', 'result', 'suc', 'fail','filelink']
     list_filter = ['testsuite']
     view_on_site = True
     params = TESTREPORTparams
