@@ -150,8 +150,6 @@ class TestcaseGroupAdmin(admin.ModelAdmin):
 class HeaderAdmin(admin.ModelAdmin):
     list_display = ['key','value']
 
-    def has_module_permission(self,request):
-        return False
 
 @admin.register(BASEURL)
 class BASEURLAdmin(admin.ModelAdmin):
@@ -171,6 +169,9 @@ class HeaderkeyAdmin(admin.ModelAdmin):
 @admin.register(Headerval)
 class HeadervalAdmin(admin.ModelAdmin):
     search_fields = ['value']
+
+    def has_module_permission(self,request):
+        return False
 
 class FormdataParaminline(admin.TabularInline):
     model = FormdataParam
