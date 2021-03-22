@@ -172,9 +172,6 @@ class HeaderkeyAdmin(admin.ModelAdmin):
 class HeadervalAdmin(admin.ModelAdmin):
     search_fields = ['value']
 
-    def has_module_permission(self,request):
-        return False
-
 class FormdataParaminline(admin.TabularInline):
     model = FormdataParam
     extra = 0
