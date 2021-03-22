@@ -571,7 +571,7 @@ class TESTSUITEAdmin(admin.ModelAdmin):
                 with open(report + '/index.html','r',encoding='utf-8') as f:
                     thisfile = File(f)
                     thisfile.name = thisfile.name.split('report/')[1]
-                    testreport = TESTREPORT.objects.create(reportname=thisname, runner=request.user, file=thisfile,testnum=casenum, result=result,suc=passed, fail=failed)
+                    testreport = TESTREPORT.objects.create(reportname=thisname, file=thisfile,testnum=casenum, result=result,suc=passed, fail=failed)
                 for passedcase in testresult['passedcase']:
                     testreport.succase.add(Testcase.objects.get(caseno=passedcase))
                 for failedcase in testresult['failedcase']:
@@ -668,7 +668,7 @@ class TestbatchAdmin(admin.ModelAdmin):
                 with open(report + '/index.html','r',encoding='utf-8') as f:
                     thisfile = File(f)
                     thisfile.name = thisfile.name.split('report/')[1]
-                    testreport = TESTREPORT.objects.create(reportname=batch_reportname, runner=request.user,testbatch=batch, file=thisfile,testnum=casenum, result=result,suc=passed, fail=failed)
+                    testreport = TESTREPORT.objects.create(reportname=batch_reportname,testbatch=batch, file=thisfile,testnum=casenum, result=result,suc=passed, fail=failed)
                 for passedcase in testresult['passedcase']:
                     testreport.succase.add(Testcase.objects.get(caseno=passedcase))
                 for failedcase in testresult['failedcase']:
@@ -691,7 +691,7 @@ class TestbatchAdmin(admin.ModelAdmin):
                 failedall += failed
             except Exception as e:
                 self.message_user(request,'发生异常' + str(e))
-                testreport  = TESTREPORT.objects.create(reportname=batch_reportname, testnum=casenum,testbatch=batch, result='N', runner=request.user,errors = str(e))
+                testreport  = TESTREPORT.objects.create(reportname=batch_reportname, testnum=casenum,testbatch=batch, result='N', errors = str(e))
                 raise e
         self.message_user(request, '批次测试运行完成，请查看测试报告')
     runbatch.short_description = '运行批次'
