@@ -1,18 +1,22 @@
 import io
+from time import timezone
 
-import jmespath
+from django.core.files import File
+from django.db import transaction
 from django.http import HttpResponseRedirect
 from django.shortcuts import render
 from django.urls import reverse
 from rest_framework import viewsets, renderers, permissions, authentication
-from rest_framework.response import Response,SimpleTemplateResponse
+from rest_framework.response import Response
 from rest_framework.decorators import api_view, action
 from rest_framework.routers import APIRootView
-
-from .models import *
+from django.utils import timezone
+from .runner import testrunner
+from .runner.scheduler import scheduler
 from .serializers import *
 from .viewsfunc import *
-from .datahandle import get_casedata
+from .datahandle import get_casedata, get_suitedata, write_case
+
 # Create your views here.
 
 filedir = os.path.dirname(__file__)
@@ -103,3 +107,109 @@ class TestcaseViewset(viewsets.ModelViewSet):
             avobj = Assertval.objects.get_or_create(value=assertvalue)[0]
             AssertParam.objects.get_or_create(testcase=caseobj,paramkey=akobj,defaults = {'paramval':avobj,'mode':assertmode})
         return HttpResponseRedirect('/admin/apitest/testcase/')
+
+def run_back_suite(id):
+    thisname = datetime.datetime.now().strftime('%Y%m%d%H%M%S') + '测试报告'
+    obj = TESTSUITE.objects.get(id=id)
+    testsuite = get_suitedata(obj)
+    casenum = obj.case.count()
+    args = obj.args.all().values_list('name')
+    try:
+        write_case(f'{filedir}/runner/data/test.yaml', [testsuite])
+        runtime = timezone.now()
+        report = testrunner.pyrun(args, obj.reruns, obj.reruns_delay)
+        testresult = json.loads(os.environ.get('TESTRESULT'), encoding='utf-8')
+        os.environ.pop('TESTRESULT')
+        result = testresult['result']
+        failed = testresult['failed']
+        passed = testresult['passed']
+        with open(report + '/index.html', 'r', encoding='utf-8') as f:
+            thisfile = File(f)
+            thisfile.name = thisfile.name.split('report/')[1]
+            testreport = TESTREPORT.objects.create(reportname=thisname, file=thisfile, testnum=casenum,
+                                                   result=result, suc=passed, fail=failed)
+        for passedcase in testresult['passedcase']:
+            testreport.succase.add(Testcase.objects.get(caseno=passedcase))
+        for failedcase in testresult['failedcase']:
+            testreport.failcase.add(Testcase.objects.get(caseno=failedcase))
+        testreport.testsuite.add(obj)
+        for case in obj.case.all():
+            testreport.testcases.add(case)
+            case.runtime = timezone.now()
+            case.save()
+        obj.runtime = timezone.now()
+        obj.save()
+        testreport.save()
+    except Exception as e:
+        TESTREPORT.objects.create(reportname=thisname, testnum=casenum, result='N', errors=str(e))
+        raise e
+
+class TestsuiteViewset(viewsets.ModelViewSet):
+    queryset = TESTSUITE.objects.all()
+    serializer_class = TestsuiteSerializer
+
+    @action(methods=['get'], detail='testsuite-detail', url_path='runback', url_name='testsuite-runback')
+    def run_back(self,request, *args, **kwargs):
+        run_date = (datetime.datetime.now() + datetime.timedelta(seconds=5)).strftime('%Y-%m-%d %H:%M:%S')
+        scheduler.add_job(run_back_suite, 'date', id=str(datetime.datetime.now().timestamp().as_integer_ratio()[0]),run_date=run_date, args=[kwargs['pk']])
+        return HttpResponseRedirect('/admin/apitest/testsuite/',)
+
+def run_back_batch(id):
+    batch = Testbatch.objects.get(id=id)
+    batch_reportname = datetime.datetime.now().strftime('%Y%m%d%H%M%S') + batch.name + '套件批次报告'
+    passedall = 0
+    failedall = 0
+    testbatch = []
+    for obj in batch.testsuite.all():
+        testsuite = get_suitedata(obj)
+        testbatch.extend(testsuite)
+    casenum = len(testbatch)
+    args = batch.args.all().values_list('name')
+    try:
+        write_case(f'{filedir}/runner/data/test.yaml', [testbatch])
+        runtime = timezone.now()
+        report = testrunner.pyrun(args, batch.reruns, batch.reruns_delay)
+        testresult = json.loads(os.environ.get('TESTRESULT'), encoding='utf-8')
+        os.environ.pop('TESTRESULT')
+        result = testresult['result']
+        failed = testresult['failed']
+        passed = testresult['passed']
+        with open(report + '/index.html', 'r', encoding='utf-8') as f:
+            thisfile = File(f)
+            thisfile.name = thisfile.name.split('report/')[1]
+            testreport = TESTREPORT.objects.create(reportname=batch_reportname, testbatch=batch,
+                                                   file=thisfile, testnum=casenum, result=result, suc=passed,
+                                                   fail=failed)
+        for passedcase in testresult['passedcase']:
+            testreport.succase.add(Testcase.objects.get(caseno=passedcase))
+        for failedcase in testresult['failedcase']:
+            testreport.failcase.add(Testcase.objects.get(caseno=failedcase))
+        for suite in batch.testsuite.all():
+            testreport.testsuite.add(suite)
+            if suite.isorder == False:
+                runcases = suite.case.all()
+            else:
+                runcases = suite.testcaselist_set.all()
+                runcases = [case.testcase for case in runcases]
+            for case in runcases:
+                testreport.testcases.add(case)
+                case.runtime = timezone.now()
+                case.save()
+        obj.runtime = timezone.now()
+        obj.save()
+        testreport.save()
+        passedall += passed
+        failedall += failed
+    except Exception as e:
+        testreport = TESTREPORT.objects.create(reportname=batch_reportname, testnum=casenum, testbatch=batch,result='N',  errors=str(e))
+        raise e
+
+class TestbatchViewset(viewsets.ModelViewSet):
+    queryset = Testbatch.objects.all()
+    serializer_class = TestbatchSerializer
+
+    @action(methods=['get'], detail='testbatch-detail', url_path='runback', url_name='testbatch-runback')
+    def run_back(self,request, *args, **kwargs):
+        run_date = (datetime.datetime.now() + datetime.timedelta(seconds=5)).strftime('%Y-%m-%d %H:%M:%S')
+        scheduler.add_job(run_back_batch, 'date', id=str(datetime.datetime.now().timestamp().as_integer_ratio()[0]),run_date=run_date, args=[kwargs['pk']])
+        return HttpResponseRedirect('/admin/apitest/testbatch/',)

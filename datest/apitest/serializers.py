@@ -19,6 +19,22 @@ class TestcaseSerializer(serializers.ModelSerializer):
         for field in model._meta.fields:
             fields.append(field.name)
 
+class TestsuiteSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = TESTSUITE
+        fields = []
+        for field in model._meta.fields:
+            fields.append(field.name)
+
+class TestbatchSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Testbatch
+        fields = []
+        for field in model._meta.fields:
+            fields.append(field.name)
+
 class DebugTalkSerializer(serializers.ModelSerializer):
 
     class Meta:
