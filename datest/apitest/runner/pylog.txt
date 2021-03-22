@@ -1,6 +1,1 @@
-17:37:48 conftest.py[line:21] INFO 开始测试
-17:37:48 conftest.py[line:33] INFO ---------------------------------------20210313161428585---------------------------------------
-17:37:48 debugtalk.py[line:73] INFO url:/shopxo/admin.php?s=/admin/login.html,headers:{'Cookie': 'OUTFOX_SEARCH_USER_ID_NCOO=1549330950.5833638; ECS[visit_times]=9; csrftoken=845ST2qg8ILRQxVENFduWBZPuGqGbESqnb0LeMsJM5dHbAs7gaxIu1pvgX8kVdUu; sessionid=ld1i3xzg7nrjmlfjeuajtaghqjtvimhw; PHPSESSID=sn9edcb9dgncur7e7558uqbcj6', 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/88.0.4324.190 Safari/537.36', 'X-Requested-With': 'XMLHttpRequest', 'HRUN-Request-ID': 'HRUN-f9e239f8-ec28-441a-8ddb-000192a7a8a3-468189'},params:{},data:{'username': [None, 'admin'], 'login_pwd': [None, 'shopxo']},json:{}
-17:37:48 debugtalk.py[line:99] INFO 响应码：200
-17:37:48 debugtalk.py[line:101] INFO 响应数据：{"msg":"登录成功","code":0,"data":""}
-17:37:48 conftest.py[line:24] INFO 结束测试
+16:22:31 conftest.py[line:21] INFO 开始测试

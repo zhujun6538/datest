@@ -139,12 +139,13 @@ def run_back_suite(id):
 class TestsuiteViewset(viewsets.ModelViewSet):
     queryset = TESTSUITE.objects.all()
     serializer_class = TestsuiteSerializer
+    renderer_classes = (renderers.TemplateHTMLRenderer,)
 
     @action(methods=['get'], detail='testsuite-detail', url_path='runback', url_name='testsuite-runback')
     def run_back(self,request, *args, **kwargs):
         run_date = (datetime.datetime.now() + datetime.timedelta(seconds=5)).strftime('%Y-%m-%d %H:%M:%S')
         scheduler.add_job(run_back_suite, 'date', id=str(datetime.datetime.now().timestamp().as_integer_ratio()[0]),run_date=run_date, args=[kwargs['pk']])
-        return HttpResponseRedirect('/admin/apitest/testsuite/',)
+        return Response({},template_name='testsuite/runback.html')
 
 def run_back_batch(id):
     batch = Testbatch.objects.get(id=id)
@@ -193,15 +194,16 @@ def run_back_batch(id):
         passedall += passed
         failedall += failed
     except Exception as e:
-        testreport = TESTREPORT.objects.create(reportname=batch_reportname, testnum=casenum, testbatch=batch,result='N', runner=request.user, errors=str(e))
+        testreport = TESTREPORT.objects.create(reportname=batch_reportname, testnum=casenum, testbatch=batch,result='N',  errors=str(e))
         raise e
 
 class TestbatchViewset(viewsets.ModelViewSet):
     queryset = Testbatch.objects.all()
     serializer_class = TestbatchSerializer
+    renderer_classes = (renderers.TemplateHTMLRenderer,)
 
     @action(methods=['get'], detail='testbatch-detail', url_path='runback', url_name='testbatch-runback')
     def run_back(self,request, *args, **kwargs):
         run_date = (datetime.datetime.now() + datetime.timedelta(seconds=5)).strftime('%Y-%m-%d %H:%M:%S')
         scheduler.add_job(run_back_batch, 'date', id=str(datetime.datetime.now().timestamp().as_integer_ratio()[0]),run_date=run_date, args=[kwargs['pk']])
-        return HttpResponseRedirect('/admin/apitest/testbatch/',)
+        return Response({},template_name='testbatch/runback.html')

@@ -16,9 +16,6 @@ import allure
 import datetime
 import shutil
 
-import requests
-from django.contrib import auth
-from .productor import Saver
 filepath = os.path.dirname(__file__)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -53,7 +50,6 @@ def pyrun(args='',reruns=0,reruns_delay=0):
     pytest.main(testargs)
     os.system((f'allure generate {datadir} -o {htmldir} --clean'))
     return htmldir
-
 
 if __name__ == '__main__':
     pyrun('')

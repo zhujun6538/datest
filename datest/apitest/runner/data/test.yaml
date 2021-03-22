@@ -2,7 +2,7 @@
     setupfunc: ''
     callfunc: default_func
     extract: []
-    suitename: "\u8FD0\u884C\u6D4B\u8BD5\u7528\u4F8B"
+    suitename: "\u6D4B\u8BD5X"
     group: "\u540E\u53F0"
     caseno: '20210313161428585'
     casename: "admin\u6210\u529F\u767B\u5F55\u540E\u53F0"
