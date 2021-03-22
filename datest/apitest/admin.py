@@ -383,9 +383,9 @@ class TestcaseAdmin(admin.ModelAdmin):
         '''导出xls'''
         if request.method == 'POST':
             xfile = request.FILES['x_file'].file
-            with open(filedir + '\\data\\uploadfile\\temp.xls', 'wb') as f:
+            with open(filedir + '/data/uploadfile/temp.xls', 'wb') as f:
                 f.write(xfile.read())
-            testcases = get_exceldata(filedir + '\\data\\uploadfile\\temp.xls')
+            testcases = get_exceldata(filedir + '/data/uploadfile/temp.xls')
             num = 0
             for data in testcases:
                 caseno = datetime.datetime.now().strftime('%Y%m%d%H%M%S') + str(random.randint(1,10000))
