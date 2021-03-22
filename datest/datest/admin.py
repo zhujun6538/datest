@@ -15,6 +15,7 @@ class EventAdminSite(AdminSite):
             "Project": 1,
             "Api": 3,
             "BASEURL": 4,
+            "Header": 5,
             "Testcase": 7,
             "TESTSUITE": 8,
             "Testbatch": 9,
