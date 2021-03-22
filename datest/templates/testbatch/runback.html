@@ -1,0 +1,92 @@
+{% extends "rest_framework/base.html" %}
+{% load static %}
+{% load i18n %}
+{% load rest_framework %}
+
+<!DOCTYPE html>
+<head>
+    {% block head %}
+
+      {% block meta %}
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+        <meta name="robots" content="NONE,NOARCHIVE" />
+        <meta http-equiv="refresh" content="3;URL=/admin/apitest/testsuite/" >
+      {% endblock %}
+
+      <title>{% block title %}{% if name %}{{ name }} – {% endif %}接口自动化测试平台{% endblock %}</title>
+
+      {% block style %}
+        {% block bootstrap_theme %}
+          <link rel="stylesheet" type="text/css" href="{% static "rest_framework/css/bootstrap.min.css" %}"/>
+          <link rel="stylesheet" type="text/css" href="{% static "rest_framework/css/bootstrap-tweaks.css" %}"/>
+        {% endblock %}
+
+        <link rel="stylesheet" type="text/css" href="{% static "rest_framework/css/prettify.css" %}"/>
+        <link rel="stylesheet" type="text/css" href="{% static "rest_framework/css/default.css" %}"/>
+      {% endblock %}
+    {% endblock %}
+</head>
+
+<html>
+
+
+{% block content %}
+<div class="region"  aria-label="{% trans "request form" %}">
+
+
+
+
+
+</div>
+
+           <div class="content-main" role="main"  aria-label="{% trans "main content" %}">
+              <div class="page-header">
+                <h1>{{ name }}</h1>
+              </div>
+              <div style="float:left">
+                {% block description %}
+                  {{ description }}
+                {% endblock %}
+              </div>
+
+              {% if paginator %}
+                <nav style="float: right">
+                  {% get_pagination_html paginator %}
+                </nav>
+              {% endif %}
+
+
+              <div class="response-info" aria-label="{% trans "response info" %}">
+<div style="
+    background-color: darkgray;
+    width: 500px;
+    height: 200px;
+    position: relative;
+    margin-top: 10%;
+    margin-left: auto;
+    margin-right: auto;
+    border: 3px outset lavenderblush;
+    text-align: center;
+"><div style="
+    position: relative;
+    margin-top: 80px;
+"><p>测试已运行，请稍后查看测试报告，3秒后跳转上页</p><p><a href="#" style="
+">点击直接跳转</a></p></div></div>
+
+              </div>
+            </div>
+
+
+{% endblock content %}
+
+
+{% block script %}
+      <script src="{% static "rest_framework/js/jquery-3.5.1.min.js" %}"></script>
+      <script src="{% static "rest_framework/js/ajax-form.js" %}"></script>
+      <script src="{% static "rest_framework/js/csrf.js" %}"></script>
+      <script src="{% static "rest_framework/js/bootstrap.min.js" %}"></script>
+      <script src="{% static "rest_framework/js/prettify-min.js" %}"></script>
+      <script src="{% static "rest_framework/js/default.js" %}"></script>
+
+    {% endblock %}
+</html>

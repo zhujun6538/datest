@@ -13,11 +13,8 @@ class EventAdminSite(AdminSite):
         """
         ordering = {
             "Project": 1,
-            "ApiGroup": 2,
             "Api": 3,
             "BASEURL": 4,
-            "Header": 5,
-            "TestcaseGroup": 6,
             "Testcase": 7,
             "TESTSUITE": 8,
             "Testbatch": 9,

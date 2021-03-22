@@ -133,9 +133,15 @@ class DebugTalkAdmin(admin.ModelAdmin):
 class ApiGroupAdmin(admin.ModelAdmin):
     list_display = ['name']
 
+    def has_module_permission(self,request):
+        return False
+
 @admin.register(TestcaseGroup)
 class TestcaseGroupAdmin(admin.ModelAdmin):
     exclude = ['creater',]
+
+    def has_module_permission(self,request):
+        return False
 
     def save_model(self, request, obj, form, change):
         obj.creater = request.user
@@ -144,6 +150,9 @@ class TestcaseGroupAdmin(admin.ModelAdmin):
 @admin.register(Header)
 class HeaderAdmin(admin.ModelAdmin):
     list_display = ['key','value']
+
+    def has_module_permission(self,request):
+        return False
 
 @admin.register(BASEURL)
 class BASEURLAdmin(admin.ModelAdmin):
