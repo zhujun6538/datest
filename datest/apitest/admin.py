@@ -28,6 +28,8 @@ from .runner import testrunner
 
 # admin.site.unregister(User)
 # admin.site.unregister(Group)
+from .runner.scheduler import scheduler
+
 AdminSite.site_header = "datest接口自动化测试平台"
 AdminSite.index_title = "api测试"
 filedir = os.path.dirname(__file__)
@@ -244,6 +246,40 @@ class CALLFUNCAdmin(admin.ModelAdmin):
     def has_module_permission(self,request):
         return False
 
+def run_back_case(query_set):
+    casenum = query_set.all().count()
+    caseids = query_set.values_list('id', flat=True)
+    Testcase.objects.select_for_update().filter(id__in=caseids)
+    with transaction.atomic():
+        passedall = 0
+        failedall = 0
+        try:
+            for obj in query_set:
+                thisname = datetime.datetime.now().strftime('%Y%m%d%H%M%S') + '测试报告'
+                testcase = get_casedata('运行测试用例', obj)
+                write_case(f'{filedir}/runner/data/test.yaml', [[testcase]])
+                report = testrunner.pyrun(args='')
+                testresult = json.loads(os.environ.get('TESTRESULT'), encoding='utf-8')
+                os.environ.pop('TESTRESULT')
+                result = testresult['result']
+                failed = testresult['failed']
+                passed = testresult['passed']
+                with open(report + '/index.html', 'r', encoding='utf-8') as f:
+                    thisfile = File(f)
+                    thisfile.name = thisfile.name.split('report/')[1]
+                    testreport = TESTREPORT.objects.create(reportname=thisname, file=thisfile,testnum=casenum, result=result, suc=passed, fail=failed)
+                for passedcase in testresult['passedcase']:
+                    testreport.succase.add(Testcase.objects.get(caseno=passedcase))
+                for failedcase in testresult['failedcase']:
+                    testreport.failcase.add(Testcase.objects.get(caseno=failedcase))
+                testreport.testcases.add(obj)
+                testreport.save()
+                obj.runtime = timezone.now()
+                passedall += passed
+                failedall += failed
+        except Exception as e:
+            testreport = TESTREPORT.objects.create(reportname=thisname, testnum=casenum, result='N',errors=str(e))
+
 @admin.register(Testcase)
 class TestcaseAdmin(admin.ModelAdmin):
     list_display = ['caseno','casename','creater','isValid', 'group', 'api', 'edit']
@@ -422,41 +458,12 @@ class TestcaseAdmin(admin.ModelAdmin):
         :param query_set:
         :return:
         '''
-        casenum = query_set.all().count()
-        caseids = query_set.values_list('id', flat=True)
-        Testcase.objects.select_for_update().filter(id__in = caseids)
-        with transaction.atomic():
-            testcases = self.gen_yml(request,query_set)
-            passedall = 0
-            failedall = 0
-            try:
-                for obj in query_set:
-                    thisname = datetime.datetime.now().strftime('%Y%m%d%H%M%S') + '测试报告'
-                    testcase = get_casedata('运行测试用例', obj)
-                    write_case(f'{filedir}/runner/data/test.yaml', [[testcase]])
-                    report = testrunner.pyrun(args='')
-                    testresult = json.loads(os.environ.get('TESTRESULT'),encoding='utf-8')
-                    os.environ.pop('TESTRESULT')
-                    result = testresult['result']
-                    failed = testresult['failed']
-                    passed = testresult['passed']
-                    with open(report + '/index.html','r',encoding='utf-8') as f:
-                        thisfile = File(f)
-                        thisfile.name = thisfile.name.split('report/')[1]
-                        testreport = TESTREPORT.objects.create(reportname=thisname,runner=request.user, file=thisfile,testnum=casenum,result=result,suc=passed, fail=failed)
-                    for passedcase in testresult['passedcase']:
-                        testreport.succase.add(Testcase.objects.get(caseno=passedcase))
-                    for failedcase in testresult['failedcase']:
-                        testreport.failcase.add(Testcase.objects.get(caseno=failedcase))
-                    testreport.testcases.add(obj)
-                    testreport.save()
-                    obj.runtime = timezone.now()
-                    passedall += passed
-                    failedall += failed
-            except Exception as e:
-                self.message_user(request,'发生异常' + str(e))
-                testreport = TESTREPORT.objects.create(reportname=thisname, testnum=casenum, result='N',runner=request.user, errors=str(e))
-            self.message_user(request,str(list(query_set.values_list('caseno','casename'))) + f'测试运行完成，测试用例成功数量{passedall}，测试用例失败数量{failedall}，请查看测试报告')
+        try:
+            run_date = (datetime.datetime.now() + datetime.timedelta(seconds=5)).strftime('%Y-%m-%d %H:%M:%S')
+            scheduler.add_job(run_back_case, 'date', id=str(datetime.datetime.now().timestamp().as_integer_ratio()[0]),run_date=run_date, args=[query_set])
+        except Exception as e:
+            self.message_user(request, '发生异常：' + str(e))
+        self.message_user(request,str(list(query_set.values_list('caseno','casename'))) + f'测试用例运行，请稍后查看测试报告')
     runcase.short_description = '运行选中用例'
 
 class Testcaselistinline(admin.TabularInline):
@@ -510,9 +517,9 @@ class TESTSUITEAdmin(admin.ModelAdmin):
         if obj.suite_report.count() != 0:
             lastreports = TESTREPORT.objects.filter(testsuite=obj).latest('testtime')
             reporturl = lastreports.file.url
-            return format_html('<a href="{}" style="white-space:nowrap;" >{}</a> <a href="{}" style="white-space:nowrap;" target="_blank">{}</a> <a href="{}">{}</a> <a href="{}">{}</a>',reverse('admin:apitest_testsuite_change', args=(obj.id,)),'编辑',reporturl,'查看报告',reverse('admin:apitest_testsuite_delete', args=(obj.id,)), '删除',caselisturl,'查看用例')
+            return format_html('<a href="{}" style="white-space:nowrap;" >{}</a> <a href="{}" style="white-space:nowrap;" >{}</a> <a href="{}" style="white-space:nowrap;" target="_blank">{}</a> <a href="{}">{}</a> <a href="{}">{}</a>',rvs('testsuite-detail',args=[obj.id]) + 'runback','后台运行',reverse('admin:apitest_testsuite_change', args=(obj.id,)),'编辑',reporturl,'查看报告',reverse('admin:apitest_testsuite_delete', args=(obj.id,)), '删除',caselisturl,'查看用例')
         else:
-            return format_html('<a href="{}" style="white-space:nowrap;" >{}</a> <a href="{}" style="white-space:nowrap;" >{}</a> <a href="{}">{}</a> <a href="{}">{}</a>',reverse('admin:apitest_testsuite_change', args=(obj.id,)), '编辑',reverse('admin:apitest_testsuite_delete', args=(obj.id,)), '删除',caselisturl,'查看用例')
+            return format_html('<a href="{}" style="white-space:nowrap;" >{}</a> <a href="{}" style="white-space:nowrap;" >{}</a> <a href="{}" style="white-space:nowrap;" >{}</a> <a href="{}">{}</a>',rvs('testsuite-detail',args=[obj.id]) + 'runback','后台运行',reverse('admin:apitest_testsuite_change', args=(obj.id,)), '编辑',reverse('admin:apitest_testsuite_delete', args=(obj.id,)), '删除',caselisturl,'查看用例')
     edit.short_description = '操作'
 
     def gen_yaml(self,request,query_set):
@@ -581,6 +588,7 @@ class TESTSUITEAdmin(admin.ModelAdmin):
         self.message_user(request, str(list(query_set.values_list('name'))) + f'测试运行完成，本次测试结果：{result}，测试用例成功数量{passedall}，测试用例失败数量{failedall}，请查看测试报告')
     runsuite.short_description = '运行套件'
 
+
 @admin.register(Testbatch)
 class TestbatchAdmin(admin.ModelAdmin):
     list_display = ['name','creater','createtime','runtime','edit']
@@ -621,9 +629,9 @@ class TestbatchAdmin(admin.ModelAdmin):
         if obj.testreport_set.count() != 0:
             lastreports = TESTREPORT.objects.filter(testbatch=obj).latest('testtime')
             reporturl = lastreports.file.url
-            return format_html('<a href="{}" style="white-space:nowrap;" >{}</a> <a href="{}" style="white-space:nowrap;" target="_blank">{}</a> <a href="{}">{}</a> <a href="{}">{}</a>',reverse('admin:apitest_testbatch_change', args=(obj.id,)),'编辑',reporturl,'查看报告',reverse('admin:apitest_testbatch_delete', args=(obj.id,)), '删除',suitelisturl,'查看套件')
+            return format_html('<a href="{}" style="white-space:nowrap;" >{}</a> <a href="{}" style="white-space:nowrap;" >{}</a> <a href="{}" style="white-space:nowrap;" target="_blank">{}</a> <a href="{}">{}</a> <a href="{}">{}</a>',rvs('testbatch-detail',args=[obj.id]) + 'runback','后台运行',reverse('admin:apitest_testbatch_change', args=(obj.id,)),'编辑',reporturl,'查看报告',reverse('admin:apitest_testbatch_delete', args=(obj.id,)), '删除',suitelisturl,'查看套件')
         else:
-            return format_html('<a href="{}" style="white-space:nowrap;" >{}</a> <a href="{}" style="white-space:nowrap;" >{}</a> <a href="{}">{}</a>',reverse('admin:apitest_testbatch_change', args=(obj.id,)), '编辑',reverse('admin:apitest_testbatch_delete', args=(obj.id,)), '删除',suitelisturl,'查看套件')
+            return format_html('<a href="{}" style="white-space:nowrap;" >{}</a> <a href="{}" style="white-space:nowrap;" >{}</a> <a href="{}" style="white-space:nowrap;" >{}</a> <a href="{}">{}</a>',rvs('testbatch-detail',args=[obj.id]) + 'runback','后台运行',reverse('admin:apitest_testbatch_change', args=(obj.id,)), '编辑',reverse('admin:apitest_testbatch_delete', args=(obj.id,)), '删除',suitelisturl,'查看套件')
     edit.short_description = '操作'
 
     def runbatch(self,request,query_set):
@@ -634,7 +642,7 @@ class TestbatchAdmin(admin.ModelAdmin):
         :return:
         '''
         for batch in query_set:
-            batch_reportname = datetime.datetime.now().strftime('%Y%m%d%H%M%S') + batch.name + '套件测试报告'
+            batch_reportname = datetime.datetime.now().strftime('%Y%m%d%H%M%S') + batch.name + '套件批次报告'
             passedall = 0
             failedall = 0
             testbatch = []

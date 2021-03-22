@@ -19,10 +19,12 @@ router = DefaultRouter()
 router.APIRootView = views.RootView
 router.register(r'postdata',views.PostdataViewset)
 router.register(r'testcase',views.TestcaseViewset)
+router.register(r'testsuite',views.TestsuiteViewset)
+router.register(r'testbatch',views.TestbatchViewset)
 router.register(r'debugtalk',views.DebugTalkViewset)
 
 urlpatterns = [
     url(r'^',include(router.urls)),
+    # path(r'runsuite/<int:id>/',views.runsuite),
     url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework')),
-    path(r'report/',views.jreport),
 ]

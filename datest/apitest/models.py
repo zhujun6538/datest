@@ -311,7 +311,7 @@ class TESTREPORT(models.Model):
     failcase = models.ManyToManyField('Testcase', verbose_name='失败用例',related_name='case_failcase',blank=True)
     suc = models.IntegerField('成功用例数量',null=True,blank=True)
     fail = models.IntegerField('失败用例数量',null=True,blank=True)
-    runner = models.ForeignKey('auth.user',verbose_name='运行人',on_delete=models.CASCADE)
+    runner = models.ForeignKey('auth.user',verbose_name='运行人',on_delete=models.SET_NULL,null=True)
     file = models.FileField(upload_to='report',default='report/html/index.html',verbose_name='报告文件')
     errors = models.TextField('异常信息',max_length=10000,null=True)
 
