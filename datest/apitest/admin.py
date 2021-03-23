@@ -110,8 +110,10 @@ class ProjectAdmin(admin.ModelAdmin):
             obj.creater = request.user
             super().save_model(request, obj, form, change)
             os.mkdir(projectpath + obj.name)
-            shutil.copyfile(filedir + '/runner/debugtalk.py', projectpath + '/debugtalk.py')
-            DebugTalk.objects.create(project=obj,file='/runner/projectdata/' + obj.name + '/debugtalk.py',content='')
+            shutil.copyfile(filedir + '/runner/debugtalk.py', projectpath + obj.name + '/debugtalk.py')
+            with open(projectpath + obj.name + '/debugtalk.py', 'r+', encoding='utf-8') as f:
+                content = f.read()
+            DebugTalk.objects.create(project=obj,file='/runner/projectdata/' + obj.name + '/debugtalk.py',content=content)
         super().save_model(request, obj, form, change)
 
 
