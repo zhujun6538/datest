@@ -265,6 +265,8 @@ def run_back_case(query_set):
         for obj in query_set:
             thisname = datetime.datetime.now().strftime('%Y%m%d%H%M%S') + '测试报告'
             testcase = get_casedata('运行测试用例', obj)
+            if not os.path.exists(f'{filedir}/runner/data'):
+                os.mkdir(f'{filedir}/runner/data')
             write_case(f'{filedir}/runner/data/test.yaml', [[testcase]])
             report = testrunner.pyrun(args='')
             testresult = json.loads(os.environ.get('TESTRESULT'), encoding='utf-8')
@@ -287,6 +289,7 @@ def run_back_case(query_set):
             failedall += failed
     except Exception as e:
         testreport = TESTREPORT.objects.create(reportname=thisname, testnum=casenum, result='N',errors=str(e))
+        raise e
 
 @admin.register(Testcase)
 class TestcaseAdmin(admin.ModelAdmin):
