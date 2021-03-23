@@ -103,14 +103,18 @@ class ProjectAdmin(admin.ModelAdmin):
     exclude = ('creater',)
 
     def save_model(self, request, obj, form, change):
-        projectpath = filedir + '/runner/projectdata/' + obj.name
+        projectpath = filedir + '/runner/projectdata/'
         if not os.path.exists(projectpath):
             os.mkdir(projectpath)
-        shutil.copyfile(filedir + '/runner/debugtalk.py',projectpath + '/debugtalk.py')
         if not change:
             obj.creater = request.user
             super().save_model(request, obj, form, change)
-            DebugTalk.objects.create(project=obj,file='/runner/projectdata/' + obj.name + '/debugtalk.py',content='')
+            if not os.path.exists(projectpath + obj.name):
+                os.mkdir(projectpath + obj.name)
+            shutil.copyfile(filedir + '/runner/debugtalk.py', projectpath + obj.name + '/debugtalk.py')
+            with open(projectpath + obj.name + '/debugtalk.py', 'r+', encoding='utf-8') as f:
+                content = f.read()
+            DebugTalk.objects.create(project=obj,file='/runner/projectdata/' + obj.name + '/debugtalk.py',content=content)
         super().save_model(request, obj, form, change)
 
 
@@ -261,6 +265,8 @@ def run_back_case(query_set):
         for obj in query_set:
             thisname = datetime.datetime.now().strftime('%Y%m%d%H%M%S') + '测试报告'
             testcase = get_casedata('运行测试用例', obj)
+            if not os.path.exists(f'{filedir}/runner/data'):
+                os.mkdir(f'{filedir}/runner/data')
             write_case(f'{filedir}/runner/data/test.yaml', [[testcase]])
             report = testrunner.pyrun(args='')
             testresult = json.loads(os.environ.get('TESTRESULT'), encoding='utf-8')
@@ -283,6 +289,7 @@ def run_back_case(query_set):
             failedall += failed
     except Exception as e:
         testreport = TESTREPORT.objects.create(reportname=thisname, testnum=casenum, result='N',errors=str(e))
+        raise e
 
 @admin.register(Testcase)
 class TestcaseAdmin(admin.ModelAdmin):

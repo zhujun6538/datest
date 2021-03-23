@@ -151,7 +151,7 @@ def get_suitedata(obj):
     if obj.isorder is False:
         cases = obj.case.all()
         for case in cases:
-            testcase = get_casedata(suitename, case, baseurl, setupfunc, callfunc,sleeptime)
+            testcase = get_casedata(suitename, case, baseurl, setupfunc,teardownfunc, callfunc,sleeptime)
             testsuite.append(testcase)
     else:
         cases = obj.testcaselist_set.all().order_by('runno')
