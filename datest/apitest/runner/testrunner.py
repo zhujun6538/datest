@@ -36,6 +36,7 @@ def pyrun(args='',reruns=0,reruns_delay=0):
     :return:测试报告本地文件地址
     '''
     createfolder(f'{filepath}/allure-report')
+    createfolder(f'{BASE_DIR}/data')
     createfolder(f'{BASE_DIR}/data/report')
     ts = datetime.datetime.now().strftime('%Y%m%d%H%M%S')
     datadir = f'{filepath}/allure-report/data{ts}'
