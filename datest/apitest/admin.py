@@ -43,6 +43,7 @@ class ApiAdmin(admin.ModelAdmin):
     actions = ['get_excel','unvalid']
     save_on_top = True
     exclude = ('creater',)
+    list_editable = ('isValid','url')
 
     def save_model(self, request, obj, form, change):
         if change is False:
@@ -298,7 +299,7 @@ class TestcaseAdmin(admin.ModelAdmin):
     change_list_template = 'admin/apitest/testcase/option_changelist.html'
     list_per_page = 50
     readonly_fields = ('responsedata',)
-    list_editable = ['api']
+    list_editable = ['isValid','api']
 
     def get_search_results(self, request, queryset, search_term):
         if request.path == '/admin/apitest/testcase/autocomplete/':
@@ -476,12 +477,13 @@ class Testcaselistinline(admin.TabularInline):
 
 @admin.register(TESTSUITE)
 class TESTSUITEAdmin(admin.ModelAdmin):
-    list_display = ['name','createtime','creater','get_testcase','edit']
+    list_display = ['name','createtime','creater','baseurl','get_testcase','isorder','edit']
     actions = ['gen_yaml','runsuite']
     filter_horizontal = ['case']
     exclude = ['creater','runtime']
     list_display_links = ['edit']
     inlines = [Testcaselistinline,]
+    list_editable = ('baseurl','isorder')
 
     
 
