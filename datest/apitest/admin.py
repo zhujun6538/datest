@@ -103,13 +103,14 @@ class ProjectAdmin(admin.ModelAdmin):
     exclude = ('creater',)
 
     def save_model(self, request, obj, form, change):
-        projectpath = filedir + '/runner/projectdata/' + obj.name
+        projectpath = filedir + '/runner/projectdata/'
         if not os.path.exists(projectpath):
             os.mkdir(projectpath)
-        shutil.copyfile(filedir + '/runner/debugtalk.py',projectpath + '/debugtalk.py')
         if not change:
             obj.creater = request.user
             super().save_model(request, obj, form, change)
+            os.mkdir(projectpath + obj.name)
+            shutil.copyfile(filedir + '/runner/debugtalk.py', projectpath + '/debugtalk.py')
             DebugTalk.objects.create(project=obj,file='/runner/projectdata/' + obj.name + '/debugtalk.py',content='')
         super().save_model(request, obj, form, change)
 
