@@ -12,7 +12,7 @@
         <meta name="robots" content="NONE,NOARCHIVE" />
       {% endblock %}
 
-      <title>{% block title %}{% if name %}{{ name }} – {% endif %}证通接口自动化测试平台{% endblock %}</title>
+      <title>{% block title %}{% if name %}{{ name }} – {% endif %}datest接口自动化测试平台{% endblock %}</title>
 
       {% block style %}
         {% block bootstrap_theme %}
@@ -38,19 +38,12 @@
           <div class="container">
             <span>
               {% block branding %}
-                <a class='navbar-brand' rel="nofollow" href='https://www.django-rest-framework.org/'>
-                    证通接口自动化测试平台
+                <a class='navbar-brand' rel="nofollow" href='#'>
+                    datest接口自动化测试平台
                 </a>
               {% endblock %}
             </span>
             <ul class="nav navbar-nav pull-right">
-              {% block userlinks %}
-                {% if user.is_authenticated %}
-                  {% optional_logout request user %}
-                {% else %}
-                  {% optional_login request %}
-                {% endif %}
-              {% endblock %}
             </ul>
           </div>
         </div>

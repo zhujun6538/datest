@@ -19,7 +19,14 @@ from .datahandle import get_casedata, get_suitedata, write_case
 
 # Create your views here.
 
+
 filedir = os.path.dirname(__file__)
+
+class RootView(APIRootView):
+    permission_classes = (permissions.IsAuthenticatedOrReadOnly,)
+
+    def get(self, request, *args, **kwargs):
+        return HttpResponseRedirect(reverse('admin:index'))
 
 class PostdataViewset(viewsets.ModelViewSet):
     queryset = Postdata.objects.all()
@@ -61,9 +68,7 @@ class DebugTalkViewset(viewsets.ModelViewSet):
             obj.save()
             with io.open(filepath, 'w', encoding='utf-8') as stream:
                 stream.write(code)
-            return HttpResponseRedirect(f'/admin/apitest/debugtalk/')
-
-
+            return HttpResponseRedirect('/admin/apitest/debugtalk/')
 
 class TestcaseViewset(viewsets.ModelViewSet):
     queryset = Testcase.objects.all()

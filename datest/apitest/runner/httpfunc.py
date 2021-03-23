@@ -42,6 +42,7 @@ class PostWithFunctions(HttpRunner):
 
         running = RunRequest(testdata['casename'])\
         .with_variables() \
+        .setup_hook('${prerequest($request)}') \
         .setup_hook(testdata['setupfunc']) \
         .__getattribute__(testdata['method'].lower())(testdata['url']) \
         .with_json(testdata['data'])\
@@ -49,6 +50,7 @@ class PostWithFunctions(HttpRunner):
         .with_params(**testdata['params'])\
         .with_headers(**testdata['headers']) \
         .teardown_hook('${afterresponse($response)}') \
+        .teardown_hook(testdata['teardownfunc']) \
         .validate() \
 
         for ast in testdata['asserts']:

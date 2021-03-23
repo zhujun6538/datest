@@ -8,6 +8,7 @@
 @time: 2021/3/4 16:14
 @desc：根据参数运行pytest脚本，生成allure测试报告文件
 """
+import time
 
 import pytest
 import os
@@ -20,6 +21,12 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 
 
+def createfolder(path):
+    if not os.path.exists(path):
+        os.mkdir(path)
+    shutil.rmtree(path)
+    os.mkdir(path)
+
 def pyrun(args='',reruns=0,reruns_delay=0):
     '''
     运行pytest脚本
@@ -28,10 +35,9 @@ def pyrun(args='',reruns=0,reruns_delay=0):
     :param reruns_delay: 重跑延迟
     :return:测试报告本地文件地址
     '''
-    if not os.path.exists(f'{filepath}/allure-report/'):
-        os.mkdir(f'{filepath}/allure-report/')
-    shutil.rmtree(f'{filepath}/allure-report/')
-    os.mkdir(f'{filepath}/allure-report')
+    createfolder(f'{filepath}/allure-report')
+    createfolder(f'{BASE_DIR}/data')
+    createfolder(f'{BASE_DIR}/data/report')
     ts = datetime.datetime.now().strftime('%Y%m%d%H%M%S')
     datadir = f'{filepath}/allure-report/data{ts}'
     htmldir = f'{BASE_DIR}/data/report/html{ts}'

@@ -81,8 +81,6 @@ def ztrequest(request):
 
         return ret
 
-    prerequest(request)
-
     org_cnf = {"orgCode": '4894300008',  # 机构号
                "accessKeyId": '0XURN39JJ9DSJBZZP2M6',  # AK
                "secretAccessKey": 'xKPzuNhd0E+GuBGHET4ZAXdfGgzYSYhagoNi3UIVGX8=',  # SK

@@ -136,15 +136,18 @@ class ProjectAdmin(admin.ModelAdmin):
     exclude = ('creater',)
 
     def save_model(self, request, obj, form, change):
-        projectpath = filedir + '/runner/projects/' + obj.name
+        projectpath = filedir + '/runner/projectdata/'
         if not os.path.exists(projectpath):
             os.mkdir(projectpath)
-        with open(projectpath + '/debugtalk.py','w+',encoding='utf-8') as f:
-            pass
         if not change:
             obj.creater = request.user
             super().save_model(request, obj, form, change)
-            DebugTalk.objects.create(project=obj,file='/runner/projects/' + obj.name + '/debugtalk.py',content='')
+            if not os.path.exists(projectpath + obj.name):
+                os.mkdir(projectpath + obj.name)
+            shutil.copyfile(filedir + '/runner/debugtalk.py', projectpath + obj.name + '/debugtalk.py')
+            with open(projectpath + obj.name + '/debugtalk.py', 'r+', encoding='utf-8') as f:
+                content = f.read()
+            DebugTalk.objects.create(project=obj,file='/runner/projectdata/' + obj.name + '/debugtalk.py',content=content)
         super().save_model(request, obj, form, change)
 
 
@@ -178,6 +181,7 @@ class TestcaseGroupAdmin(admin.ModelAdmin):
 @admin.register(Header)
 class HeaderAdmin(admin.ModelAdmin):
     list_display = ['key','value']
+
 
 @admin.register(BASEURL)
 class BASEURLAdmin(admin.ModelAdmin):
@@ -282,13 +286,14 @@ class CALLFUNCAdmin(admin.ModelAdmin):
 
 def run_back_case(query_set):
     casenum = query_set.all().count()
-    caseids = query_set.values_list('id', flat=True)
     passedall = 0
     failedall = 0
     try:
         for obj in query_set:
             thisname = datetime.datetime.now().strftime('%Y%m%d%H%M%S') + '测试报告'
             testcase = get_casedata('运行测试用例', obj)
+            if not os.path.exists(f'{filedir}/runner/data'):
+                os.mkdir(f'{filedir}/runner/data')
             write_case(f'{filedir}/runner/data/test.yaml', [[testcase]])
             report = testrunner.pyrun(args='')
             testresult = json.loads(os.environ.get('TESTRESULT'), encoding='utf-8')
@@ -311,6 +316,7 @@ def run_back_case(query_set):
             failedall += failed
     except Exception as e:
         testreport = TESTREPORT.objects.create(reportname=thisname, testnum=casenum, result='N',errors=str(e))
+        raise e
 
 @admin.register(Testcase)
 class TestcaseAdmin(admin.ModelAdmin):
@@ -319,15 +325,15 @@ class TestcaseAdmin(admin.ModelAdmin):
     search_fields = ['caseno','casename']
     radio_fields = {"datamode": admin.HORIZONTAL}
     autocomplete_fields = ['api']
-    inlines = [HeaderParaminline,RequestParaminline,FormdataParaminline, AssertParaminline]
+    inlines = [HeaderParaminline,RequestParaminline,FormdataParaminline, AssertParaminline,]
     save_on_top = True
     list_filter = ['group', 'project','callfunc','isValid']
     actions = ['get_excel','copy','get_caseyml','runcase','unvalid']
-    fields = ('casename','group','baseurl','api','datamode','requestdata','setupfunc','callfunc','isValid',)
+    fields = ('casename','group','baseurl','api','datamode','requestdata','setupfunc','teardownfunc','callfunc','isValid',)
     change_list_template = 'admin/apitest/testcase/option_changelist.html'
     list_per_page = 50
     readonly_fields = ('responsedata',)
-    list_editable = ['api']
+    list_editable = ['isValid','api']
     ordering = ('api__code',)
 
     def get_search_results(self, request, queryset, search_term):
@@ -412,25 +418,25 @@ class TestcaseAdmin(admin.ModelAdmin):
         '''导出xls'''
         if request.method == 'POST':
             xfile = request.FILES['x_file'].file
-            with open(filedir + '\\data\\uploadfile\\temp.xls', 'wb') as f:
+            with open(filedir + '/data/uploadfile/temp.xls', 'wb') as f:
                 f.write(xfile.read())
-            testcases = get_exceldata(filedir + '\\data\\uploadfile\\temp.xls')
+            testcases = get_exceldata(filedir + '/data/uploadfile/temp.xls')
             num = 0
             for data in testcases:
                 caseno = data['api'] + datetime.datetime.now().strftime('%Y%m%d%H%M%S') + str(random.randint(1,10000))
                 project = Project.objects.get_or_create(name=data['project'],defaults = {'banben':'1','creater':request.user})
                 group = TestcaseGroup.objects.get_or_create(name=data['group'],defaults = {'project':project[0],'creater':request.user})
                 baseurl = BASEURL.objects.get_or_create(url=data['baseurl'],defaults = {'name':'新建环境','project':project[0]})
-                api = Api.objects.get(code=data['api'])
-                if data['setupfunc'] != '':
-                    setupfunc = FUNC.objects.get(name = data['setupfunc'])
-                else:
-                    setupfunc = None
-                if data['callfunc'] != '':
-                    callfunc = CALLFUNC.objects.get(name=data['callfunc'])
-                else:
-                    callfunc = None
-                testcaseobj = Testcase.objects.create(caseno = caseno,casename=data['casename'],project= project[0],group=group[0],api = api,isValid=True,baseurl=baseurl[0],datamode = data['datamode'],requestdata=data['requestdata'],creater=request.user,setupfunc=setupfunc,callfunc=callfunc)
+                api = Api.objects.get(id=data['api'])
+                def get_func(data,name,model):
+                    if data[name] != '':
+                        return model.objects.get(name = data[name])
+                    else:
+                        return None
+                setupfunc = get_func(data,'setupfunc',FUNC)
+                teardownfunc = get_func(data,'teardownfunc',FUNC)
+                callfunc = get_func(data,'callfunc',CALLFUNC)
+                testcaseobj = Testcase.objects.create(caseno = caseno,casename=data['casename'],project= project[0],group=group[0],api = api,isValid=True,baseurl=baseurl[0],datamode = data['datamode'],requestdata=data['requestdata'],creater=request.user,setupfunc=setupfunc,teardownfunc=teardownfunc,callfunc=callfunc)
                 num += 1
                 def addorget(mod, value):
                     try:
@@ -507,12 +513,13 @@ class Testcaselistinline(admin.TabularInline):
 
 @admin.register(TESTSUITE)
 class TESTSUITEAdmin(admin.ModelAdmin):
-    list_display = ['name','createtime','creater','get_testcase','edit']
+    list_display = ['name','createtime','creater','baseurl','get_testcase','isorder','edit']
     actions = ['gen_yaml','runsuite']
     filter_horizontal = ['case']
     exclude = ['creater','runtime']
     list_display_links = ['edit']
     inlines = [Testcaselistinline,]
+    list_editable = ('baseurl','isorder')
 
     
 
@@ -600,7 +607,7 @@ class TESTSUITEAdmin(admin.ModelAdmin):
                 with open(report + '/index.html','r',encoding='utf-8') as f:
                     thisfile = File(f)
                     thisfile.name = thisfile.name.split('report/')[1]
-                    testreport = TESTREPORT.objects.create(reportname=thisname, runner=request.user, file=thisfile,testnum=casenum, result=result,suc=passed, fail=failed)
+                    testreport = TESTREPORT.objects.create(reportname=thisname, file=thisfile,testnum=casenum, result=result,suc=passed, fail=failed)
                 for passedcase in testresult['passedcase']:
                     testreport.succase.add(Testcase.objects.get(caseno=passedcase))
                 for failedcase in testresult['failedcase']:
@@ -697,7 +704,7 @@ class TestbatchAdmin(admin.ModelAdmin):
                 with open(report + '/index.html','r',encoding='utf-8') as f:
                     thisfile = File(f)
                     thisfile.name = thisfile.name.split('report/')[1]
-                    testreport = TESTREPORT.objects.create(reportname=batch_reportname, runner=request.user,testbatch=batch, file=thisfile,testnum=casenum, result=result,suc=passed, fail=failed)
+                    testreport = TESTREPORT.objects.create(reportname=batch_reportname,testbatch=batch, file=thisfile,testnum=casenum, result=result,suc=passed, fail=failed)
                 for passedcase in testresult['passedcase']:
                     testreport.succase.add(Testcase.objects.get(caseno=passedcase))
                 for failedcase in testresult['failedcase']:

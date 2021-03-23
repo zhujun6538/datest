@@ -20,7 +20,7 @@ body {
 /* LINKS */
 
 a:link, a:visited {
-    color: #447e9b;
+    color: #333;
     text-decoration: none;
 }
 
@@ -424,7 +424,7 @@ select[multiple] {
 /* FORM BUTTONS */
 
 .button, input[type=submit], input[type=button], .submit-row input, a.button {
-    background: #79aec8;
+    background: #5897fb;
     padding: 10px 15px;
     border: none;
     border-radius: 4px;
@@ -450,7 +450,7 @@ a.button {
     float: right;
     border: none;
     font-weight: 400;
-    background: #417690;
+    background: #ba2121;
 }
 
 .button.default:active, input[type=submit].default:active,
@@ -497,7 +497,7 @@ input[type=button][disabled].default {
     font-weight: 400;
     font-size: 13px;
     text-align: left;
-    background: #79aec8;
+    background: #205067;
     color: #fff;
 }
 
@@ -608,7 +608,7 @@ td ul.errorlist + input, td ul.errorlist + select, td ul.errorlist + textarea {
 /* BREADCRUMBS */
 
 div.breadcrumbs {
-    background: #79aec8;
+    background: #999;
     padding: 10px 40px;
     border: none;
     font-size: 14px;
@@ -689,7 +689,7 @@ a.deletelink:focus, a.deletelink:hover {
     display: block;
     float: left;
     padding: 3px 12px;
-    background: #999;
+    background: #333;
     font-weight: 400;
     font-size: 11px;
     text-transform: uppercase;
@@ -813,7 +813,7 @@ table#change-history tbody th {
     justify-content: space-between;
     align-items: center;
     padding: 10px 40px;
-    background: #417690;
+    background: #333;
     color: #ffc;
     overflow: hidden;
 }
@@ -839,7 +839,7 @@ table#change-history tbody th {
 }
 
 #branding h1, #branding h1 a:link, #branding h1 a:visited {
-    color: #f5dd5d;
+    color: #f9f9f9;
 }
 
 #branding h2 {

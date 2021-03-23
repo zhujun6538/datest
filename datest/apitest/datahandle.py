@@ -53,7 +53,7 @@ def clean(value):
 
     return value
 
-def get_casedata(suitename,case,baseurl='',setupfunc='',callfunc='',sleeptime=0):
+def get_casedata(suitename,case,baseurl='',setupfunc='',teardownfunc='',callfunc='',sleeptime=0):
     '''
     根据Testcase对象生成测试用例字典
     :param suitename:
@@ -92,6 +92,13 @@ def get_casedata(suitename,case,baseurl='',setupfunc='',callfunc='',sleeptime=0)
             testcase['setupfunc'] = ''
         else:
             testcase['setupfunc'] = case.setupfunc.name
+    if teardownfunc != '':
+        testcase['teardownfunc'] = teardownfunc
+    else:
+        if case.teardownfunc == None:
+            testcase['teardownfunc'] = ''
+        else:
+            testcase['teardownfunc'] = case.teardownfunc.name
     if callfunc != '':
         testcase['callfunc'] = callfunc
     else:
@@ -133,8 +140,10 @@ def get_suitedata(obj):
     sleeptime = obj.sleeptime
     try:
         setupfunc = obj.setupfunc.name
+        teardownfunc = obj.teardownfunc.name
     except Exception as e:
         setupfunc = ''
+        teardownfunc = ''
     try:
         callfunc = obj.callfunc.name
     except Exception as e:
@@ -142,12 +151,12 @@ def get_suitedata(obj):
     if obj.isorder is False:
         cases = obj.case.all()
         for case in cases:
-            testcase = get_casedata(suitename, case, baseurl, setupfunc, callfunc,sleeptime)
+            testcase = get_casedata(suitename, case, baseurl, setupfunc,teardownfunc, callfunc,sleeptime)
             testsuite.append(testcase)
     else:
         cases = obj.testcaselist_set.all().order_by('runno')
         for case in cases:
-            testcase = get_casedata(suitename, case.testcase, baseurl, setupfunc, callfunc,sleeptime)
+            testcase = get_casedata(suitename, case.testcase, baseurl, setupfunc, teardownfunc,callfunc,sleeptime)
             testsuite.append(testcase)
     return testsuite
 

@@ -10,7 +10,6 @@
 import json
 import time
 from httpfunc import PostWithFunctions
-from loguru import logger
 from productor import Saver
 
 
