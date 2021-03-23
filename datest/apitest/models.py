@@ -88,8 +88,9 @@ class Testcase(BaseModel):
     api = models.ForeignKey('Api',verbose_name='测试接口',on_delete=models.SET_NULL,null=True)
     datamode = models.CharField('请求参数类型',choices=[('JSON', "JSON"), ('FORM-DATA', "FORM-DATA")], max_length=10)
     requestdata = models.TextField('请求报文',max_length=1000,null=True,blank=True,default='{}')
-    setupfunc = models.ForeignKey('FUNC',verbose_name='请求前置方法',on_delete=models.SET_NULL,null=True,blank=True)
+    setupfunc = models.ForeignKey('FUNC',verbose_name='请求前置方法',on_delete=models.SET_NULL,null=True,blank=True,related_name='setupfunc_testcases')
     callfunc = models.ForeignKey('CALLFUNC',verbose_name='自定义运行方法',on_delete=models.SET_NULL,null=True,blank=True)
+    teardownfunc = models.ForeignKey('FUNC', verbose_name='请求后置方法', on_delete=models.SET_NULL, null=True, blank=True,related_name='teardownfunc_testcases')
     responsedata = models.TextField('响应报文',max_length=10000,null=True,blank=True)
     runtime = models.DateTimeField('运行时间',null=True,blank=True)
 
