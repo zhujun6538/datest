@@ -128,9 +128,9 @@
 /* FILTER COLUMN */
 
 #changelist-filter {
-    flex: 0 0 240px;
+    flex: 0 0 130px;
     order: 1;
-    width: 240px;
+    width: 130px;
     background: #f8f8f8;
     border-left: none;
     margin: 0 0 0 30px;
