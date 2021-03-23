@@ -11,7 +11,6 @@ import json
 import time
 from httpfunc import PostWithFunctions
 from productor import Saver
-from database import getSqldata
 
 
 class Callfunc(object):
@@ -23,12 +22,4 @@ class Callfunc(object):
         '''
         PostWithFunctions(testdata).test_start()
 
-    def adduser(self,testdata):
-        PostWithFunctions(testdata).test_start()
-        db = getSqldata()
-        username = Saver.hist[testdata['caseno']]['requestdata']['username'][1]
-        sql = f"select id from s_user where username = '{username}'"
-        id = db.query(sql)[0][0]
-        Saver.save_data('id',id)
-        db.conn.close()
 

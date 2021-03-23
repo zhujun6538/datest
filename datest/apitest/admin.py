@@ -295,7 +295,7 @@ class TestcaseAdmin(admin.ModelAdmin):
     save_on_top = True
     list_filter = ['group', 'project','callfunc','isValid']
     actions = ['get_excel','copy','get_caseyml','runcase','unvalid']
-    fields = ('casename','group','baseurl','api','datamode','requestdata','setupfunc','callfunc','isValid',)
+    fields = ('casename','group','baseurl','api','datamode','requestdata','setupfunc','teardownfunc','callfunc','isValid',)
     change_list_template = 'admin/apitest/testcase/option_changelist.html'
     list_per_page = 50
     readonly_fields = ('responsedata',)
@@ -392,15 +392,15 @@ class TestcaseAdmin(admin.ModelAdmin):
                 group = TestcaseGroup.objects.get_or_create(name=data['group'],defaults = {'project':project[0]})
                 baseurl = BASEURL.objects.get_or_create(url=data['baseurl'],defaults = {'name':'新建环境','project':project[0]})
                 api = Api.objects.get(id=data['api'])
-                if data['setupfunc'] != '':
-                    setupfunc = FUNC.objects.get(name = data['setupfunc'])
-                else:
-                    setupfunc = None
-                if data['callfunc'] != '':
-                    callfunc = CALLFUNC.objects.get(name=data['callfunc'])
-                else:
-                    callfunc = None
-                testcaseobj = Testcase.objects.create(caseno = caseno,casename=data['casename'],project= project[0],group=group[0],api = api,isValid=True,baseurl=baseurl[0],datamode = data['datamode'],requestdata=data['requestdata'],creater=request.user,setupfunc=setupfunc,callfunc=callfunc)
+                def get_func(data,name,model):
+                    if data[name] != '':
+                        return model.objects.get(name = data[name])
+                    else:
+                        return None
+                setupfunc = get_func(data,'setupfunc',FUNC)
+                teardownfunc = get_func(data,'teardownfunc',FUNC)
+                callfunc = get_func(data,'callfunc',CALLFUNC)
+                testcaseobj = Testcase.objects.create(caseno = caseno,casename=data['casename'],project= project[0],group=group[0],api = api,isValid=True,baseurl=baseurl[0],datamode = data['datamode'],requestdata=data['requestdata'],creater=request.user,setupfunc=setupfunc,teardownfunc=teardownfunc,callfunc=callfunc)
                 num += 1
                 def addorget(mod, value):
                     try:
