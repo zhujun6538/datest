@@ -333,7 +333,7 @@ class Jenkinsreport(models.Model):
     receivetime = models.DateTimeField('接收时间',auto_now=True,null=True)
 
     def __str__(self):
-        return self.number
+        return str(self.number)
 
     class Meta:
         verbose_name_plural = 'Jenkins运行结果'

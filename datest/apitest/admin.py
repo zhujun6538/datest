@@ -63,7 +63,7 @@ class ApiAdmin(admin.ModelAdmin):
         return super().get_search_results(request, queryset, search_term)
 
     def edit(self,obj):
-        return format_html('<a href="{}" style="white-space:nowrap;"><input type="button" class="default" style="padding:2px 2px;border-radius:revert" value="{}"> <a href="{}" style="white-space:nowrap;"><input type="button" class="default" style="padding:2px 2px;border-radius:revert;background:#ba2121" value="{}">',reverse('admin:apitest_api_change', args=(obj.id,)),'编辑',reverse('admin:apitest_api_delete', args=(obj.id,)),'删除')
+        return format_html('<a href="{}" style="white-space:nowrap;"><input type="button" class="default" style="padding:5px 5px;border-radius:revert" value="{}"> <a href="{}" style="white-space:nowrap;"><input type="button" class="default" style="padding:5px 5px;border-radius:revert;background:#ba2121" value="{}">',reverse('admin:apitest_api_change', args=(obj.id,)),'编辑',reverse('admin:apitest_api_delete', args=(obj.id,)),'删除')
     edit.short_description = '操作'
 
     def get_casenum(self,obj):
@@ -123,7 +123,7 @@ class DebugTalkAdmin(admin.ModelAdmin):
     list_display = ['project','file','edit']
 
     def edit(self,obj):
-        return format_html('<a href="{}" style="white-space:nowrap;"><input type="button" class="default" style="padding:2px 2px;border-radius:revert" value="{}"> <a href="{}" style="white-space:nowrap;"><input type="button" class="default" style="padding:2px 2px;border-radius:revert;background:#ba2121" value="{}">',rvs('debugtalk-detail',args=[obj.id]) + 'edit','编辑',reverse('admin:apitest_debugtalk_delete', args=(obj.id,)),'删除')
+        return format_html('<a href="{}" style="white-space:nowrap;"><input type="button" class="default" style="padding:5px 5px;border-radius:revert" value="{}"> <a href="{}" style="white-space:nowrap;"><input type="button" class="default" style="padding:5px 5px;border-radius:revert;background:#ba2121" value="{}">',rvs('debugtalk-detail',args=[obj.id]) + 'edit','编辑',reverse('admin:apitest_debugtalk_delete', args=(obj.id,)),'删除')
     edit.short_description = '操作'
 
     def delete_model(self,request,obj):
@@ -306,7 +306,7 @@ class TestcaseAdmin(admin.ModelAdmin):
     change_list_template = 'admin/apitest/testcase/option_changelist.html'
     list_per_page = 50
     readonly_fields = ('responsedata',)
-    list_editable = ['isValid','api']
+    list_editable = ['isValid']
 
     def get_search_results(self, request, queryset, search_term):
         if request.path == '/admin/apitest/testcase/autocomplete/':
@@ -319,13 +319,13 @@ class TestcaseAdmin(admin.ModelAdmin):
         lastreports = TESTREPORT.objects.filter(testcases=obj).order_by('-testtime')
         if len(lastreports) != 0:
             return format_html(
-                '<a href="{}" style="white-space:nowrap;" target="_blank"><input type="button" class="default" style="padding:2px 2px;border-radius:revert" value="{}"></a> <a href="{}" style="white-space:nowrap;"><input type="button" class="default" style="padding:2px 2px;border-radius:revert" value="{}"> <a href="{}" style="white-space:nowrap;"><input type="button" class="default" style="padding:2px 2px;border-radius:revert;background:#ba2121" value="{}"> <span style="float:left;margin-top:10px"><a href="{}" style="white-space:nowrap;" target="_blank"><input type="button" class="default" style="padding:2px 2px;border-radius:revert" value="{}"></input>',
+                '<a href="{}" style="white-space:nowrap;" target="_blank"><input type="button" class="default" style="padding:5px 5px;border-radius:revert" value="{}"></a> <a href="{}" style="white-space:nowrap;"><input type="button" class="default" style="padding:5px 5px;border-radius:revert" value="{}"> <a href="{}" style="white-space:nowrap;"><input type="button" class="default" style="padding:5px 5px;border-radius:revert;background:#ba2121" value="{}"> <span style="float:left;margin-top:10px"><a href="{}" style="white-space:nowrap;" target="_blank"><input type="button" class="default" style="padding:5px 5px;border-radius:revert" value="{}"></input>',
                 rvs('testcase-detail', args=[obj.id]) + 'postcase', '发送',
                 reverse('admin:apitest_testcase_change', args=(obj.id,)), '编辑',
                 reverse('admin:apitest_testcase_delete', args=(obj.id,)), '删除', lastreports[0].file.url, '查看报告')
         else:
             return format_html(
-                '<a href="{}" style="white-space:nowrap;" target="_blank"><input type="button" class="default" style="padding:2px 2px;border-radius:revert" value="{}"></a> <a href="{}" style="white-space:nowrap;"><input type="button" class="default" style="padding:2px 2px;border-radius:revert" value="{}"> <a href="{}" style="white-space:nowrap;"><input type="button" class="default" style="padding:2px 2px;border-radius:revert;background:#ba2121" value="{}">',
+                '<a href="{}" style="white-space:nowrap;" target="_blank"><input type="button" class="default" style="padding:5px 5px;border-radius:revert" value="{}"></a> <a href="{}" style="white-space:nowrap;"><input type="button" class="default" style="padding:5px 5px;border-radius:revert" value="{}"> <a href="{}" style="white-space:nowrap;"><input type="button" class="default" style="padding:5px 5px;border-radius:revert;background:#ba2121" value="{}">',
                 rvs('testcase-detail', args=[obj.id]) + 'postcase', '发送',
                 reverse('admin:apitest_testcase_change', args=(obj.id,)), '编辑',
                 reverse('admin:apitest_testcase_delete', args=(obj.id,)), '删除')
@@ -538,14 +538,14 @@ class TESTSUITEAdmin(admin.ModelAdmin):
             lastreports = TESTREPORT.objects.filter(testsuite=obj).latest('testtime')
             reporturl = lastreports.file.url
             return format_html(
-                '<a href="{}" style="white-space:nowrap;" ><input type="button" class="default" style="padding:2px 2px;border-radius:revert" value="{}"> <a href="{}" style="white-space:nowrap;" target="_blank"><input type="button" class="default" style="padding:2px 2px;border-radius:revert" value="{}"> <a href="{}"><input type="button" class="default" style="padding:2px 2px;border-radius:revert" value="{}"> <a href="{}" style="white-space:nowrap;" ><input type="button" class="default" style="padding:2px 2px;border-radius:revert" value="{}"> <a href="{}"><input type="button" class="default" style="padding:2px 2px;border-radius:revert;background:#ba2121" value="{}"> ',
+                '<a href="{}" style="white-space:nowrap;" ><input type="button" class="default" style="padding:5px 5px;border-radius:revert" value="{}"> <a href="{}" style="white-space:nowrap;" target="_blank"><input type="button" class="default" style="padding:5px 5px;border-radius:revert" value="{}"> <a href="{}"><input type="button" class="default" style="padding:5px 5px;border-radius:revert" value="{}"> <a href="{}" style="white-space:nowrap;" ><input type="button" class="default" style="padding:5px 5px;border-radius:revert" value="{}"> <a href="{}"><input type="button" class="default" style="padding:5px 5px;border-radius:revert;background:#ba2121" value="{}"> ',
                 rvs('testsuite-detail', args=[obj.id]) + 'runback', '后台运行', reporturl, '查看报告',
                 caselisturl, '查看用例',
                 reverse('admin:apitest_testsuite_change', args=(obj.id,)), '编辑',
                 reverse('admin:apitest_testsuite_delete', args=(obj.id,)), '删除')
         else:
             return format_html(
-                '<a href="{}" style="white-space:nowrap;" ><input type="button" class="default" style="padding:2px 2px;border-radius:revert" value="{}"> <a href="{}"><input type="button" class="default" style="padding:2px 2px;border-radius:revert" value="{}"> <a href="{}" style="white-space:nowrap;" ><input type="button" class="default" style="padding:2px 2px;border-radius:revert" value="{}"> <a href="{}" style="white-space:nowrap;" ><input type="button" class="default" style="padding:2px 2px;border-radius:revert;background:#ba2121" value="{}">',
+                '<a href="{}" style="white-space:nowrap;" ><input type="button" class="default" style="padding:5px 5px;border-radius:revert" value="{}"> <a href="{}"><input type="button" class="default" style="padding:5px 5px;border-radius:revert" value="{}"> <a href="{}" style="white-space:nowrap;" ><input type="button" class="default" style="padding:5px 5px;border-radius:revert" value="{}"> <a href="{}" style="white-space:nowrap;" ><input type="button" class="default" style="padding:5px 5px;border-radius:revert;background:#ba2121" value="{}">',
                 rvs('testsuite-detail', args=[obj.id]) + 'runback', '后台运行',
                 caselisturl, '查看用例',
                 reverse('admin:apitest_testsuite_change', args=(obj.id,)), '编辑',
@@ -660,14 +660,14 @@ class TestbatchAdmin(admin.ModelAdmin):
             lastreports = TESTREPORT.objects.filter(testbatch=obj).latest('testtime')
             reporturl = lastreports.file.url
             return format_html(
-                '<a href="{}" style="white-space:nowrap;" ><input type="button" class="default" style="padding:2px 2px;border-radius:revert" value="{}"> <a href="{}" style="white-space:nowrap;" ><input type="button" class="default" style="padding:2px 2px;border-radius:revert" value="{}"> <a href="{}" style="white-space:nowrap;" target="_blank"><input type="button" class="default" style="padding:2px 2px;border-radius:revert" value="{}"> <a href="{}"><input type="button" class="default" style="padding:2px 2px;border-radius:revert" value="{}"> <a href="{}"><input type="button" class="default" style="padding:2px 2px;border-radius:revert;background:#ba2121" value="{}">',
+                '<a href="{}" style="white-space:nowrap;" ><input type="button" class="default" style="padding:5px 5px;border-radius:revert" value="{}"> <a href="{}" style="white-space:nowrap;" ><input type="button" class="default" style="padding:5px 5px;border-radius:revert" value="{}"> <a href="{}" style="white-space:nowrap;" target="_blank"><input type="button" class="default" style="padding:5px 5px;border-radius:revert" value="{}"> <a href="{}"><input type="button" class="default" style="padding:5px 5px;border-radius:revert" value="{}"> <a href="{}"><input type="button" class="default" style="padding:5px 5px;border-radius:revert;background:#ba2121" value="{}">',
                 rvs('testbatch-detail', args=[obj.id]) + 'runback', '后台运行',
                 suitelisturl, '查看套件',
                 reverse('admin:apitest_testbatch_change', args=(obj.id,)), '编辑', reporturl, '查看报告',
                 reverse('admin:apitest_testbatch_delete', args=(obj.id,)), '删除')
         else:
             return format_html(
-                '<a href="{}" style="white-space:nowrap;" ><input type="button" class="default" style="padding:2px 2px;border-radius:revert" value="{}"> <a href="{}" style="white-space:nowrap;" ><input type="button" class="default" style="padding:2px 2px;border-radius:revert" value="{}"> <a href="{}" style="white-space:nowrap;" ><input type="button" class="default" style="padding:2px 2px;border-radius:revert" value="{}"> <a href="{}"><input type="button" class="default" style="padding:2px 2px;border-radius:revert;background:#ba2121" value="{}">',
+                '<a href="{}" style="white-space:nowrap;" ><input type="button" class="default" style="padding:5px 5px;border-radius:revert" value="{}"> <a href="{}" style="white-space:nowrap;" ><input type="button" class="default" style="padding:5px 5px;border-radius:revert" value="{}"> <a href="{}" style="white-space:nowrap;" ><input type="button" class="default" style="padding:5px 5px;border-radius:revert" value="{}"> <a href="{}"><input type="button" class="default" style="padding:5px 5px;border-radius:revert;background:#ba2121" value="{}">',
                 rvs('testbatch-detail', args=[obj.id]) + 'runback', '后台运行',
                 suitelisturl, '查看套件',
                 reverse('admin:apitest_testbatch_change', args=(obj.id,)), '编辑',
@@ -753,11 +753,17 @@ class TestbatchAdmin(admin.ModelAdmin):
                 self.message_user(request, 'Jenkins已进行构建')
             except Exception as e:
                 self.message_user(request,'发生异常' + str(e))
-    jenkinsrun.short_description = 'jenkins运行套件'
+    jenkinsrun.short_description = 'jenkins运行批次'
 
 @admin.register(Jenkinsreport)
 class JenkinsreportAdmin(admin.ModelAdmin):
-    list_display = ['number','url','batch','runtime','result','getresult','receivetime']
+    list_display = ['number','url','batch','runtime','result','getresult','receivetime','edit']
+    readonly_fields = ['number','url','batch','duration','runtime','result','output','receivetime']
+    list_display_links = ['edit']
+
+    def edit(self,obj):
+        return format_html('<a href="{}" style="white-space:nowrap;"><input type="button" class="default" style="padding:5px 5px;border-radius:revert" value="{}"> <a href="{}" style="white-space:nowrap;"><input type="button" class="default" style="padding:5px 5px;border-radius:revert;background:#ba2121" value="{}">',reverse('admin:apitest_jenkinsreport_change', args=(obj.id,)),'编辑',reverse('admin:apitest_jenkinsreport_delete', args=(obj.id,)),'删除')
+    edit.short_description = '操作'
 
     def getresult(self,obj):
         server = jenkins.Jenkins(url='http://127.0.0.1:8888/', username='admin', password='z111111')
@@ -795,12 +801,11 @@ class TESTREPORTAdmin(admin.ModelAdmin):
         for case in failcaselist:
             cids = cids + str(case.id) + ','
         if cids == '':
-            caselisturl = ''
-            caseliststr = '-'
+            return format_html('<a href="{}" target="_blank"><input type="button" class="default" style="padding:5px 5px;border-radius:revert" value="{}"> <a href="{}"><input type="button" class="default" style="padding:5px 5px;border-radius:revert" value="{}">',obj.file.url,'查看报告',reverse('admin:apitest_testreport_change', args=(obj.id,)),'详情')
         else:
             caselisturl = reverse('admin:apitest_testcase_changelist') + '?id__in=' +  cids[:-1]
             caseliststr = '查看失败用例'
-        return format_html('<a href="{}" target="_blank"><input type="button" class="default" style="padding:2px 2px;border-radius:revert" value="{}"> <a href="{}"><input type="button" class="default" style="padding:2px 2px;border-radius:revert" value="{}"> <a href="{}"><input type="button" class="default" style="padding:2px 2px;border-radius:revert" value="{}">',obj.file.url,'查看报告',reverse('admin:apitest_testreport_change', args=(obj.id,)),'详情',caselisturl,caseliststr)
+        return format_html('<a href="{}" target="_blank"><input type="button" class="default" style="padding:5px 5px;border-radius:revert" value="{}"> <a href="{}"><input type="button" class="default" style="padding:5px 5px;border-radius:revert" value="{}"> <a href="{}"><input type="button" class="default" style="padding:5px 5px;border-radius:revert" value="{}">',obj.file.url,'查看报告',reverse('admin:apitest_testreport_change', args=(obj.id,)),'详情',caselisturl,caseliststr)
     filelink.short_description = '操作'
 
     def delete_model(self,request,obj):
