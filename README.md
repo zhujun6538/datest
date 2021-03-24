@@ -2,6 +2,16 @@
 
 ## 演示地址：http://121.36.246.73:7777 登录名:guest 密码:guest111111
 
+## 安装说明: 
+0. 安装jdk1.8及allure-commandline-2.13.0
+1. git clone https://gitee.com/zhujun6538/datest.git或者下载压缩包
+2. 安装ENV虚拟环境
+3. 使用虚拟环境在根目录输入:pip install -r requirements
+4. 将datest/settings.py的数据库地址改为自己的数据库地址
+5. 根目录运行python manage.py makemigrations apitest，python manage.py migrate，python manage.py createsuperuser
+6. 根目录运行python manage.py runserver启动程序
+
+
 ## 简介：
 本平台充分将多个模块进行整合，构建了一套包括接口管理，驱动文件管理，测试参数管理，测试用例管理，测试套件管理，测试批次管理，测试报告管理，认证和权限管理等一系列模块，并能根据设置同步或异步运行测试用例、测试套件、测试批次，生成测试报告，记录测试结果，并可以进行使用jenkins持续集成测试发送测试报告。
 目前只包括接口测试，后续将加入UI测试用例的管理。
