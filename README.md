@@ -1,7 +1,9 @@
 # datest接口自动化测试平台v1.0
 
+## 演示地址：http://121.36.246.73:7777 登录名:guest 密码:guest111111
+
 ## 简介：
-本平台充分将pytest,django,httprunner,restframework等python模块进行整合，构建了一套包括接口管理，驱动文件管理，测试参数管理，测试用例管理，测试套件管理，测试批次管理，测试报告管理，认证和权限管理等一系列模块，并能根据设置同步或异步运行测试用例、测试套件、测试批次，生成测试报告，记录测试结果，并可以进行使用jenkins持续集成测试发送测试报告。
+本平台充分将多个模块进行整合，构建了一套包括接口管理，驱动文件管理，测试参数管理，测试用例管理，测试套件管理，测试批次管理，测试报告管理，认证和权限管理等一系列模块，并能根据设置同步或异步运行测试用例、测试套件、测试批次，生成测试报告，记录测试结果，并可以进行使用jenkins持续集成测试发送测试报告。
 目前只包括接口测试，后续将加入UI测试用例的管理。
 
 ## 特点：
@@ -10,19 +12,19 @@
 3. 根据需求可选择线上与离线两种模式运行测试用例，线上运行用例提供同步和异步模式。
 
 ## 主要功能
-![主要功能](https://github.com/zhujun6538/datest/blob/master/images/%E6%9C%AA%E5%91%BD%E5%90%8D%E6%96%87%E4%BB%B6%20(12).png?raw=true) 
+![主要功能](https://gitee.com/zhujun6538/datest/raw/master/images/%E6%9C%AA%E5%91%BD%E5%90%8D%E6%96%87%E4%BB%B6%20(12).png) 
 本测试平台分为后台，中台，前台三个部分，后台由django框架管理测试类数据以及保存测试结果数据，中台根据后台数据生成的测试文件，运行测试用例、测试套件、测试批次，前台功能包括直接请求查看实时响应，并可根据响应自动生成断言，实时编辑测试驱动函数等。
 
 ## 主要模块
-![主要模块](https://github.com/zhujun6538/datest/blob/master/images/%E6%A1%86%E6%9E%B6%20(6).png?raw=true) 
+![主要模块](https://gitee.com/zhujun6538/datest/raw/master/images/%E6%A1%86%E6%9E%B6%20(6).png) 
 
 ## 操作说明
 ### 一. 接口管理
-![接口管理](https://github.com/zhujun6538/datest/blob/master/images/api.png) 
+![接口管理](https://gitee.com/zhujun6538/datest/raw/master/images/api.png) 
 接口管理可以对接口数据进行增删改查，支持分组，添加请求头，导出等操作。
    
 ### 二. 测试用例管理
-![测试用例管理](https://github.com/zhujun6538/datest/blob/master/images/testacse.png) 
+![测试用例管理](https://gitee.com/zhujun6538/datest/raw/master/images/testacse.png) 
 测试用例管理可以对测试用例数据进行增删改查，编辑时可进行参数化设置，可调用之前用例的请求及相应参数。编辑成功的测试用例可直接根据测试用例的数据发送请求，生成断言，运行测试后可直接查看测试报告。
 
 #### 1.参数
@@ -68,7 +70,7 @@ GET方法中的参数
 当请求和响应格式为JSON时，在请求报文输入框，FORMDATA参数输入框，自定义请求头输入框请求参数的值可以设置为之前用例中的请求和响应中存在的值，格式为”&$.用例编号.requestdata(或responsedata)..参数&”，"$.用例编号.requestdata(或responsedata)..参数"，可以看出是JSONPATH的路径，用例编号必须为已经运行用例，否则将报错，需要自己根据先后关系排列用例，此功能必须使用测试套件对用例进行排序运行。
 
 ##### 校验参数
-![校验参数](https://github.com/zhujun6538/datest/blob/master/images/assert.png) 
+![校验参数](https://gitee.com/zhujun6538/datest/raw/master/images/assert.png) 
 当响应格式为JSON时,校验参数取值使用jmespath取值，并根据设置的模式进行断言，支持12种断言模式，校验参数不可使用复用历史参数。
 
 #### 1.操作
@@ -88,7 +90,7 @@ GET方法中的参数
 运行完成后可查看此用例最后一次运行生成的测试结果和测试报告，测试报告详细记录了本次测试的请求、响应、断言、日志等数据。
 
 ##### 发送请求&自动生成校验
-![发送请求&自动生成校验](https://github.com/zhujun6538/datest/blob/master/images/%E7%BD%91%E9%A1%B5%E6%8D%95%E8%8E%B7_24-3-2021_11412_127.0.0.1.jpeg) 
+![发送请求&自动生成校验](https://gitee.com/zhujun6538/datest/raw/master/images/%E7%BD%91%E9%A1%B5%E6%8D%95%E8%8E%B7_24-3-2021_11412_127.0.0.1.jpeg) 
 点击后根据测试数据发送请求取得响应，页面可根据响应自动生成校验参数，目前支持一级参数。
 
 ### 三. 驱动文件管理
@@ -96,11 +98,11 @@ GET方法中的参数
 
 #### 1.操作
 ##### 编辑
-![编辑](https://github.com/zhujun6538/datest/blob/master/images/Image%207.png) 
+![编辑](https://gitee.com/zhujun6538/datest/raw/master/images/Image%207.png) 
 保存后可在测试用例内添加请求前置方法和请求后置方法，运行时将调用。
 
 ### 四. 测试套件管理
-![测试套件管理](https://github.com/zhujun6538/datest/blob/master/images/suite.png) 
+![测试套件管理](https://gitee.com/zhujun6538/datest/raw/master/images/suite.png) 
 测试套件管理可以对批量加入测试用例并运行生成测试报告，也可构建指定顺序的测试用例集，可进行多种pytest设置来运行套件，套件中的设置将覆盖用例中的设置。
 
 #### 1.参数
@@ -121,7 +123,7 @@ GET方法中的参数
 跳转测试用例列表，结果为所有该套件下的用例。
 
 ### 五. 测试批次管理
-![测试批次管理](https://github.com/zhujun6538/datest/blob/master/images/batch.png) 
+![测试批次管理](https://gitee.com/zhujun6538/datest/raw/master/images/batch.png) 
 测试批次管理可以对批量加入测试套件并运行
 
 #### 1.操作
@@ -138,7 +140,7 @@ GET方法中的参数
 运行完成后可查看此用例最后一次运行生成的测试结果和测试报告，测试报告详细记录了本次测试的请求、响应、断言、日志等数据。
 
 ### 六. 测试报告管理
-![测试报告管理](https://github.com/zhujun6538/datest/blob/master/images/report.png) 
+![测试报告管理](https://gitee.com/zhujun6538/datest/raw/master/images/report.png) 
 可查看运行测试用例、套件、批次后生成的测试结果信息，点击查看报告可查看测试报告。删除测试报告数据将同时删除文件中的测试报告文件。
 
 #### 1.操作
@@ -146,21 +148,20 @@ GET方法中的参数
 跳转本次测试的本地测试报告网页，测试报告详细记录了本次测试的请求、响应、断言、日志等数据，并根据用例分组分组。
 
 ##### 详情
-![详情](https://github.com/zhujun6538/datest/blob/master/images/reportd.png) 
+![详情](https://gitee.com/zhujun6538/datest/raw/master/images/reportd.png) 
 显示运行测试用例，套件，批次的测试结果详情。
 
 ##### 查看失败用例
 跳转测试用例列表，结果为所有本次测试结果为失败的用例。
 
 ### 七. Jenkins运行结果
-![Jenkins运行结果](https://github.com/zhujun6538/datest/blob/master/images/jreport.png) 
+![Jenkins运行结果](https://gitee.com/zhujun6538/datest/raw/master/images/jreport.png) 
 JENKINS运行选中套件后的运行结果和输出信息列表。
 
 #### 1.操作
 ##### 详情
-![详情](https://github.com/zhujun6538/datest/blob/master/images/jreportd.png) 
+![详情](https://gitee.com/zhujun6538/datest/raw/master/images/jreportd.png) 
 查看构建结果和构建详情。
 
 ### 八. 用户管理
 本框架使用了django的用户管理模块，可新增用户并对用户的权限，状态等进行管理，无需自己编写用户模块。
-
