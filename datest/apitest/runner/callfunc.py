@@ -16,10 +16,11 @@ from productor import Saver
 class Callfunc(object):
     def default_func(self,testdata):
         '''
-        默认方法，不选择自定义运行方法时调用
+        不选择自定义运行方法时调用此默认方法
         :param testdata:
         :return:
         '''
+        # 使用根据输入值构建的对象发送请求数据、进行前置后置处理，根据断言校验响应报文等
         PostWithFunctions(testdata).test_start()
 
 

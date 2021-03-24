@@ -35,12 +35,14 @@ def pyrun(args='',reruns=0,reruns_delay=0):
     :param reruns_delay: 重跑延迟
     :return:测试报告本地文件地址
     '''
+    # 初始化目录
     createfolder(f'{filepath}/allure-report')
     createfolder(f'{BASE_DIR}/data')
     createfolder(f'{BASE_DIR}/data/report')
     ts = datetime.datetime.now().strftime('%Y%m%d%H%M%S')
     datadir = f'{filepath}/allure-report/data{ts}'
     htmldir = f'{BASE_DIR}/data/report/html{ts}'
+    # 根据参数和测试脚本运行pytest主程序
     testargs = []
     for arg in args:
         testargs.append(arg[0])
@@ -53,6 +55,7 @@ def pyrun(args='',reruns=0,reruns_delay=0):
     testargs.append('--alluredir')
     testargs.append(datadir)
     pytest.main(testargs)
+    # 生成测试报告网页
     os.system((f'allure generate {datadir} -o {htmldir} --clean'))
     return htmldir
 
