@@ -77,6 +77,10 @@ class Saver:
     @classmethod
     def clear_data(cls):
         cls.hist.clear()
+        cls.testresult.clear()
+        cls.testresult['result'] = 'N'
+        cls.testresult['passedcase'] = []
+        cls.testresult['failedcase'] = []
 
     @classmethod
     def handle_params(cls, params):
