@@ -17,7 +17,6 @@ def get_media_root():
 
 router = DefaultRouter()
 router.APIRootView = views.RootView
-router.register(r'postdata',views.PostdataViewset)
 router.register(r'testcase',views.TestcaseViewset)
 router.register(r'testsuite',views.TestsuiteViewset)
 router.register(r'testbatch',views.TestbatchViewset)

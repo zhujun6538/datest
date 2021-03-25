@@ -291,17 +291,6 @@ class Testbatch(BaseModel):
     class Meta:
         verbose_name_plural = '测试批次'
 
-class Runparam(models.Model):
-    case = models.ForeignKey('Testcase', on_delete=models.CASCADE)
-    param = models.CharField('参数',max_length=100)
-    description = models.TextField('描述',max_length=100000,null=True)
-
-    def __str__(self):
-        return self.param
-
-    class Meta:
-        verbose_name_plural = '响应保存'
-
 class TESTREPORT(models.Model):
     reportname = models.CharField('报告名称',max_length=100)
     testtime = models.DateTimeField('测试时间',auto_now_add=True)
@@ -334,13 +323,7 @@ class Jenkinsreport(models.Model):
     receivetime = models.DateTimeField('接收时间',auto_now=True,null=True)
 
     def __str__(self):
-        return self.number
+        return str(self.number)
 
     class Meta:
         verbose_name_plural = 'Jenkins运行结果'
-
-class Postdata(models.Model):
-    apiurl = models.CharField(max_length=100)
-    reqdata = models.CharField(max_length=100,null=True)
-    repdata = models.CharField(max_length=10000,null=True)
-    reqtime = models.DateTimeField(auto_now_add=True)

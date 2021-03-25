@@ -37,7 +37,8 @@ def pyrun(args='',reruns=0,reruns_delay=0):
     '''
     createfolder(f'{filepath}/allure-report')
     createfolder(f'{BASE_DIR}/data')
-    createfolder(f'{BASE_DIR}/data/report')
+    if not os.path.exists(f'{BASE_DIR}/data/report'):
+        os.mkdir(f'{BASE_DIR}/data/report')
     ts = datetime.datetime.now().strftime('%Y%m%d%H%M%S')
     datadir = f'{filepath}/allure-report/data{ts}'
     htmldir = f'{BASE_DIR}/data/report/html{ts}'

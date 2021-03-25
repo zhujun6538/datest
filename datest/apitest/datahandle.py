@@ -19,9 +19,11 @@ from ruamel import yaml
 
 
 def toint(value):
+    # 导入时指定格式字符串转换成int
     return int(re.findall("{I(\d*?)}", value)[0])
 
 def get_paramval(s,type):
+    # 根据校验参数值的值和类型生成数据
     if type == 'int':
         return int(s)
     elif type == 'str':
@@ -42,6 +44,7 @@ def write_case(filepath, data):
         yaml.dump(data, f, Dumper=yaml.RoundTripDumper)
 
 def clean(value):
+    # 根据输入字符串转换成对应类型的值
     if re.search("{I(\d*?)}", value):
         value = toint(value)
     elif re.search("{T}", value):
@@ -117,15 +120,15 @@ def get_casedata(suitename,case,baseurl='',setupfunc='',teardownfunc='',callfunc
     for adata in case.assertparam_set.all():
         asserts.append([adata.mode, adata.paramkey.value, get_paramval(adata.paramval.value,adata.paramval.type)])
 
-    testcase['extract'] = []
-    for extdata in case.runparam_set.all():
-        testcase['extract'].append(extdata.param)
     testcase['suitename'] ,testcase['group'] ,testcase['caseno'], testcase['casename'], \
-    testcase['isValid'], testcase['method'],testcase['url'], \
-    testcase['data'], testcase['params'], testcase['formdata'], testcase['headers'], testcase['asserts'], testcase['sleeptime'] ,testcase['caselink'] ,testcase['project'] = \
-        suitename,case.group.name, case.caseno, case.casename, case.isValid, case.api.method , case.api.url, data, params, formdata, headers, asserts, sleeptime, caselink,case.project.name
-    if case.beforecase!=None:
-        testcase['before'] = get_casedata(suitename,case.beforecase,baseurl)
+    testcase['isValid'], testcase['method'],testcase['url'], testcase['data'], \
+    testcase['params'], testcase['formdata'], testcase['headers'], testcase['asserts'], \
+    testcase['sleeptime'] ,testcase['caselink'] ,testcase['project'] = \
+        suitename,case.group.name, case.caseno, case.casename, \
+        case.isValid, case.api.method , case.api.url, data, \
+        params, formdata, headers, asserts, \
+        sleeptime, caselink,case.project.name
+
     return testcase
 
 def get_suitedata(obj):
@@ -135,6 +138,7 @@ def get_suitedata(obj):
     :return:
     '''
     testsuite = []
+    # 可覆盖测试用例的功能
     suitename = obj.name
     baseurl = obj.baseurl.url
     sleeptime = obj.sleeptime
@@ -148,21 +152,25 @@ def get_suitedata(obj):
         callfunc = obj.callfunc.name
     except Exception as e:
         callfunc = ''
+
     if obj.isorder is False:
+        # 未勾选是否顺序运行
         cases = obj.case.all()
         for case in cases:
             testcase = get_casedata(suitename, case, baseurl, setupfunc,teardownfunc, callfunc,sleeptime)
             testsuite.append(testcase)
     else:
+        # 勾选是否顺序运行
         cases = obj.testcaselist_set.all().order_by('runno')
         for case in cases:
             testcase = get_casedata(suitename, case.testcase, baseurl, setupfunc, teardownfunc,callfunc,sleeptime)
             testsuite.append(testcase)
+
     return testsuite
 
 def get_exceldata(filepath):
     '''
-    导入时从xls文件读取数据
+    导入时从保存的文件中读取数据
     :param filepath:
     :return:
     '''
