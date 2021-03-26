@@ -31,7 +31,7 @@ from .runner import testrunner
 # admin.site.unregister(Group)
 from .runner.scheduler import scheduler
 
-AdminSite.site_header = "datest接口自动化测试平台"
+AdminSite.site_header = "证通接口自动化测试平台"
 AdminSite.index_title = "api测试"
 filedir = os.path.dirname(__file__)
 @admin.register(Api)
