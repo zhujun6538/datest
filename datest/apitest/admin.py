@@ -45,7 +45,7 @@ class ApiAdmin(admin.ModelAdmin):
     save_on_top = True
     exclude = ('creater',)
     list_editable = ('isValid',)
-    list_per_page = 50
+    list_per_page = 10
 
     def save_model(self, request, obj, form, change):
         if change is False:
@@ -307,7 +307,7 @@ class TestcaseAdmin(admin.ModelAdmin):
     actions = ['get_excel','copy','get_caseyml','runcase','unvalid']
     fields = ('casename','group','baseurl','api','datamode','requestdata','setupfunc','teardownfunc','callfunc','isValid',)
     change_list_template = 'admin/apitest/testcase/option_changelist.html'
-    list_per_page = 20
+    list_per_page = 10
     readonly_fields = ('responsedata',)
     list_editable = ['isValid','api']
     ordering = ('api__code',)
