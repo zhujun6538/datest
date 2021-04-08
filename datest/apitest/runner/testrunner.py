@@ -24,8 +24,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 def createfolder(path):
     if not os.path.exists(path):
         os.mkdir(path)
-    shutil.rmtree(path)
-    os.mkdir(path)
+
 
 def pyrun(args='',reruns=0,reruns_delay=0):
     '''
@@ -36,9 +35,10 @@ def pyrun(args='',reruns=0,reruns_delay=0):
     :return:测试报告本地文件地址
     '''
     createfolder(f'{filepath}/allure-report')
+    shutil.rmtree(f'{filepath}/allure-report')
+    os.mkdir(f'{filepath}/allure-report')
     createfolder(f'{BASE_DIR}/data')
-    if not os.path.exists(f'{BASE_DIR}/data/report'):
-        os.mkdir(f'{BASE_DIR}/data/report')
+    createfolder(f'{BASE_DIR}/data/report')
     ts = datetime.datetime.now().strftime('%Y%m%d%H%M%S')
     datadir = f'{filepath}/allure-report/data{ts}'
     htmldir = f'{BASE_DIR}/data/report/html{ts}'

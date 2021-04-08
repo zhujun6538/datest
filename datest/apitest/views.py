@@ -1,5 +1,7 @@
 import io
+import random
 from time import timezone
+from urllib.parse import urlsplit
 
 from django.core.files import File
 from django.db import transaction
@@ -11,12 +13,14 @@ from rest_framework.response import Response
 from rest_framework.decorators import api_view, action
 from rest_framework.routers import APIRootView
 from django.utils import timezone
+
+from .postmail import postmail
 from .runner import testrunner
 from .runner.scheduler import scheduler
 from .serializers import *
 from .viewsfunc import *
-from .datahandle import get_casedata, get_suitedata, write_case
-
+from .datahandle import get_casedata, get_suitedata, write_case, get_faildata
+from django.forms import modelform_factory
 # Create your views here.
 
 
@@ -59,6 +63,105 @@ class RootView(APIRootView):
         return HttpResponseRedirect(reverse('admin:index'))
 
 
+class IsOwnerOrReadOnly(object):
+    pass
+
+
+class ApiViewset(viewsets.ModelViewSet):
+    queryset = Api.objects.all()
+    serializer_class = ApiSerializer
+    renderer_classes = (renderers.TemplateHTMLRenderer,)
+    authentication_classes = (authentication.BasicAuthentication,)
+    permission_classes = (permissions.IsAuthenticatedOrReadOnly,)
+
+    @action(methods=['get','post'],detail='api-detail',url_path='runapi',url_name='api-runapi')
+    def runapi(self,request, *args, **kwargs):
+        testgroup = TestcaseGroup.objects.all()
+        baseurl = BASEURL.objects.all()
+        setupfunc = FUNC.objects.all()
+        teardownfunc = FUNC.objects.all()
+        callfunc = CALLFUNC.objects.all()
+        if request.method == 'GET':
+            apiobj = Api.objects.get(pk=kwargs['pk'])
+            result = {'id': apiobj.id,
+                      'jsondata': json.dumps({'prodCode':apiobj.code}),
+                      'formdata': '',
+                      'respdata': '',
+                      'testgroup': testgroup,
+                      'baseurl': baseurl,
+                      'teardownfunc':teardownfunc,
+                      'setupfunc': setupfunc,
+                      'callfunc': callfunc
+                      }
+        else:
+            apiobj = Api.objects.get(pk=kwargs['pk'])
+            reqdata = json.dumps(json.loads(request.POST.get('reqdata')), sort_keys=True, indent=4, ensure_ascii=False)
+            res = apipost(requestUri=apiobj.url, data=json.loads(request.POST.get('reqdata'), encoding='utf-8'))
+            if apiobj.requesttype == '1':
+                url2 = apiobj.url.replace('Apply','Result')
+                orderno = json.loads(res.text,encoding='utf-8')['orderNo']
+                resultDesc = "订单处理中"
+                while resultDesc == "订单处理中":
+                    time.sleep(1)
+                    res = apipost(requestUri=url2, data={'orderNo':orderno})
+                    resultDesc = json.loads(res.text, encoding='utf-8')['resultDesc']
+            result = {'id': apiobj.id,
+                      'jsondata': reqdata,
+                      'formdata': '',
+                      'respdata': json.dumps(json.loads(res.text,encoding='utf-8'), sort_keys=True, indent=4, ensure_ascii=False),
+                      'testgroup': testgroup,
+                      'baseurl': baseurl,
+                      'teardownfunc': teardownfunc,
+                      'setupfunc': setupfunc,
+                      'callfunc': callfunc
+                      }
+        return Response(result, template_name='postman/api.html')
+
+    @action(methods=['post'], detail='api-detail', url_path='gennewcase', url_name='api-gennewcase')
+    def gen_newcase(self,request, *args, **kwargs):
+        apiobj = Api.objects.get(pk=kwargs['pk'])
+        body = json.loads(request.POST.get('respdata'), encoding='utf-8')
+        newcase = Testcase.objects.create(
+            caseno= apiobj.code + '-' + datetime.datetime.now().strftime('%Y%m%d%H%M%S') + str(
+            random.randint(1, 1000)),
+            casename = request.POST.get('casename'),
+            project = apiobj.project,
+            group = TestcaseGroup.objects.get(id=request.POST.get('group')),
+            isValid = request.POST.get('isValid'),
+            baseurl = BASEURL.objects.get(id=request.POST.get('baseurl')),
+            api=apiobj,
+            datamode='JSON',
+            requestdata = request.POST.get('jsondata'),
+            responsedata = request.POST.get('respdata'),
+            creater = request.user
+        )
+        if request.POST.get('setupfunc') != '':
+            newcase.setupfunc = FUNC.objects.get(id=request.POST.get('setupfunc'))
+            newcase.save()
+        if request.POST.get('teardownfunc') != '':
+            newcase.teardownfunc = FUNC.objects.get(id=request.POST.get('teardownfunc'))
+            newcase.save()
+        if request.POST.get('callfunc') != '':
+            newcase.callfunc = CALLFUNC.objects.get(id=request.POST.get('callfunc'))
+            newcase.save()
+        if request.POST.get('assertion') == 'True':
+            for key, value in body['resultData'][apiobj.code + 'Data'].items():
+                akobj = Assertkey.objects.get_or_create(value='$..' + key)[0]
+                assertmode = 'assert_jsonmatch'
+                if type(value) is list:
+                    assertvalue = "\[(\{.*?\})*\]"
+                elif type(value) is dict:
+                    assertvalue = "\{.*?\}"
+                elif type(value) is str:
+                    assertvalue = ".*?"
+                elif value is False:
+                    assertvalue = 'False'
+                elif value is True:
+                    assertvalue = 'True'
+                avobj = Assertval.objects.get_or_create(value=assertvalue)[0]
+                AssertParam.objects.get_or_create(testcase=newcase, paramkey=akobj,
+                                                  defaults={'paramval': avobj, 'mode': assertmode})
+        return HttpResponseRedirect('/admin/apitest/testcase/')
 
 class DebugTalkViewset(viewsets.ModelViewSet):
     '''
@@ -67,6 +170,7 @@ class DebugTalkViewset(viewsets.ModelViewSet):
     queryset = DebugTalk.objects.all()
     serializer_class = DebugTalkSerializer
     authentication_classes = (authentication.BasicAuthentication,)
+    permission_classes = (permissions.IsAuthenticatedOrReadOnly,)
 
 
     @action(methods=['get','post'], detail='debugtalk-detail', url_path='edit', url_name='debugtalk-edit')
@@ -99,20 +203,48 @@ class TestcaseViewset(viewsets.ModelViewSet):
     renderer_classes = (renderers.TemplateHTMLRenderer,)
     authentication_classes = (authentication.BasicAuthentication,)
 
-    @action(methods=['get'],detail='testcase-detail',url_path='postcase',url_name='testcase-postcase')
+    @action(methods=['get','post'],detail='testcase-detail',url_path='postcase',url_name='testcase-postcase')
     def runcase(self,request, *args, **kwargs):
         # 根据测试用例数据发送请求，查看响应信息
-        caseobj = Testcase.objects.get(pk=kwargs['pk'])
-        case = get_casedata('',caseobj)
-        res = apipost(httpMethod=case['method'],headers=case['headers'],endpoint=case['baseurl'],requestUri=case['url'], data=case['data'])
+        if request.method == 'GET':
+            caseobj = Testcase.objects.get(pk=kwargs['pk'])
+            case = get_casedata('',caseobj)
+            reqdata = json.dumps(case['data'], sort_keys=True, indent=4, ensure_ascii=False)
+            res = apipost(httpMethod=case['method'], headers=case['headers'], endpoint=case['baseurl'],requestUri=case['url'], data=case['data'])
+            if caseobj.api.requesttype == '1':
+                url2 = caseobj.api.url.replace('Apply','Result')
+                orderno = json.loads(res.text,encoding='utf-8')['orderNo']
+                resultDesc = "订单处理中"
+                while resultDesc == "订单处理中":
+                    time.sleep(1)
+                    res = apipost(requestUri=url2, data={'orderNo':orderno})
+                    resultDesc = json.loads(res.text, encoding='utf-8')['resultDesc']
+        else:
+            caseobj = Testcase.objects.get(pk=kwargs['pk'])
+            reqdata = json.dumps(json.loads(request.POST.get('reqdata')), sort_keys=True, indent=4, ensure_ascii=False)
+            case = get_casedata('', caseobj)
+            res = apipost(httpMethod=case['method'], headers=case['headers'], endpoint=case['baseurl'],requestUri=case['url'], data=json.loads(request.POST.get('reqdata'), encoding='utf-8'))
+            if caseobj.api.requesttype == '1':
+                url2 = caseobj.api.url.replace('Apply','Result')
+                orderno = json.loads(res.text,encoding='utf-8')['orderNo']
+                resultDesc = "订单处理中"
+                while resultDesc == "订单处理中":
+                    time.sleep(1)
+                    res = apipost(requestUri=url2, data={'orderNo':orderno})
+                    resultDesc = json.loads(res.text, encoding='utf-8')['resultDesc']
         resp_obj_meta = {
             "status_code": res.status_code,
             "headers": res.headers,
             "cookies": res.cookies,
-            "body": json.loads(res.content,encoding='utf-8'),
+            "body": json.loads(res.content, encoding='utf-8'),
         }
-        result = {'id':caseobj.id,'headers':case['headers'],'jsondata':json.dumps(case['data'],sort_keys=True,indent=4,ensure_ascii=False),'formdata':case['formdata'],'respdata':json.dumps(resp_obj_meta.get('body'),sort_keys=True,indent=4,ensure_ascii=False)}
-        return Response(result,template_name='postman/edit.html')
+
+        result = {'id': caseobj.id, 'headers': case['headers'],
+                  'jsondata': reqdata,
+                  'formdata': case['formdata'],
+                  'respdata': json.dumps(resp_obj_meta.get('body'), sort_keys=True, indent=4, ensure_ascii=False)}
+        return Response(result, template_name='postman/edit.html')
+
 
     @action(methods=['post'],detail='testcase-detail',url_path='genassertdata',url_name='testcase-genassertdata')
     def gen_assert_data(self,request, *args, **kwargs):
@@ -120,7 +252,6 @@ class TestcaseViewset(viewsets.ModelViewSet):
         caseobj = Testcase.objects.get(pk=kwargs['pk'])
         datano = caseobj.api.code
         body = json.loads(request.POST.get('content'),encoding='utf-8')
-        assertparam = {}
         for key, value in body['resultData'][datano + 'Data'].items():
             akobj = Assertkey.objects.get_or_create(value='$..' + key)[0]
             assertmode = 'assert_jsonmatch'
@@ -138,6 +269,40 @@ class TestcaseViewset(viewsets.ModelViewSet):
             AssertParam.objects.get_or_create(testcase=caseobj,paramkey=akobj,defaults = {'paramval':avobj,'mode':assertmode})
         return HttpResponseRedirect('/admin/apitest/testcase/')
 
+    @action(methods=['post'], detail='testcase-detail', url_path='gennewcase', url_name='testcase-gennewcase')
+    def gen_new_case(self,request, *args, **kwargs):
+        obj = Testcase.objects.get(pk=kwargs['pk'])
+        oid = obj.id
+        obj.id = None
+        obj.requestdata = request.POST.get('reqcont')
+        obj.caseno = obj.api.code + '-' + datetime.datetime.now().strftime('%Y%m%d%H%M%S') + str(
+            random.randint(1, 1000))
+        obj.save()
+        oldobj = Testcase.objects.get(id=oid)
+        for par in list(oldobj.headerparam_set.all()):
+            HeaderParam.objects.create(testcase=obj, paramkey=par.paramkey, paramval=par.paramval)
+        for par in list(oldobj.formdataparam_set.all()):
+            FormdataParam.objects.create(testcase=obj, paramkey=par.paramkey, paramval=par.paramval)
+        for par in list(oldobj.requestparam_set.all()):
+            RequestParam.objects.create(testcase=obj, paramkey=par.paramkey, paramval=par.paramval)
+        datano = obj.api.code
+        body = json.loads(request.POST.get('rescont'), encoding='utf-8')
+        for key, value in body['resultData'][datano + 'Data'].items():
+            akobj = Assertkey.objects.get_or_create(value='$..' + key)[0]
+            assertmode = 'assert_jsonmatch'
+            if type(value) is list:
+                assertvalue = "\[(\{.*?\})*\]"
+            elif type(value) is dict:
+                assertvalue = "\{.*?\}"
+            elif type(value) is str:
+                assertvalue = ".*?"
+            elif value is False:
+                assertvalue = 'False'
+            elif value is True:
+                assertvalue = 'True'
+            avobj = Assertval.objects.get_or_create(value=assertvalue)[0]
+            AssertParam.objects.get_or_create(testcase=obj,paramkey=akobj,defaults = {'paramval':avobj,'mode':assertmode})
+        return HttpResponseRedirect('/admin/apitest/testcase/')
 
 def run_suite(id):
     '''
@@ -181,7 +346,7 @@ class TestsuiteViewset(viewsets.ModelViewSet):
         return Response({},template_name='testsuite/runback.html')
 
 
-def run_batch(id):
+def run_batch(host,id):
     batch = Testbatch.objects.get(id=id)
     testbatch = []
     for obj in batch.testsuite.all():
@@ -205,6 +370,7 @@ def run_batch(id):
     testreport.save()
     obj.runtime = timezone.now()
     obj.save()
+    postmail(host,'605662545@qq.com', '605662545@qq.com', testreport)
 
 
 class TestbatchViewset(viewsets.ModelViewSet):
@@ -216,5 +382,38 @@ class TestbatchViewset(viewsets.ModelViewSet):
     def run_back(self,request, *args, **kwargs):
         # 后台运行测试批次任务
         run_date = (datetime.datetime.now() + datetime.timedelta(seconds=5)).strftime('%Y-%m-%d %H:%M:%S')
-        scheduler.add_job(run_batch, 'date', id=str(datetime.datetime.now().timestamp().as_integer_ratio()[0]),run_date=run_date, args=[kwargs['pk']])
+        http = urlsplit(request.build_absolute_uri(None)).scheme
+        host = http + '://' + request.META['HTTP_HOST']
+        scheduler.add_job(run_batch, 'date', id=str(datetime.datetime.now().timestamp().as_integer_ratio()[0]),run_date=run_date, args=[host,kwargs['pk']])
         return Response({},template_name='testbatch/runback.html')
+
+def run_failcase(rid):
+    '''
+    通过apitest/runner下的testrunner脚本运行yaml测试用例文件，根据测试结果新建测试报告对象
+    :param query_set:
+    :return:
+    '''
+        # 获取套件所有的测试用例，结果为[[{套件1用例},...],[{套件2用例},...]]
+    obj = TESTREPORT.objects.get(id=rid)
+    testdata = get_faildata(obj)
+    casenum = obj.failcase.count()
+    testreport = run_data(num=casenum, data=[testdata])
+    for case in obj.failcase.all():
+        testreport.testcases.add(case)
+        case.runtime = timezone.now()
+        case.save()
+    testreport.save()
+    obj.runtime = timezone.now()
+    obj.save
+
+class TESTREPORTViewset(viewsets.ModelViewSet):
+    queryset = TESTREPORT.objects.all()
+    serializer_class = TESTREPORTSerializer
+    renderer_classes = (renderers.TemplateHTMLRenderer,)
+
+    @action(methods=['get'], detail='testreport-detail', url_path='runfail', url_name='testbatch-runfail')
+    def run_fail(self,request, *args, **kwargs):
+        # 后台运行测试批次任务
+        run_date = (datetime.datetime.now() + datetime.timedelta(seconds=5)).strftime('%Y-%m-%d %H:%M:%S')
+        scheduler.add_job(run_failcase, 'date', id=str(datetime.datetime.now().timestamp().as_integer_ratio()[0]),run_date=run_date, args=[kwargs['pk']])
+        return Response({},template_name='testreport/runback.html')

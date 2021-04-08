@@ -7,15 +7,14 @@ from django.db import models
 class BaseModel(models.Model):
     updatetime = models.DateTimeField('更新时间', auto_now=True, null=True)
     createtime = models.DateTimeField('创建时间', auto_now_add=True, null=True)
-    creater = models.ForeignKey('auth.user', verbose_name='创建人',on_delete=models.CASCADE)
+    creater = models.ForeignKey('auth.user', verbose_name='创建人',on_delete=models.CASCADE, null=True)
 
     class Meta:
         abstract = True
 
 class Project(BaseModel):
-    name = models.CharField(max_length=100)
-    sonpj = models.ForeignKey('self',on_delete=models.SET_NULL,null=True,blank=True)
-    banben = models.CharField(max_length=100,null=True)
+    name = models.CharField('项目名称',max_length=100)
+    banben = models.CharField('版本',max_length=100,null=True)
 
     def __str__(self):
         return self.name
@@ -38,7 +37,9 @@ class Api(BaseModel):
     group = models.ForeignKey('ApiGroup',verbose_name='所属分组',on_delete=models.SET_NULL,null=True)
     header = models.ManyToManyField('Header',verbose_name='请求头',related_name='header_apis',blank=True)
     method = models.CharField('请求方法',choices=[('GET', "GET"),('POST', "POST"),('DELETE', "DELETE")],max_length=10)
-    description = models.TextField('描述',max_length=1000)
+    jsonschema = models.TextField('jsonschema',max_length=10000,null=True,blank=True)
+    requesttype = models.CharField('requesttype',choices=[('1', "异步"),('2', "同步")],max_length=10)
+    description = models.TextField('描述',max_length=1000,null=True,blank=True)
     isValid = models.BooleanField('是否有效',default=True)
     url = models.CharField(max_length=100)
 
@@ -187,7 +188,7 @@ class AssertParam(models.Model):
     paramkey = models.ForeignKey('Assertkey',verbose_name='参数', on_delete=models.SET_NULL, null=True)
     paramval = models.ForeignKey('Assertval',verbose_name='值', on_delete=models.SET_NULL, null=True)
     description = models.CharField('描述',max_length=1000, null=True, blank=True)
-    mode = models.CharField('模式', choices=[('assert_equal', "equils"), ('assert_contains', "contains"),('assert_regex_match', "regex_match"), ('assert_json_contains', "jsoncontains"), ('assert_jsonmatch', "jsonmatch")], max_length=100,default='assert_equal')
+    mode = models.CharField('模式', choices=[('assert_equal', "equils"),('assert_not_equal', "not_equal"),('assert_string_equals', "string_equals"),('assert_startswith', "startswith"),('assert_endswith', "endswith"), ('assert_contained_by', "contained_by"), ('assert_type_match', "type_match"),  ('assert_length_equal', "length_equal"),('assert_length_equal', "length_equal"), ('assert_contains', "contains"),('assert_regex_match', "regex_match"), ('assert_json_contains', "jsoncontains"), ('assert_jsonmatch', "jsonmatch")], max_length=100,default='assert_equal')
 
     def __str__(self):
         return self.paramkey.value + '-' + self.paramval.value

@@ -9,6 +9,9 @@
 
 import json
 import time
+
+import jsonpath
+
 from httpfunc import PostWithFunctions
 from productor import Saver
 
@@ -36,9 +39,13 @@ class Callfunc(object):
         orderno = f"&$.{Saver.caseno}..orderNo&"
         testdata2['data'] = eval(Saver.handle_params('{"orderNo":"%s"}' % (orderno)))
         testdata2['url'] = testdata2['url'].replace('Apply', 'Result')
-        issuc = False
         for i in range(3):
-            time.sleep(1)
-            issuc = PostWithFunctions(testdata2).run()
-            if issuc:
+            try:
+                time.sleep(1)
+                PostWithFunctions(testdata2).run()
                 break
+            except Exception as e:
+                if i == 2:
+                    raise e
+            # if jsonpath.jsonpath(Saver.httphist,):
+            #     break

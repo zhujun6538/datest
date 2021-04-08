@@ -21,6 +21,8 @@ router.register(r'testcase',views.TestcaseViewset)
 router.register(r'testsuite',views.TestsuiteViewset)
 router.register(r'testbatch',views.TestbatchViewset)
 router.register(r'debugtalk',views.DebugTalkViewset)
+router.register(r'debugtalk',views.TESTREPORTViewset)
+router.register(r'api',views.ApiViewset)
 
 urlpatterns = [
     url(r'^',include(router.urls)),

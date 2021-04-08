@@ -69,7 +69,7 @@
 </textarea>
 </pre>
 
-
+   <button id='request' class="btn btn-primary js-tooltip">发送请求</button>
               </div>
 
 
@@ -85,7 +85,9 @@
 {{ respdata|urlize }}
 </textarea>
 </pre>
+
               <button id='gen' class="btn btn-primary js-tooltip">自动生成校验</button>
+<button id='newcase' class="btn btn-primary js-tooltip">生成新用例</button>
 
               </div>
             </div>
@@ -131,10 +133,20 @@
         return temp;
     }
 
+    $('#request').click(function () {
+        reqdata = editor1.session.getValue();
+        post('/testcase/{{ id }}/postcase/', {'reqdata': reqdata});
+    });
 
     $('#gen').click(function () {
         content = editor2.session.getValue();
         post('/testcase/{{ id }}/genassertdata/', {'content': content});
+    });
+
+    $('#newcase').click(function () {
+        reqcont = editor1.session.getValue();
+        rescont = editor2.session.getValue();
+        post('/testcase/{{ id }}/gennewcase/', {'reqcont': reqcont,'rescont': rescont});
     });
 
 </script>

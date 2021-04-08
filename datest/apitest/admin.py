@@ -22,6 +22,7 @@ from rest_framework.reverse import reverse as rvs
 from .forms import CsvImportForm
 from .models import *
 from .datahandle import *
+from .postmail import postmail
 from .views import run_data
 # Register your models here.
 from .runner import testrunner
@@ -36,7 +37,7 @@ AdminSite.index_title = "api测试"
 filedir = os.path.dirname(__file__)
 @admin.register(Api)
 class ApiAdmin(admin.ModelAdmin):
-    list_display = ['code','name','creater','project','group','isValid','get_casenum','edit']
+    list_display = ['code','name','creater','project','group','requesttype','isValid','get_casenum','edit']
     search_fields = ['name','code']
     filter_horizontal = ['header']
     list_display_links = ['edit']
@@ -46,6 +47,7 @@ class ApiAdmin(admin.ModelAdmin):
     exclude = ('creater',)
     list_editable = ('isValid',)
     list_per_page = 10
+    change_list_template = 'admin/apitest/api/option_changelist.html'
 
     def save_model(self, request, obj, form, change):
         if change is False:
@@ -65,7 +67,7 @@ class ApiAdmin(admin.ModelAdmin):
         return super().get_search_results(request, queryset, search_term)
 
     def edit(self,obj):
-        return format_html('<a href="{}" style="white-space:nowrap;">{}</a> <a href="{}" style="white-space:nowrap;">{}</a>',reverse('admin:apitest_api_change', args=(obj.id,)),'编辑',reverse('admin:apitest_api_delete', args=(obj.id,)),'删除')
+        return format_html('<a href="{}" style="white-space:nowrap;" target="_blank">{}</a> <a href="{}" style="white-space:nowrap;">{}</a> <a href="{}" style="white-space:nowrap;">{}</a>',rvs('api-detail',args=[obj.id]) + 'runapi','调试',reverse('admin:apitest_api_change', args=(obj.id,)),'编辑',reverse('admin:apitest_api_delete', args=(obj.id,)),'删除')
     edit.short_description = '操作'
 
     def get_casenum(self,obj):
@@ -76,6 +78,42 @@ class ApiAdmin(admin.ModelAdmin):
     def unvalid(self, request, query_set):
         query_set.update(isValid=False)
     unvalid.short_description = '失效'
+
+    def get_urls(self):
+        '''
+        加入导入页面的url
+        :return:
+        '''
+        urls = super().get_urls()
+        my_urls = [
+            path('import-csv/',self.import_excel),
+        ]
+        return my_urls + urls
+
+    def import_excel(self, request):
+        '''导入xls'''
+        if request.method == 'POST':
+            xfile = request.FILES['x_file'].file
+            with open(filedir + '/data/uploadfile/temp.xls', 'wb') as f:
+                f.write(xfile.read())
+            # 从上传临时temp文件读取数据，格式为[{行数据},.....]
+            apis = get_exceldata(filedir + '/data/uploadfile/temp.xls')
+            num = 0
+            # 根据testcases数据获取或创建新的关联对象
+            for data in apis:
+                try:
+                    apiobj = Api.objects.filter(code=data['prodCode'])[0]
+                    data['schema'] = data['schema'].replace('$schema','*schema')
+                    apiobj.jsonschema = data['schema']
+                    apiobj.requesttype = data['requestType']
+                    apiobj.save()
+                except Exception as e:
+                    continue
+            self.message_user(request, "导入成功")
+            return redirect("..")
+        # 导入页面自定义表单
+        form = CsvImportForm()
+        return render(request, 'admin/csv_form.html', {'form': form})
 
     def get_excel(self, request, query_set):
         '''
@@ -101,12 +139,12 @@ class ApiAdmin(admin.ModelAdmin):
 
 @admin.register(Project)
 class ProjectAdmin(admin.ModelAdmin):
-    list_display = ['name','creater','sonpj', 'banben']
+    list_display = ['name','creater', 'banben']
     exclude = ('creater',)
 
     def save_model(self, request, obj, form, change):
         # 同时创建存放自定义函数文件的项目目录
-        projectpath = filedir + '/runner/projectdata/'
+        projectpath = filedir + '/runner/projects/'
         if not os.path.exists(projectpath):
             os.mkdir(projectpath)
         if not change:
@@ -120,7 +158,7 @@ class ProjectAdmin(admin.ModelAdmin):
             with open(projectpath + obj.name + '/debugtalk.py', 'r+', encoding='utf-8') as f:
                 content = f.read()
             # 将自定义函数文件信息存入表
-            DebugTalk.objects.create(project=obj,file='/runner/projectdata/' + obj.name + '/debugtalk.py',content=content)
+            DebugTalk.objects.create(project=obj,file='/runner/projects/' + obj.name + '/debugtalk.py',content=content)
         super().save_model(request, obj, form, change)
 
 
@@ -294,6 +332,7 @@ def run_case(query_set):
 
 
 
+
 @admin.register(Testcase)
 class TestcaseAdmin(admin.ModelAdmin):
     list_display = ['caseno','casename','creater','isValid', 'group', 'api', 'edit']
@@ -310,7 +349,7 @@ class TestcaseAdmin(admin.ModelAdmin):
     list_per_page = 10
     readonly_fields = ('responsedata',)
     list_editable = ['isValid','api']
-    ordering = ('api__code',)
+    ordering = ('-createtime',)
 
     def get_search_results(self, request, queryset, search_term):
         # API中筛选有效的API
@@ -690,6 +729,7 @@ def run_batch(query_set):
         testreport.save()
         obj.runtime = timezone.now()
         obj.save()
+        postmail('605662545@qq.com','605662545@qq.com',testreport)
 
 
 @admin.register(Testbatch)
@@ -835,7 +875,7 @@ class TESTREPORTAdmin(admin.ModelAdmin):
         else:
             caselisturl = reverse('admin:apitest_testcase_changelist') + '?id__in=' +  cids[:-1]
             caseliststr = '查看失败用例'
-        return format_html('<a href="{}" target="_blank">{}</a> <a href="{}">{}</a> <a href="{}">{}</a>',obj.file.url,'查看报告',reverse('admin:apitest_testreport_change', args=(obj.id,)),'详情',caselisturl,caseliststr)
+        return format_html('<a href="{}" target="_blank">{}</a> <a href="{}">{}</a> <a href="{}">{}</a> <a href="{}">{}</a>',obj.file.url,'查看报告',reverse('admin:apitest_testreport_change', args=(obj.id,)),'详情',caselisturl,caseliststr,rvs('testreport-detail',args=[obj.id]) + 'runfail','失败重跑',)
     filelink.short_description = '操作'
 
     def delete_model(self,request,obj):

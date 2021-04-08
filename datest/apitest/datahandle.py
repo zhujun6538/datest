@@ -123,11 +123,11 @@ def get_casedata(suitename,case,baseurl='',setupfunc='',teardownfunc='',callfunc
     testcase['suitename'] ,testcase['group'] ,testcase['caseno'], testcase['casename'], \
     testcase['isValid'], testcase['method'],testcase['url'], testcase['data'], \
     testcase['params'], testcase['formdata'], testcase['headers'], testcase['asserts'], \
-    testcase['sleeptime'] ,testcase['caselink'] ,testcase['project'] = \
+    testcase['sleeptime'] ,testcase['caselink'] ,testcase['project'] ,testcase['jsonschema']= \
         suitename,case.group.name, case.caseno, case.casename, \
         case.isValid, case.api.method , case.api.url, data, \
         params, formdata, headers, asserts, \
-        sleeptime, caselink,case.project.name
+        sleeptime, caselink,case.project.name, case.api.jsonschema
 
     return testcase
 
@@ -167,6 +167,22 @@ def get_suitedata(obj):
             testsuite.append(testcase)
 
     return testsuite
+
+def get_faildata(obj):
+    '''
+    根据测试套件对象获取所有测试用例列表
+    :param obj:
+    :return:
+    '''
+    testsuite = []
+    # 可覆盖测试用例的功能
+    suitename = obj.reportname + '重跑失败用例'
+    cases = obj.failcase.all()
+    for case in cases:
+        testcase = get_casedata(suitename, case)
+        testsuite.append(testcase)
+    return testsuite
+
 
 def get_exceldata(filepath):
     '''

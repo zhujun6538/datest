@@ -55,6 +55,8 @@ class PostWithFunctions(HttpRunner):
         .teardown_hook(testdata['teardownfunc']) \
         .validate() \
 
+        running = running.assert_jsonschema('body', testdata['jsonschema'])
+
         # 根据校验参数输入值构建断言
         for ast in testdata['asserts']:
             running = running.__getattribute__(ast[0].lower())(ast[1], ast[2])
