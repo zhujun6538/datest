@@ -28,4 +28,5 @@ urlpatterns = [
     url(r'^',include(router.urls)),
     # path(r'runsuite/<int:id>/',views.runsuite),
     url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework')),
+    path(r'getjenkinslog/<int:id>/',views.get_log, name='getlog'),
 ]

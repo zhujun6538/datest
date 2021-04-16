@@ -4,6 +4,9 @@ import random
 import re
 import shutil
 import time
+from lxml import etree
+from xml.dom.minidom import parseString
+import xml.etree.ElementTree as ET
 
 import jenkins
 import jsonpath
@@ -12,14 +15,18 @@ from django.contrib.admin import AdminSite
 from django.core.exceptions import MultipleObjectsReturned
 from django.core.files import File
 from django.db import transaction
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render, redirect
 from django.urls import path
 from django.utils import timezone
 from django.utils.html import format_html
+from import_export.admin import ImportExportActionModelAdmin, ImportExportModelAdmin
+from import_export.widgets import ForeignKeyWidget
 from openpyxl import Workbook
 from rest_framework.reverse import reverse as rvs
-from .forms import CsvImportForm
+from simpleui.admin import AjaxAdmin
+from import_export import resources, fields
+from .forms import CsvImportForm, ApiImportForm, ApiConfirmImportForm, TestcaseImportForm, TestcaseConfirmImportForm
 from .models import *
 from .datahandle import *
 from .postmail import postmail
@@ -31,23 +38,43 @@ from .runner import testrunner
 # admin.site.unregister(User)
 # admin.site.unregister(Group)
 from .runner.scheduler import scheduler
-
 AdminSite.site_header = "证通接口自动化测试平台"
 AdminSite.index_title = "api测试"
 filedir = os.path.dirname(__file__)
+
+class ApiResource(resources.ModelResource):
+    class Meta:
+        model = Api
+        exclude = ('updatetime','createtime')
+
+    def import_row(self,row, instance_loader, using_transactions, dry_run, raise_errors, **kwargs):
+        jsonschema = row['jsonschema'].replace('$schema','*schema')
+        row.move_to_end('jsonschema')
+        row.popitem()
+        row.update({'jsonschema':jsonschema})
+        row.update({'project': kwargs['project']})
+        row.update({'group': kwargs['group']})
+        row.update({'creater': kwargs['user'].id})
+        return super().import_row(row, instance_loader, using_transactions, dry_run, raise_errors, **kwargs)
+
+
 @admin.register(Api)
-class ApiAdmin(admin.ModelAdmin):
+class ApiAdmin(ImportExportModelAdmin,AjaxAdmin):
+    resource_class = ApiResource
     list_display = ['code','name','creater','project','group','requesttype','isValid','get_casenum','edit']
     search_fields = ['name','code']
     filter_horizontal = ['header']
-    list_display_links = ['edit']
     list_filter = ['group','project','isValid']
-    actions = ['get_excel','unvalid']
+    actions = ['get_excel','daoru']
     save_on_top = True
     exclude = ('creater',)
     list_editable = ('isValid',)
     list_per_page = 10
-    change_list_template = 'admin/apitest/api/option_changelist.html'
+    fields_options = {
+        'edit': {
+            'fixed': 'left'
+        }
+    }
 
     def save_model(self, request, obj, form, change):
         if change is False:
@@ -67,53 +94,40 @@ class ApiAdmin(admin.ModelAdmin):
         return super().get_search_results(request, queryset, search_term)
 
     def edit(self,obj):
-        return format_html('<a href="{}" style="white-space:nowrap;" target="_blank">{}</a> <a href="{}" style="white-space:nowrap;">{}</a> <a href="{}" style="white-space:nowrap;">{}</a>',rvs('api-detail',args=[obj.id]) + 'runapi','调试',reverse('admin:apitest_api_change', args=(obj.id,)),'编辑',reverse('admin:apitest_api_delete', args=(obj.id,)),'删除')
-    edit.short_description = '操作'
+        return format_html('<button type="button" class="el-button el-button--default el-button--mini"><a href="{}">{}</a></button>',\
+                           rvs('api-detail',args=[obj.id]) + 'runapi','调试')
+    edit.short_description = '测试'
 
     def get_casenum(self,obj):
         casenum = obj.testcase_set.count()
         return format_html('<a href="{}" style="text-decoration:underline">{}',f'/admin/apitest/testcase/?api__id__exact={obj.id}' , str(casenum))
     get_casenum.short_description = '用例数'
 
-    def unvalid(self, request, query_set):
-        query_set.update(isValid=False)
-    unvalid.short_description = '失效'
+    def get_import_form(self):
+        return ApiImportForm
 
-    def get_urls(self):
-        '''
-        加入导入页面的url
-        :return:
-        '''
-        urls = super().get_urls()
-        my_urls = [
-            path('import-csv/',self.import_excel),
-        ]
-        return my_urls + urls
+    def get_confirm_import_form(self):
+        return ApiConfirmImportForm
 
-    def import_excel(self, request):
-        '''导入xls'''
-        if request.method == 'POST':
-            xfile = request.FILES['x_file'].file
-            with open(filedir + '/data/uploadfile/temp.xls', 'wb') as f:
-                f.write(xfile.read())
-            # 从上传临时temp文件读取数据，格式为[{行数据},.....]
-            apis = get_exceldata(filedir + '/data/uploadfile/temp.xls')
-            num = 0
-            # 根据testcases数据获取或创建新的关联对象
-            for data in apis:
-                try:
-                    apiobj = Api.objects.filter(code=data['prodCode'])[0]
-                    data['schema'] = data['schema'].replace('$schema','*schema')
-                    apiobj.jsonschema = data['schema']
-                    apiobj.requesttype = data['requestType']
-                    apiobj.save()
-                except Exception as e:
-                    continue
-            self.message_user(request, "导入成功")
-            return redirect("..")
-        # 导入页面自定义表单
-        form = CsvImportForm()
-        return render(request, 'admin/csv_form.html', {'form': form})
+    def get_import_data_kwargs(self,request, form, *args, **kwargs):
+        if isinstance(form, (ApiImportForm,ApiConfirmImportForm)):
+            if form.is_valid():
+                project = form.cleaned_data['project']
+                group = form.cleaned_data['group']
+                kwargs.update({'project': project.id,'group': group.id})
+                return kwargs
+        return super().get_import_data_kwargs(request, form=form, *args, **kwargs)
+
+    def get_form_kwargs(self, form, *args, **kwargs):
+        # pass on `author` to the kwargs for the custom confirm form
+        if isinstance(form, (ApiImportForm,ApiConfirmImportForm)):
+            if form.is_valid():
+                project = form.cleaned_data['project']
+                group = form.cleaned_data['group']
+                kwargs.update({'project': project.id,'group': group.id})
+        return kwargs
+
+
 
     def get_excel(self, request, query_set):
         '''
@@ -135,7 +149,7 @@ class ApiAdmin(admin.ModelAdmin):
             ws.append(rowvalue)
         wb.save(response)
         return response
-    get_excel.short_description = '导出'
+    get_excel.short_description = '导出选中对象'
 
 @admin.register(Project)
 class ProjectAdmin(admin.ModelAdmin):
@@ -167,7 +181,7 @@ class DebugTalkAdmin(admin.ModelAdmin):
     list_display = ['project','file','edit']
 
     def edit(self,obj):
-        return format_html('<a href="{}" style="white-space:nowrap;">{}</a> <a href="{}" style="white-space:nowrap;">{}</a>',rvs('debugtalk-detail',args=[obj.id]) + 'edit','编辑',reverse('admin:apitest_debugtalk_delete', args=(obj.id,)),'删除')
+        return format_html('<button type="button" class="el-button el-button--default el-button--mini"><a href="{}">{}</a></button> ',rvs('debugtalk-detail',args=[obj.id]) + 'edit','编辑')
     edit.short_description = '操作'
 
     def delete_model(self,request,obj):
@@ -320,36 +334,56 @@ class CALLFUNCAdmin(admin.ModelAdmin):
         return False
 
 
-def run_case(query_set):
+def run_case(query_set,baseurl,sleeptime):
     '''依次运行query_set中的所有测试用例'''
     for obj in query_set:
-        testdata = get_casedata('运行测试用例', obj)
+        testdata = get_casedata('运行测试用例',obj,baseurl=baseurl,sleeptime=sleeptime)
         testreport = run_data(data = [[testdata]])
         testreport.testcases.add(obj)
         testreport.save()
         obj.runtime = timezone.now()
         obj.save()
 
+class TestcaseResource(resources.ModelResource):
 
+    class Meta:
+        model = Testcase
+        exclude = ('responsedata','baseurl','isValid','runtime','updatetime','createtime')
 
+    def import_row(self,row, instance_loader, using_transactions, dry_run, raise_errors, **kwargs):
+        caseno = row['api'] + datetime.datetime.now().strftime('%Y%m%d%H%M%S') + str(random.randint(1, 10000))
+        apiobj = Api.objects.filter(code = row['api'])[0]
+        row.move_to_end('api')
+        row.popitem()
+        row.update({'api':apiobj.id})
+        row.update({'project': kwargs['project']})
+        row.update({'group': kwargs['group']})
+        row.update({'creater': kwargs['user'].id})
+        row.update({'caseno': caseno})
+        return super().import_row(row, instance_loader, using_transactions, dry_run, raise_errors, **kwargs)
 
 @admin.register(Testcase)
-class TestcaseAdmin(admin.ModelAdmin):
+class TestcaseAdmin(ImportExportModelAdmin, AjaxAdmin):
+    resource_class = TestcaseResource
     list_display = ['caseno','casename','creater','isValid', 'group', 'api', 'edit']
-    list_display_links = ['edit']
     search_fields = ['caseno','casename']
     radio_fields = {"datamode": admin.HORIZONTAL}
     autocomplete_fields = ['api']
     inlines = [HeaderParaminline,RequestParaminline,FormdataParaminline, AssertParaminline,]
     save_on_top = True
-    list_filter = ['group', 'project','callfunc','isValid']
-    actions = ['get_excel','copy','get_caseyml','runcase','unvalid']
+    list_filter = ['group', 'project','callfunc','isValid','api']
+    actions = ['copy','get_caseyml','runcase']
     fields = ('casename','group','baseurl','api','datamode','requestdata','setupfunc','teardownfunc','callfunc','isValid',)
-    change_list_template = 'admin/apitest/testcase/option_changelist.html'
     list_per_page = 10
     readonly_fields = ('responsedata',)
     list_editable = ['isValid','api']
     ordering = ('-createtime',)
+    fields_options = {
+        'edit': {
+            'fixed': 'left'
+        }
+    }
+
 
     def get_search_results(self, request, queryset, search_term):
         # API中筛选有效的API
@@ -364,12 +398,12 @@ class TestcaseAdmin(admin.ModelAdmin):
         if len(lastreports) != 0:
             reportlink = '查看报告'
             reporturl = lastreports[0].file.url
-        return format_html('<a href="{}" style="white-space:nowrap;" target="_blank">{}</a> <a href="{}" style="white-space:nowrap;">{}</a> <a href="{}" style="white-space:nowrap;">{}</a> <a href="{}" style="white-space:nowrap;" target="_blank">{}</a>',rvs('testcase-detail',args=[obj.id]) + 'postcase','发送',reverse('admin:apitest_testcase_change', args=(obj.id,)),'编辑',reverse('admin:apitest_testcase_delete', args=(obj.id,)),'删除',reporturl,reportlink)
+            return format_html('<a href="{}"><button type="button" class="el-button el-button--default el-button--mini">{}</button></a> \
+            <a href="{}" target="_blank"><button type="button" class="el-button el-button--default el-button--mini">{}</button></a>',\
+                               rvs('testcase-detail',args=[obj.id]) + 'postcase','发送',reporturl,reportlink)
+        return format_html('<a href="{}"><button type="button" class="el-button el-button--default el-button--mini">{}</button></a>',\
+                               rvs('testcase-detail',args=[obj.id]) + 'postcase','发送')
     edit.short_description = '操作'
-
-    def unvalid(self, request, query_set):
-        query_set.update(isValid=False)
-    unvalid.short_description = '失效'
 
     def save_model(self, request, obj, form, change):
         if change is False:
@@ -424,101 +458,31 @@ class TestcaseAdmin(admin.ModelAdmin):
             row = ws.append(rowvalue)
         wb.save(response)
         return response
-    get_excel.short_description = '导出'
+    get_excel.short_description = '导出选中对象'
 
-    def get_urls(self):
-        '''
-        加入导入页面的url
-        :return:
-        '''
-        urls = super().get_urls()
-        my_urls = [
-            path('import-csv/',self.import_excel),
-        ]
-        return my_urls + urls
+    def get_import_form(self):
+        return TestcaseImportForm
 
-    def import_excel(self, request):
-        '''导入xls'''
-        if request.method == 'POST':
-            xfile = request.FILES['x_file'].file
-            with open(filedir + '/data/uploadfile/temp.xls', 'wb') as f:
-                f.write(xfile.read())
-            # 从上传临时temp文件读取数据，格式为[{行数据},.....]
-            testcases = get_exceldata(filedir + '/data/uploadfile/temp.xls')
-            num = 0
-            # 根据testcases数据获取或创建新的关联对象
-            for data in testcases:
-                caseno = data['api'] + datetime.datetime.now().strftime('%Y%m%d%H%M%S') + str(random.randint(1,10000))
-                project = Project.objects.get_or_create(name=data['project'],defaults = {'banben':'1','creater':request.user})
-                group = TestcaseGroup.objects.get_or_create(name=data['group'],defaults = {'project':project[0],'creater':request.user})
-                baseurl = BASEURL.objects.get_or_create(url=data['baseurl'],defaults = {'name':'新建环境','project':project[0]})
-                api = Api.objects.get(id=data['api'])
-                # 关联测试方法对象
-                def get_func(data,name,model):
-                    if data[name] != '':
-                        return model.objects.get(name = data[name])
-                    else:
-                        return None
-                setupfunc = get_func(data,'setupfunc',FUNC)
-                teardownfunc = get_func(data,'teardownfunc',FUNC)
-                callfunc = get_func(data,'callfunc',CALLFUNC)
-                # 创建测试用例对象
-                testcaseobj = Testcase.objects.create(caseno = caseno,casename=data['casename'],project= project[0],group=group[0],api = api,isValid=True,baseurl=baseurl[0],datamode = data['datamode'],requestdata=data['requestdata'],creater=request.user,setupfunc=setupfunc,teardownfunc=teardownfunc,callfunc=callfunc)
-                num += 1
-                # 根据testcases数据关联多对多对象
-                def addorget(mod, value):
-                    try:
-                        obj = mod.objects.get_or_create(value=value)
-                        return obj[0]
-                    except MultipleObjectsReturned as e:
-                        obj = mod.objects.filter(value=value)
-                        return obj[0]
-                if data['headers'] != '':
-                    for key,value in json.loads(data['headers']).items():
-                        hkeyobj = addorget(Headerkey, key)
-                        hvalobj = addorget(Headerval, value)
-                        HeaderParam.objects.create(testcase=testcaseobj, paramkey=hkeyobj, paramval=hvalobj)
-                for k,v in data.items():
-                    if k.startswith('assert') and v is not '':
-                        assertkey = v.split('|')[0]
-                        assertvalue = v.split('|',1)[1]
-                        hkeyobj = addorget(Assertkey, assertkey)
-                        hvobj = addorget(Assertval, assertvalue)
-                        AssertParam.objects.create(testcase=testcaseobj, paramkey=hkeyobj, paramval=hvobj)
-            self.message_user(request, str(num) + "个用例批量导入成功")
-            return redirect("..")
-        # 导入页面自定义表单
-        form = CsvImportForm()
-        return render(request, 'admin/csv_form.html', {'form': form})
+    def get_confirm_import_form(self):
+        return TestcaseConfirmImportForm
 
-    def gen_yml(self,request,query_set):
-        '''
-        获取选中用例的数据拼接为list
-        :param request:
-        :param query_set:
-        :return:
-        '''
-        testdata = []
-        for obj in query_set:
-            testcase = get_casedata('批量运行用例',obj)
-            testdata.append(testcase)
-        testcases = [testdata]
-        return testcases
+    def get_import_data_kwargs(self,request, form, *args, **kwargs):
+        if isinstance(form, (TestcaseImportForm,TestcaseConfirmImportForm)):
+            if form.is_valid():
+                project = form.cleaned_data['project']
+                group = form.cleaned_data['group']
+                kwargs.update({'project': project.id, 'group': group.id})
+                return kwargs
+        return super().get_import_data_kwargs(request, form=form, *args, **kwargs)
 
-    def get_caseyml(self,request,query_set):
-        '''
-        根据gen_yml输出的数组在apitest/runner/data下生成yaml格式的测试用例文件
-        :param request:
-        :param query_set:
-        :return:
-        '''
-        testcases = self.gen_yml(request,query_set)
-        try:
-            write_case(f'{filedir}/runner/data/test.yaml', testcases)
-        except Exception as e:
-            self.message_user(request, '发生异常' + str(e))
-        self.message_user(request, '测试文件已生成')
-    get_caseyml.short_description = '生成文件'
+    def get_form_kwargs(self, form, *args, **kwargs):
+        # pass on `author` to the kwargs for the custom confirm form
+        if isinstance(form, (TestcaseImportForm,TestcaseConfirmImportForm)):
+            if form.is_valid():
+                project = form.cleaned_data['project']
+                group = form.cleaned_data['group']
+                kwargs.update({'project': project.id,'group': group.id})
+        return kwargs
 
     def runcase(self,request,query_set):
         '''
@@ -527,14 +491,59 @@ class TestcaseAdmin(admin.ModelAdmin):
         :param query_set:
         :return:
         '''
+        post = request.POST
+        baseurl = BASEURL.objects.get(id=post.get('baseurl'))
+        sleeptime = post.get('sleeptime')
         try:
             run_date = (datetime.datetime.now() + datetime.timedelta(seconds=5)).strftime('%Y-%m-%d %H:%M:%S')
             # scheduler添加任务异步在后台运行测试用例
-            scheduler.add_job(run_case, 'date', id=str(datetime.datetime.now().timestamp().as_integer_ratio()[0]),run_date=run_date, args=[query_set])
+            scheduler.add_job(run_case, 'date', id=str(datetime.datetime.now().timestamp().as_integer_ratio()[0]),run_date=run_date, args=[query_set,baseurl.url,int(sleeptime)])
         except Exception as e:
-            self.message_user(request, '发生异常：' + str(e))
-        self.message_user(request,str(list(query_set.values_list('caseno','casename'))) + f'测试用例运行成功，请稍后查看测试报告')
+            return JsonResponse(data={
+                'status': 'error',
+                'msg': f'异常！{e}'
+            })
+        return JsonResponse(data={
+            'status': 'success',
+            'msg': '处理成功！'
+        })
     runcase.short_description = '运行选中用例'
+    runcase.layer = {
+        # 这里指定对话框的标题
+        'title': '运行用例',
+        # 提示信息
+        'tips': '待编辑',
+        # 确认按钮显示文本
+        'confirm_button': '确定',
+        # 取消按钮显示文本
+        'cancel_button': '取消',
+
+        # 弹出层对话框的宽度，默认50%
+        'width': '40%',
+
+        # 表单中 label的宽度，对应element-ui的 label-width，默认80px
+        'labelWidth': "80px",
+
+        'params': [
+            {
+                'type': 'select',
+                'key': 'baseurl',
+                'label': '测试环境',
+                'width': '200px',
+                # size对应elementui的size，取值为：medium / small / mini
+                'size': 'small',
+                'options': [{'key': obj['id'], 'label': obj['name']} for obj in BASEURL.objects.all().values()]
+            },
+            {
+                'type': 'input',
+                'key': 'sleeptime',
+                'label': '运行延时',
+                'width': '200px',
+                # size对应elementui的size，取值为：medium / small / mini
+                'size': 'small',
+                'value': '0'}
+        ]
+    }
 
 class Testcaselistinline(admin.TabularInline):
     '''
@@ -544,7 +553,7 @@ class Testcaselistinline(admin.TabularInline):
     extra = 0
     autocomplete_fields = ['testcase']
 
-def run_suite(query_set):
+def run_suite(query_set,baseurl,sleeptime,runargs,reruns,reruns_delay):
     '''
     通过apitest/runner下的testrunner脚本运行yaml测试用例文件，根据测试结果新建测试报告对象
     :param query_set:
@@ -552,12 +561,9 @@ def run_suite(query_set):
     '''
     for obj in query_set:
         # 获取套件所有的测试用例，结果为[[{套件1用例},...],[{套件2用例},...]]
-        testdata = get_suitedata(obj)
+        testdata = get_suitedata(obj,baseurl,sleeptime)
         casenum = obj.case.count()
-        args = obj.args.all().values_list('name')
-        reruns = obj.reruns
-        reruns_delay = obj.reruns_delay
-        testreport = run_data(num=casenum, data=[testdata],args=args,reruns=reruns,reruns_delay=reruns_delay)
+        testreport = run_data(num=casenum, data=[testdata],args=runargs,reruns=reruns,reruns_delay=reruns_delay)
         testreport.testsuite.add(obj)
         for case in obj.case.all():
             testreport.testcases.add(case)
@@ -567,18 +573,26 @@ def run_suite(query_set):
         obj.runtime = timezone.now()
         obj.save
 
+class TESTSUITEResource(resources.ModelResource):
+    class Meta:
+        model = TESTSUITE
+        exclude = ('updatetime','createtime')
 
 @admin.register(TESTSUITE)
-class TESTSUITEAdmin(admin.ModelAdmin):
-    list_display = ['name','createtime','creater','baseurl','get_testcase','isorder','edit']
+class TESTSUITEAdmin(ImportExportActionModelAdmin, AjaxAdmin):
+    resource_class = TESTSUITEResource
+    list_display = ['name','createtime','creater','get_testcase','isorder','edit']
     actions = ['gen_yaml','runsuite']
     filter_horizontal = ['case']
     exclude = ['creater','runtime']
-    list_display_links = ['edit']
     inlines = [Testcaselistinline,]
-    list_editable = ('baseurl','isorder')
+    list_editable = ('isorder',)
+    fields_options = {
+        'edit': {
+            'fixed': 'left'
+        }
+    }
 
-    
 
     def formfield_for_manytomany(self, db_field, request, **kwargs):
         '''
@@ -617,9 +631,16 @@ class TESTSUITEAdmin(admin.ModelAdmin):
         if obj.suite_report.count() != 0:
             lastreports = TESTREPORT.objects.filter(testsuite=obj).latest('testtime')
             reporturl = lastreports.file.url
-            return format_html('<a href="{}" style="white-space:nowrap;" >{}</a> <a href="{}" style="white-space:nowrap;" >{}</a> <a href="{}" style="white-space:nowrap;" target="_blank">{}</a> <a href="{}">{}</a> <a href="{}">{}</a>',rvs('testsuite-detail',args=[obj.id]) + 'runback','后台运行',reverse('admin:apitest_testsuite_change', args=(obj.id,)),'编辑',reporturl,'查看报告',reverse('admin:apitest_testsuite_delete', args=(obj.id,)), '删除',caselisturl,'查看用例')
+            logurl = lastreports.logfile.url
+            reporthtml = format_html('<a href="{}" target="_blank"><button type="button" class="el-button el-button--default el-button--mini">{}</button></a> \
+            <a href="{}" target="_blank"><button type="button" class="el-button el-button--default el-button--mini">{}</button></a> \
+        <a href="{}"><button type="button" class="el-button el-button--default el-button--mini">{}</button></a></div>', \
+                                     reporturl, '查看报告', \
+                                     logurl, '查看日志', \
+                                     caselisturl, '查看用例')
         else:
-            return format_html('<a href="{}" style="white-space:nowrap;" >{}</a> <a href="{}" style="white-space:nowrap;" >{}</a> <a href="{}" style="white-space:nowrap;" >{}</a> <a href="{}">{}</a>',rvs('testsuite-detail',args=[obj.id]) + 'runback','后台运行',reverse('admin:apitest_testsuite_change', args=(obj.id,)), '编辑',reverse('admin:apitest_testsuite_delete', args=(obj.id,)), '删除',caselisturl,'查看用例')
+            reporthtml = ''
+        return reporthtml
     edit.short_description = '操作'
 
     def gen_yaml(self,request,query_set):
@@ -641,54 +662,6 @@ class TESTSUITEAdmin(admin.ModelAdmin):
         self.message_user(request, '测试文件已生成')
     gen_yaml.short_description = '生成文件'
 
-    # def runsuite(self,request,query_set):
-    #     '''
-    #     通过apitest/runner下的testrunner脚本运行yaml测试用例文件，根据测试结果新建测试报告对象
-    #     :param request:
-    #     :param query_set:
-    #     :return:
-    #     '''
-    #     thisname = datetime.datetime.now().strftime('%Y%m%d%H%M%S') + '测试报告'
-    #     passedall = 0
-    #     failedall = 0
-    #     for obj in query_set:
-    #         # 获取套件所有的测试用例，结果为[[{套件1用例},...],[{套件2用例},...]]
-    #         testsuite = get_suitedata(obj)
-    #         casenum = obj.case.count()
-    #         args = obj.args.all().values_list('name')
-    #         try:
-    #             write_case(f'{filedir}/runner/data/test.yaml',[testsuite])
-    #             report = testrunner.pyrun(args,obj.reruns,obj.reruns_delay)
-    #             testresult = json.loads(os.environ.get('TESTRESULT'), encoding='utf-8')
-    #             os.environ.pop('TESTRESULT')
-    #             result = testresult['result']
-    #             failed = testresult['failed']
-    #             passed = testresult['passed']
-    #             with open(report + '/index.html','r',encoding='utf-8') as f:
-    #                 thisfile = File(f)
-    #                 thisfile.name = thisfile.name.split('report/')[1]
-    #                 testreport = TESTREPORT.objects.create(reportname=thisname, file=thisfile,testnum=casenum, result=result,suc=passed, fail=failed)
-    #             for passedcase in testresult['passedcase']:
-    #                 testreport.succase.add(Testcase.objects.get(caseno=passedcase))
-    #             for failedcase in testresult['failedcase']:
-    #                 testreport.failcase.add(Testcase.objects.get(caseno=failedcase))
-    #             testreport.testsuite.add(obj)
-    #             for case in obj.case.all():
-    #                 testreport.testcases.add(case)
-    #                 case.runtime = timezone.now()
-    #                 case.save()
-    #             obj.runtime = timezone.now()
-    #             obj.save()
-    #             testreport.save()
-    #             passedall += passed
-    #             failedall += failed
-    #         except Exception as e:
-    #             self.message_user(request,'发生异常' + str(e))
-    #             testreport  = TESTREPORT.objects.create(reportname=thisname, testnum=casenum, result='N', errors = str(e))
-    #             raise e
-    #     self.message_user(request, str(list(query_set.values_list('name'))) + f'测试运行完成，本次测试结果：{result}，测试用例成功数量{passedall}，测试用例失败数量{failedall}，请查看测试报告')
-    # runsuite.short_description = '运行套件'
-
     def runsuite(self,request,query_set):
         '''
         后台按照排序依次运行所有测试套件，并生成测试报告及测试报告对象
@@ -697,23 +670,91 @@ class TESTSUITEAdmin(admin.ModelAdmin):
         :return:
         '''
         try:
+            post = request.POST
+            baseurl = BASEURL.objects.get(id=post.get('baseurl'))
+            runargs = [arg.split(' ')[0] for arg in post.get('runargs').split(',')]
             run_date = (datetime.datetime.now() + datetime.timedelta(seconds=5)).strftime('%Y-%m-%d %H:%M:%S')
             # scheduler添加任务异步在后台运行测试用例
-            scheduler.add_job(run_suite, 'date', id=str(datetime.datetime.now().timestamp().as_integer_ratio()[0]),run_date=run_date, args=[query_set])
+            scheduler.add_job(run_suite, 'date', id=str(datetime.datetime.now().timestamp().as_integer_ratio()[0]),run_date=run_date, args=[query_set,baseurl.url,post.get('sleeptime'),runargs,post.get('reruns'),post.get('reruns_delay')])
         except Exception as e:
-            self.message_user(request, '发生异常：' + str(e))
-        self.message_user(request,str(list(query_set.values_list('name'))) + f'测试套件运行成功，请稍后查看测试报告')
+            return JsonResponse(data={
+                'status': 'error',
+                'msg': f'异常！{e}'
+            })
+        return JsonResponse(data={
+            'status': 'success',
+            'msg': '处理成功！'
+        })
     runsuite.short_description = '运行选中套件'
+    runsuite.layer = {
+            # 这里指定对话框的标题
+            'title': '运行套件',
+            # 提示信息
+            'tips': '待编辑',
+            # 确认按钮显示文本
+            'confirm_button': '确定',
+            # 取消按钮显示文本
+            'cancel_button': '取消',
 
-def run_batch(query_set):
+            # 弹出层对话框的宽度，默认50%
+            'width': '40%',
+
+            # 表单中 label的宽度，对应element-ui的 label-width，默认80px
+            'labelWidth': "80px",
+
+            'params': [
+                {
+                    'type': 'select',
+                    'key': 'baseurl',
+                    'label': '测试环境',
+                    'width': '200px',
+                    # size对应elementui的size，取值为：medium / small / mini
+                    'size': 'small',
+                    'options': [{'key': obj['id'], 'label': obj['name']} for obj in BASEURL.objects.all().values()]
+                },
+                {
+                    'type': 'input',
+                    'key': 'sleeptime',
+                    'label': '运行延时',
+                    'width': '200px',
+                    # size对应elementui的size，取值为：medium / small / mini
+                    'size': 'small',
+                    'value': '0'},
+                {
+                    'type': 'checkbox',
+                    'key': 'runargs',
+                    # 必须指定默认值
+                    'value': [],
+                    'label': '运行参数',
+                    'options': [{'key': obj['id'], 'label': obj['name'] + ' ' + obj['description']} for obj in Argument.objects.all().values()]
+                },
+                {
+                    'type': 'input',
+                    'key': 'reruns',
+                    'label': '失败重跑次数',
+                    'width': '200px',
+                    # size对应elementui的size，取值为：medium / small / mini
+                    'size': 'small',
+                    'value': '0'},
+                {
+                    'type': 'input',
+                    'key': 'reruns_delay',
+                    'label': '重跑间隔时间',
+                    'width': '200px',
+                    # size对应elementui的size，取值为：medium / small / mini
+                    'size': 'small',
+                    'value': '0'}
+            ]
+        }
+
+def run_batch(query_set,baseurl,sleeptime,runargs,reruns,reruns_delay,ispostmail):
     for batch in query_set:
         testbatch = []
         for obj in batch.testsuite.all():
-            testsuite = get_suitedata(obj)
+            testsuite = get_suitedata(obj,baseurl,sleeptime)
             testbatch.extend(testsuite)
         casenum = len(testbatch)
-        args = batch.args.all().values_list('name')
-        testreport = run_data(num=casenum, data=[testbatch], args=args)
+        testreport = run_data(num=casenum, data=[testbatch],args=runargs,reruns=reruns,reruns_delay=reruns_delay)
         for suite in batch.testsuite.all():
             testreport.testsuite.add(suite)
             if suite.isorder == False:
@@ -729,15 +770,26 @@ def run_batch(query_set):
         testreport.save()
         obj.runtime = timezone.now()
         obj.save()
-        postmail('605662545@qq.com','605662545@qq.com',testreport)
+        if ispostmail == 'true':
+            postmail('127.0.0.1','605662545@qq.com','605662545@qq.com',testreport)
 
+class TestbatchResource(resources.ModelResource):
+    class Meta:
+        model = Testbatch
+        exclude = ('updatetime','createtime')
 
 @admin.register(Testbatch)
-class TestbatchAdmin(admin.ModelAdmin):
+class TestbatchAdmin(ImportExportActionModelAdmin, AjaxAdmin):
+    resource_class = TestbatchResource
     list_display = ['name','creater','createtime','runtime','edit']
     filter_horizontal = ['testsuite']
     actions = ['gen_yaml','runbatch','jenkinsrun']
     exclude = ('runtime','creater',)
+    fields_options = {
+        'edit': {
+            'fixed': 'left'
+        }
+    }
 
     def save_model(self, request, obj, form, change):
         if change is not True:
@@ -774,9 +826,16 @@ class TestbatchAdmin(admin.ModelAdmin):
         if obj.testreport_set.count() != 0:
             lastreports = TESTREPORT.objects.filter(testbatch=obj).latest('testtime')
             reporturl = lastreports.file.url
-            return format_html('<a href="{}" style="white-space:nowrap;" >{}</a> <a href="{}" style="white-space:nowrap;" >{}</a> <a href="{}" style="white-space:nowrap;" target="_blank">{}</a> <a href="{}">{}</a> <a href="{}">{}</a>',rvs('testbatch-detail',args=[obj.id]) + 'runback','后台运行',reverse('admin:apitest_testbatch_change', args=(obj.id,)),'编辑',reporturl,'查看报告',reverse('admin:apitest_testbatch_delete', args=(obj.id,)), '删除',suitelisturl,'查看套件')
+            logurl = lastreports.logfile.url
+            reporthtml = format_html('<a href="{}" target="_blank"><button type="button" class="el-button el-button--default el-button--mini">{}</button></a> \
+            <a href="{}" target="_blank"><button type="button" class="el-button el-button--default el-button--mini">{}</button></a> \
+                                     <a href="{}"><button type="button" class="el-button el-button--default el-button--mini">{}</button></a>',\
+                                    reporturl, '查看报告', \
+                                     logurl, '查看日志', \
+                                    suitelisturl,'查看套件')
         else:
-            return format_html('<a href="{}" style="white-space:nowrap;" >{}</a> <a href="{}" style="white-space:nowrap;" >{}</a> <a href="{}" style="white-space:nowrap;" >{}</a> <a href="{}">{}</a>',rvs('testbatch-detail',args=[obj.id]) + 'runback','后台运行',reverse('admin:apitest_testbatch_change', args=(obj.id,)), '编辑',reverse('admin:apitest_testbatch_delete', args=(obj.id,)), '删除',suitelisturl,'查看套件')
+            reporthtml = ''
+        return reporthtml
     edit.short_description = '操作'
 
     def runbatch(self,request,query_set):
@@ -787,13 +846,89 @@ class TestbatchAdmin(admin.ModelAdmin):
         :return:
         '''
         try:
+            post = request.POST
+            baseurl = BASEURL.objects.get(id=post.get('baseurl'))
+            runargs = [arg.split(' ')[0] for arg in post.get('runargs').split(',')]
             run_date = (datetime.datetime.now() + datetime.timedelta(seconds=5)).strftime('%Y-%m-%d %H:%M:%S')
             # scheduler添加任务异步在后台运行测试用例
-            scheduler.add_job(run_batch, 'date', id=str(datetime.datetime.now().timestamp().as_integer_ratio()[0]),run_date=run_date, args=[query_set])
+            scheduler.add_job(run_batch, 'date', id=str(datetime.datetime.now().timestamp().as_integer_ratio()[0]),run_date=run_date, args=[query_set,baseurl.url,post.get('sleeptime'),runargs,post.get('reruns'),post.get('reruns_delay'),post.get('ispostmail')])
         except Exception as e:
-            self.message_user(request, '发生异常：' + str(e))
-        self.message_user(request,str(list(query_set.values_list('name'))) + f'测试批次运行成功，请稍后查看测试报告')
+            return JsonResponse(data={
+                'status': 'error',
+                'msg': f'异常！{e}'
+            })
+        return JsonResponse(data={
+            'status': 'success',
+            'msg': '处理成功！'
+        })
     runbatch.short_description = '运行选中批次'
+    runbatch.layer = {
+        # 这里指定对话框的标题
+        'title': '运行批次',
+        # 提示信息
+        'tips': '待编辑',
+        # 确认按钮显示文本
+        'confirm_button': '确定',
+        # 取消按钮显示文本
+        'cancel_button': '取消',
+
+        # 弹出层对话框的宽度，默认50%
+        'width': '40%',
+
+        # 表单中 label的宽度，对应element-ui的 label-width，默认80px
+        'labelWidth': "80px",
+
+        'params': [
+            {
+                'type': 'select',
+                'key': 'baseurl',
+                'label': '测试环境',
+                'width': '200px',
+                # size对应elementui的size，取值为：medium / small / mini
+                'size': 'small',
+                'require': True,
+                'options': [{'key': obj['id'], 'label': obj['name']} for obj in BASEURL.objects.all().values()]
+            },
+            {
+                'type': 'input',
+                'key': 'sleeptime',
+                'label': '运行延时',
+                'width': '200px',
+                # size对应elementui的size，取值为：medium / small / mini
+                'size': 'small',
+                'value': '0'},
+            {
+                'type': 'checkbox',
+                'key': 'runargs',
+                # 必须指定默认值
+                'value': [],
+                'label': '运行参数',
+                'options': [{'key': obj['id'], 'label': obj['name'] + ' ' + obj['description']} for obj in
+                            Argument.objects.all().values()]
+            },
+            {
+                'type': 'input',
+                'key': 'reruns',
+                'label': '失败重跑次数',
+                'width': '200px',
+                # size对应elementui的size，取值为：medium / small / mini
+                'size': 'small',
+                'value': '0'},
+            {
+                'type': 'input',
+                'key': 'reruns_delay',
+                'label': '重跑间隔时间',
+                'width': '200px',
+                # size对应elementui的size，取值为：medium / small / mini
+                'size': 'small',
+                'value': '0'},
+            {
+                'type': 'switch',
+                'key': 'ispostmail',
+                'label': '发送邮件'
+            }
+        ]
+    }
 
     def jenkinsrun(self,request,query_set):
         '''
@@ -804,42 +939,130 @@ class TestbatchAdmin(admin.ModelAdmin):
         '''
 
         for batch in query_set:
-            testbatch = []
-            for obj in batch.testsuite.all():
-                testsuite = get_suitedata(obj)
-                testbatch.extend(testsuite)
+
             try:
+                post = request.POST
+                testbatch = []
+                baseurl = BASEURL.objects.get(id=post.get('baseurl'))
+                for obj in batch.testsuite.all():
+                    testsuite = get_suitedata(obj, baseurl.url, post.get('sleeptime') )
+                    testbatch.extend(testsuite)
                 write_case(f'{filedir}/runner/data/test.yaml', [testbatch])
                 # 创建新jenkins构建
                 server = jenkins.Jenkins(url='http://127.0.0.1:8888/', username='admin', password='z111111')
                 last_build_number = server.get_job_info('apitest')['lastCompletedBuild']['number']
                 this_build_number = last_build_number + 1
-                server.build_job('apitest', token='111111')
+                configdata = server.get_job_config('apitest')
+                args = ','.join([arg.split(' ')[0] for arg in post.get('runargs').split(',')])
+                build_args = {'args':args,'extra_args':f"--reruns={post.get('reruns')} --reruns-delay={post.get('reruns_delay')} --log-file={filedir}/data/jenkinslogs/{this_build_number}.log"}
+                server.build_job('apitest', parameters = build_args, token='111111')
                 Jenkinsreport.objects.create(number=this_build_number,batch=batch)
-                self.message_user(request, 'Jenkins已进行构建')
             except Exception as e:
-                self.message_user(request,'发生异常' + str(e))
+                return JsonResponse(data={
+                    'status': 'error',
+                    'msg': f'异常！{e}'
+                })
+            return JsonResponse(data={
+                'status': 'success',
+                'msg': '运行成功！'
+            })
     jenkinsrun.short_description = 'jenkins运行批次'
+    jenkinsrun.layer = {
+        # 这里指定对话框的标题
+        'title': 'jenkins运行批次',
+        # 提示信息
+        'tips': '待编辑',
+        # 确认按钮显示文本
+        'confirm_button': '确定',
+        # 取消按钮显示文本
+        'cancel_button': '取消',
+
+        # 弹出层对话框的宽度，默认50%
+        'width': '40%',
+
+        # 表单中 label的宽度，对应element-ui的 label-width，默认80px
+        'labelWidth': "80px",
+
+        'params': [
+            {
+                'type': 'select',
+                'key': 'baseurl',
+                'label': '测试环境',
+                'width': '200px',
+                # size对应elementui的size，取值为：medium / small / mini
+                'size': 'small',
+                'require': True,
+                'options': [{'key': obj['id'], 'label': obj['name']} for obj in BASEURL.objects.all().values()]
+            },
+            {
+                'type': 'input',
+                'key': 'sleeptime',
+                'label': '运行延时',
+                'width': '200px',
+                # size对应elementui的size，取值为：medium / small / mini
+                'size': 'small',
+                'value': '0'},
+            {
+                'type': 'checkbox',
+                'key': 'runargs',
+                # 必须指定默认值
+                'value': [],
+                'label': '运行参数',
+                'options': [{'key': obj['id'], 'label': obj['name'] + ' ' + obj['description']} for obj in
+                            Argument.objects.all().values()]
+            },
+            {
+                'type': 'input',
+                'key': 'reruns',
+                'label': '失败重跑次数',
+                'width': '200px',
+                # size对应elementui的size，取值为：medium / small / mini
+                'size': 'small',
+                'value': '0'},
+            {
+                'type': 'input',
+                'key': 'reruns_delay',
+                'label': '重跑间隔时间',
+                'width': '200px',
+                # size对应elementui的size，取值为：medium / small / mini
+                'size': 'small',
+                'value': '0'}
+        ]
+    }
 
 @admin.register(Jenkinsreport)
 class JenkinsreportAdmin(admin.ModelAdmin):
-    list_display = ['number','url','batch','runtime','result','getresult','receivetime','edit']
-    readonly_fields = ['number','url','batch','duration','runtime','result','output','receivetime']
-    list_display_links = ['edit']
+    list_display = ['number','url','batch','runtime','result','receivetime','edit']
+    readonly_fields = ['number','url','batch','duration','runtime','result','receivetime']
+    actions = ['refresh']
 
     def edit(self,obj):
-        return format_html('<a href="{}" style="white-space:nowrap;"><input type="button" class="default" style="padding:5px 5px;border-radius:revert" value="{}"> <a href="{}" style="white-space:nowrap;"><input type="button" class="default" style="padding:5px 5px;border-radius:revert;background:#ba2121" value="{}">',reverse('admin:apitest_jenkinsreport_change', args=(obj.id,)),'编辑',reverse('admin:apitest_jenkinsreport_delete', args=(obj.id,)),'删除')
+        # 获取所有测试套件列表拼接字符串
+        return format_html('<a href="{}" target="_blank"><button type="button" class="el-button el-button--default el-button--mini">{}</button></a> \
+                           <a href="{}"><button type="button" class="el-button el-button--default el-button--mini">{}</button></a>', \
+                           obj.jenkinslogfile.url, '查看运行日志', \
+                                    f'/getjenkinslog/{obj.id}','查看日志')
     edit.short_description = '操作'
 
-    def getresult(self,obj):
-        # jenkins API获取构建信息保存入库
-        server = jenkins.Jenkins(url='http://127.0.0.1:8888/', username='admin', password='z111111')
-        result = server.get_build_info('apitest',obj.number)
-        log = server.get_build_console_output('apitest',obj.number)
-        duration = datetime.timedelta(microseconds=result['duration'])
-        runtime = datetime.datetime.fromtimestamp(float(result['timestamp']/1000))
-        Jenkinsreport.objects.filter(id=obj.id).update(url=result['url'],duration=duration,runtime=runtime,result=result['result'],output=log)
-        return '已更新'
+    def refresh(self,request,query_set):
+        try:
+            for obj in query_set:
+                # jenkins API获取构建信息保存入库
+                server = jenkins.Jenkins(url='http://127.0.0.1:8888/', username='admin', password='z111111')
+                result = server.get_build_info('apitest',obj.number)
+                duration = datetime.timedelta(microseconds=result['duration'])
+                runtime = datetime.datetime.fromtimestamp(float(result['timestamp']/1000))
+                if result['result'] == 'SUCCESS':
+                    with open(f'{filedir}/data/jenkinslogs/{obj.number}.log', 'r', encoding='utf-8') as f:
+                        jlogfile = File(f)
+                        jlogfile.name = jlogfile.name.split('jenkinslogs/')[1]
+                        obj.jenkinslogfile = jlogfile
+                        obj.save()
+                Jenkinsreport.objects.filter(id=obj.id).update(url=result['url'],duration=duration,runtime=runtime,result=result['result'])
+        except Exception as e:
+            self.message_user(request,f'异常！{e}')
+        self.message_user(request,'更新成功！')
+    refresh.short_description = '更新'
 
 @admin.register(Argument)
 class ArgumentAdmin(admin.ModelAdmin):
@@ -854,15 +1077,19 @@ for k,v in TESTREPORT._meta.fields_map.items():
 
 @admin.register(TESTREPORT)
 class TESTREPORTAdmin(admin.ModelAdmin):
-    list_display = ['reportname', 'testtime', 'testnum', 'result', 'suc', 'fail','filelink']
+    list_display = ['reportname', 'testtime', 'testnum', 'result', 'suc', 'fail','edit']
     list_filter = ['testsuite']
     view_on_site = True
     params = TESTREPORTparams
     fields = params
     readonly_fields = params
-    list_display_links = ['filelink']
+    fields_options = {
+        'edit': {
+            'fixed': 'left'
+        }
+    }
 
-    def filelink(self,obj):
+    def edit(self,obj):
         # 获得失败用例列表
         failcaselist = obj.failcase.all()
         cids = ''
@@ -870,13 +1097,17 @@ class TESTREPORTAdmin(admin.ModelAdmin):
             cids = cids + str(case.id) + ','
 
         if cids == '':
-            caselisturl = ''
-            caseliststr = '-'
+            casefailhtml = format_html('</div>')
         else:
-            caselisturl = reverse('admin:apitest_testcase_changelist') + '?id__in=' +  cids[:-1]
-            caseliststr = '查看失败用例'
-        return format_html('<a href="{}" target="_blank">{}</a> <a href="{}">{}</a> <a href="{}">{}</a> <a href="{}">{}</a>',obj.file.url,'查看报告',reverse('admin:apitest_testreport_change', args=(obj.id,)),'详情',caselisturl,caseliststr,rvs('testreport-detail',args=[obj.id]) + 'runfail','失败重跑',)
-    filelink.short_description = '操作'
+            casefailhtml = format_html('<button type="button" class="el-button el-button--default el-button--mini"><a href="{}">{}</a></button> \
+            <button type="button" class="el-button el-button--default el-button--mini"><a href="{}">{}</a></button>',\
+                               reverse('admin:apitest_testcase_changelist') + '?id__in=' +  cids[:-1],'查看失败用例',\
+                               rvs('testreport-detail',args=[obj.id]) + 'runfail','失败重跑',)
+        return format_html(
+            '<button type="button" class="el-button el-button--default el-button--mini"><a href="{}" target="_blank">{}</a></button> \
+            <a href="{}" target="_blank"><button type="button" class="el-button el-button--default el-button--mini">{}</button></a>', \
+            obj.file.url, '查看报告', obj.logfile.url, '下载日志') + casefailhtml
+    edit.short_description = '操作'
 
     def delete_model(self,request,obj):
         '''删除对象同时删除本地文件'''

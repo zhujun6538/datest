@@ -1,0 +1,127 @@
+<el-alert v-if="table.selection.length!=0" class="table-tips"
+type="success"
+show-icon>
+    <div slot="title">
+        <span>已选择 <strong v-text="table.selection.length">0</strong> 项</span>
+        <el-link style="margin-top: -3px;" type="primary" @click="clearSelect()">清空</el-link>
+    </div>
+</el-alert>
+<el-alert v-if="showError"
+    style="margin-bottom: 5px"
+    :title="errorMsg?errorMsg:'加载数据报错，请检查{{ cl }}中的代码。'"
+    type="error"
+    :closable="false"
+    show-icon>
+  </el-alert>
+
+<transition name="el-fade-in-linear">
+<el-table
+   v-if="table.headers.length!=0"
+   height="500"
+   ref="table"
+  :data="table.rows"
+  stripe
+  border
+  v-loading="loading"
+  @sort-change="sortChange"
+  @select="select"
+  @select-all="selectAll"
+
+   {% if has_summaries %}
+   :summary-method="getSummaries"
+   :show-summary="table.summaries&&table.summaries.length!=0"
+    {% endif %}
+  {% if has_change_permission and has_editor %}
+  @row-dblclick="dbclick"
+  {% endif %}
+  :header-row-class-name="'default-header'"
+  size="mini"
+  style="width: 100%">
+
+   <el-table-column
+      type="selection"
+      align="center"
+      fixed="left"
+      width="45">
+    </el-table-column>
+
+    <template v-for="h in table.headers">
+        <el-table-column v-if="h.name == 'id' && exts.showId && h.show"
+        :prop="h.name"
+        :label="h.label"
+        :sortable="h.sortable"
+        :align="h.align||'center'"
+        :width="h.width"
+        :min-width="h.min_width"
+        :resizable="h.resizable"
+        :class-name="h.class_name"
+        :label-class-name="h.label_class_name"
+        :fixed="h.fixed"
+        >
+             <template slot-scope="scope">
+                 <div class="cell-body" v-html="scope.row[h.name]"></div>
+            </template>
+      </el-table-column>
+
+      <el-table-column v-else-if="h.show"
+        :prop="h.name"
+        :label="h.label"
+        :sortable="h.sortable"
+        :align="h.align||'center'"
+        :width="h.width"
+         :min-width="h.min_width"
+        :resizable="h.resizable"
+        :class-name="h.class_name"
+        :label-class-name="h.label_class_name"
+        :fixed="h.fixed"
+        >
+             <template slot-scope="scope">
+                <el-switch disabled v-if="typeof scope.row[h.name]=='boolean'" v-model="scope.row[h.name]" > </el-switch>
+                <div class="cell-body" v-else v-html="scope.row[h.name]"></div>
+            </template>
+      </el-table-column>
+
+              <el-table-column v-else-if="h.name == 'edit'"
+        :prop="h.name"
+        :fixed="table.actionFixed"
+      label="测试"
+      align="center"
+      width="150">
+      <template slot-scope="scope">
+                <el-switch disabled v-if="typeof scope.row[h.name]=='boolean'" v-model="scope.row[h.name]" > </el-switch>
+                <div v-else v-html="scope.row[h.name]"></div>
+            </template>
+      </el-table-column>
+  </template>
+  {% if has_change_permission or has_delete_permission %}
+  <el-table-column v-if="exts.actions_show"
+      fixed="right"
+      label="操作"
+      align="center"
+      width="150">
+      <template slot-scope="scope">
+
+      {% if has_change_permission %}
+        <el-button
+          size="mini"
+          icon="el-icon-edit"
+          :underline="false"
+          style="padding: 6px 10px"
+          @click="edit(null,scope.row._id)"></el-button>
+      {% endif %}
+
+      {% if has_delete_permission %}
+        <el-button
+          size="mini"
+          type="danger"
+          icon="el-icon-remove-outline"
+          :underline="false"
+          style="padding: 6px 10px"
+          @click="deleteData(scope.row._id)"></el-button>
+      {% endif %}
+
+      </template>
+    </el-table-column>
+    {% endif %}
+</el-table>
+</transition>

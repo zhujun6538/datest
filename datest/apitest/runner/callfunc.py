@@ -9,7 +9,7 @@
 
 import json
 import time
-
+import logging
 import jsonpath
 
 from httpfunc import PostWithFunctions
@@ -24,7 +24,8 @@ class Callfunc(object):
         :return:
         '''
         # 使用根据输入值构建的对象发送请求数据、进行前置后置处理，根据断言校验响应报文等
-        PostWithFunctions(testdata).test_start()
+        testresut = PostWithFunctions(testdata).test_start()
+        return testresut.get_summary()
 
     def yb(self,testdata):
         '''
@@ -35,17 +36,18 @@ class Callfunc(object):
         testdata1 = testdata.copy()
         testdata2 = testdata.copy()
         testdata1['asserts'] = [['assert_equal', 'body.resultCode', '00000'], ['assert_equal', 'body.resultDesc', '成功']]
-        PostWithFunctions(testdata1).run()
+        PostWithFunctions(testdata1).test_start()
         orderno = f"&$.{Saver.caseno}..orderNo&"
         testdata2['data'] = eval(Saver.handle_params('{"orderNo":"%s"}' % (orderno)))
         testdata2['url'] = testdata2['url'].replace('Apply', 'Result')
         for i in range(3):
             try:
                 time.sleep(1)
-                PostWithFunctions(testdata2).run()
+                testresut = PostWithFunctions(testdata2).test_start()
                 break
             except Exception as e:
                 if i == 2:
                     raise e
+        return testresut.get_summary()
             # if jsonpath.jsonpath(Saver.httphist,):
             #     break

@@ -31,6 +31,9 @@ ALLOWED_HOSTS = ['*']
 # Application definition
 
 INSTALLED_APPS = [
+    # 'simplepro',
+    'simpleui',
+    'import_export',
     # 'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -51,6 +54,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    # 'simplepro.middlewares.SimpleMiddleware'
 ]
 
 ROOT_URLCONF = 'datest.urls'
@@ -154,3 +158,12 @@ STATICFILES_DIRS = [
 # STATICFILES_DIRS = [
 #     os.path.join(BASE_DIR, "/static/"),
 # ]
+
+SIMPLEUI_DEFAULT_ICON = True
+
+SIMPLEPRO_INFO = False
+
+SIMPLEUI_CONFIG = {
+    'system_keep': False,
+    'menu_display': ['api测试', '认证和授权']
+}

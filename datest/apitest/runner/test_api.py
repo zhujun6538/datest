@@ -31,10 +31,19 @@ class Test_Openapi(object):
         allure.dynamic.feature(testdata['suitename'])
         allure.dynamic.story(testdata['group'])
         allure.dynamic.title(testdata['caseno'] + '-' + testdata['casename'])
-        time.sleep(testdata['sleeptime'])
+        time.sleep(int(testdata['sleeptime']))
         # 可运行自定义方法
         try:
-            Callfunc().__getattribute__(testdata['callfunc'])(testdata)
+            summary = Callfunc().__getattribute__(testdata['callfunc'])(testdata)
+            with open(summary.log, 'r') as f:
+                logs = f.read()
+            logging.info('\r\n')
+            logging.info(
+                '--------------------------------------- httprunnerlog start ---------------------------------------')
+            logging.info(logs)
+            logging.info(
+                '--------------------------------------- httprunnerlog end ---------------------------------------')
+            logging.info('\r\n')
         except Exception as e:
             logging.info(str(e))
             raise e

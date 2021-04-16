@@ -131,7 +131,7 @@ def get_casedata(suitename,case,baseurl='',setupfunc='',teardownfunc='',callfunc
 
     return testcase
 
-def get_suitedata(obj):
+def get_suitedata(obj,baseurl='',sleeptime=0):
     '''
     根据测试套件对象获取所有测试用例列表
     :param obj:
@@ -140,8 +140,6 @@ def get_suitedata(obj):
     testsuite = []
     # 可覆盖测试用例的功能
     suitename = obj.name
-    baseurl = obj.baseurl.url
-    sleeptime = obj.sleeptime
     try:
         setupfunc = obj.setupfunc.name
         teardownfunc = obj.teardownfunc.name

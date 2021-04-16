@@ -1,0 +1,102 @@
+{% extends "admin/base_site.html" %}
+{% load i18n admin_urls static admin_modify simpletags%}
+{% load static %}
+{% block extrahead %}{{ block.super }}
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<script type="text/javascript" src="{% url 'admin:jsi18n' %}"></script>
+<script src="//unpkg.com/vue/dist/vue.js"></script>
+<script src="//unpkg.com/element-ui@2.15.1/lib/index.js"></script>
+     <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.2.6/ace.js" type="text/javascript"
+            charset="utf-8"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.2.6/ext-language_tools.js" type="text/javascript"
+            charset="utf-8"></script>
+    <script src="https://cdn.bootcss.com/jquery/2.1.1/jquery.min.js"></script>
+    <script src="{% static 'assets/js/commons.js' %}"></script>
+<script src="https://cdn.staticfile.org/axios/0.18.0/axios.min.js"></script>
+<script src="https://cdn.staticfile.org/vue-resource/1.5.1/vue-resource.min.js"></script>
+
+{{ media }}
+
+{% endblock %}
+{% block extrastyle %}{{ block.super }}
+<link rel="stylesheet" type="text/css" href="{% static '/admin/css/forms.css' %}"/>
+<link rel="stylesheet" type="text/css" href="//unpkg.com/element-ui@2.15.1/lib/theme-chalk/index.css"/>
+
+{% endblock %}
+{% block content %}
+<style type="text/css">
+    .inline-group .tabular td.original p {
+        margin-top: -50px;
+        height: 1.2em;
+    }
+
+    .page-header {
+        padding: 10px;
+    }
+
+</style>
+<div id="content-main" class="form-main">
+    <div class="page-header">
+        <el-page-header @back="goBack" content="{{title}}"/>
+    </div>
+	<div id="app">
+<div class="submit-row">
+	<button type="button" onclick="prev()" class="el-button el-button--button el-button--small" style="float: left; margin-right: 10px; margin-bottom: 10px;"><i class="el-icon-arrow-left"></i><span><span>返回</span></span></button>
+<button @click="reload()" class="el-button el-button--primary el-button--small">
+        更新
+        </button>
+
+</div>
+
+			            {% if errors %}
+            <div id="alert">
+                <el-alert
+                        title="{% if errors|length == 1 %}
+                            {% trans 'Please correct the error below.' %}
+                {% else %}
+                {% trans 'Please correct the errors below.' %}
+                {% endif %}"
+                type="error">
+                </el-alert>
+            </div>
+            {{ adminform.form.non_field_errors }}
+            {% endif %}
+        <el-row>
+        <el-col>
+      	  <el-card class="box-card">
+  <div slot="header" class="clearfix">
+    <span>日志</span>
+    <el-button style="float: right; padding: 3px 0" type="text">操作按钮</el-button>
+  </div>
+  <div class="text">
+<p v-text={{ logdata }}>
+
+</p>
+  </div>
+</el-card>
+
+  </el-col>
+</el-row>
+
+</div>
+
+
+
+        </div>
+
+<script type="text/javascript">
+
+    function prev() {
+             window.location.href='/admin/apitest/jenkinsreport/'
+        }
+
+        var vm = new Vue({
+  el: '#app',
+  data () {
+    return {
+    logdata: '',
+    }
+    }
+  });
+</script>
+{% endblock %}

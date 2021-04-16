@@ -18,7 +18,7 @@ import base64
 
 import allure
 
-from apitest.runner.callfunc import Saver
+from callfunc import Saver
 
 
 def prerequest(request):
@@ -120,8 +120,6 @@ def ztrequest(request):
     timestamp = time.strftime("%Y%m%d%H%M%S", t)  # 查询参数字符串格式
 
     args = json.dumps(request['req_json'], ensure_ascii=False)
-
-    logging.info("请求参数" + args)
 
     msgId = org_cnf['orgCode'] + timestamp
 

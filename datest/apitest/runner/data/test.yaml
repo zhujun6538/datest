@@ -1,25 +1,25 @@
 - - baseurl: https://112.65.144.19:9179
     setupfunc: ${ztrequest($request)}
     teardownfunc: ''
-    callfunc: yb
-    suitename: "20210402164609\u6D4B\u8BD5\u62A5\u544A\u91CD\u8DD1\u5931\u8D25\u7528\
-      \u4F8B"
-    group: "\u5F02\u6B65"
-    caseno: P0010052-20210301215654814
-    casename: "\u4F01\u4E1A\u5DE5\u5546\u57FA\u672C\u4FE1\u606F\u67E5\u8BE2-\u67E5\
-      \u8BE2\u6210\u529F\u6709\u7ED3\u679C\uFF08\u5DE5\u5546\u6CE8\u518C\u53F7\uFF09"
+    callfunc: default_func
+    suitename: '20210322'
+    group: " \u540C\u6B65"
+    caseno: P0010006-20210301115815455
+    casename: "\u4F01\u4E1A\u540D\u79F0\u6A21\u7CCA\u67E5\u8BE2-\u67E5\u8BE2\u6210\
+      \u529F\u6709\u7ED3\u679C"
     isValid: true
     method: POST
-    url: /ectcispserver/api/entcreditapi/asyncQueryApply
+    url: /ectcispserver/api/entcreditapi/query
     data:
-      prodCode: P0010052
-      entInfo: '140000100052221'
+      prodCode: P0010006
+      key: "\u4E50\u89C6"
     params: {}
     formdata: {}
-    headers: {}
+    headers:
+      Content-Type: application/json
     asserts:
     - - assert_equal
-      - body.resultData.P0010052Status
+      - body.resultData.P0010006Status
       - '4'
     - - assert_equal
       - body.resultCode
@@ -28,182 +28,85 @@
       - body.resultDesc
       - "\u6210\u529F"
     - - assert_jsonmatch
-      - $..alterList
+      - $..fuzzyList
       - \[(\{.*?\})*\]
-    - - assert_jsonmatch
-      - $..basicList
-      - \[(\{.*?\})*\]
-    - - assert_jsonmatch
-      - $..caseInfoList
-      - \[(\{.*?\})*\]
-    - - assert_jsonmatch
-      - $..exceptionList
-      - \[(\{.*?\})*\]
-    - - assert_jsonmatch
-      - $..filiationList
-      - \[(\{.*?\})*\]
-    - - assert_jsonmatch
-      - $..illegalList
-      - \[(\{.*?\})*\]
-    - - assert_jsonmatch
-      - $..liquidationList
-      - \[(\{.*?\})*\]
-    - - assert_jsonmatch
-      - $..morDetailList
-      - \[(\{.*?\})*\]
-    - - assert_jsonmatch
-      - $..personList
-      - \[(\{.*?\})*\]
-    - - assert_jsonmatch
-      - $..sharFrozList
-      - \[(\{.*?\})*\]
-    - - assert_jsonmatch
-      - $..sharePledgList
-      - \[(\{.*?\})*\]
-    - - assert_jsonmatch
-      - $..stockList
-      - \[(\{.*?\})*\]
-    sleeptime: 0
-    caselink: /admin/apitest/testcase/1457/change/
+    sleeptime: '0'
+    caselink: /admin/apitest/testcase/1336/change/
     project: "\u8BC1\u901AAPI"
-    jsonschema: ''
+    jsonschema: "{\"*schema\":\"http://json-schema.org/draft-04/schema#\",\"type\"\
+      :\"object\",\"properties\":{\"orderNo\":{\"type\":\"string\",\"validators\"\
+      :[{\"validator\":\"maxLength\",\"value\":3}]},\"resultData\":{\"type\":\"object\"\
+      ,\"properties\":{\"P0010006Status\":{\"type\":\"string\"},\"P0010006Data\":{\"\
+      type\":\"object\",\"properties\":{\"fuzzyList\":{\"type\":\"array\",\"items\"\
+      :{\"type\":\"object\",\"properties\":{\"no\":{\"type\":\"number\"},\"orgName\"\
+      :{\"type\":\"string\",\"description\":\"\u4F01\u4E1A\uFF08\u673A\u6784\uFF09\
+      \u540D\u79F0\",\"validators\":[{\"validator\":\"maxLength\",\"value\":100}]}},\"\
+      required\":[\"no\",\"orgName\"]},\"description\":\"\u4F01\u4E1A\u540D\u79F0\u6A21\
+      \u7CCA\u67E5\u8BE2\u5217\u8868\"}}}}},\"packetCnt\":{\"type\":\"number\"},\"\
+      isCompressed\":{\"type\":\"number\"},\"resultCode\":{\"type\":\"string\"}}}"
   - baseurl: https://112.65.144.19:9179
     setupfunc: ${ztrequest($request)}
     teardownfunc: ''
     callfunc: yb
-    suitename: "20210402164609\u6D4B\u8BD5\u62A5\u544A\u91CD\u8DD1\u5931\u8D25\u7528\
-      \u4F8B"
+    suitename: '20210322'
     group: "\u5F02\u6B65"
-    caseno: P0010052-20210301215655138
-    casename: "\u4F01\u4E1A\u5DE5\u5546\u57FA\u672C\u4FE1\u606F\u67E5\u8BE2-\u67E5\
-      \u8BE2\u6210\u529F\u6709\u7ED3\u679C\uFF08\u4F01\u4E1A\u540D\u79F0\uFF09"
+    caseno: P0030036-20210402150647878
+    casename: "\u67E5\u8BE2\u6210\u529F\u6709\u7ED3\u679C"
     isValid: true
     method: POST
     url: /ectcispserver/api/entcreditapi/asyncQueryApply
     data:
-      prodCode: P0010052
-      entInfo: "\u5F53\u4EE3\u4E1C\u65B9\u6295\u8D44\u80A1\u4EFD\u6709\u9650\u516C\
-        \u53F8"
+      entityId: '911101055825564383'
+      entityName: "\u4E50\u89C6\u63A7\u80A1(\u5317\u4EAC)\u6709\u9650\u516C\u53F8"
+      prodCode: P0030036
     params: {}
     formdata: {}
     headers: {}
     asserts:
-    - - assert_equal
-      - body.resultData.P0010052Status
-      - '4'
-    - - assert_equal
-      - body.resultCode
-      - '00000'
-    - - assert_equal
-      - body.resultDesc
-      - "\u6210\u529F"
     - - assert_jsonmatch
-      - $..alterList
+      - $..dishonestList
       - \[(\{.*?\})*\]
     - - assert_jsonmatch
-      - $..basicList
+      - $..executedList
       - \[(\{.*?\})*\]
-    - - assert_jsonmatch
-      - $..caseInfoList
-      - \[(\{.*?\})*\]
-    - - assert_jsonmatch
-      - $..exceptionList
-      - \[(\{.*?\})*\]
-    - - assert_jsonmatch
-      - $..filiationList
-      - \[(\{.*?\})*\]
-    - - assert_jsonmatch
-      - $..illegalList
-      - \[(\{.*?\})*\]
-    - - assert_jsonmatch
-      - $..liquidationList
-      - \[(\{.*?\})*\]
-    - - assert_jsonmatch
-      - $..morDetailList
-      - \[(\{.*?\})*\]
-    - - assert_jsonmatch
-      - $..personList
-      - \[(\{.*?\})*\]
-    - - assert_jsonmatch
-      - $..sharFrozList
-      - \[(\{.*?\})*\]
-    - - assert_jsonmatch
-      - $..sharePledgList
-      - \[(\{.*?\})*\]
-    - - assert_jsonmatch
-      - $..stockList
-      - \[(\{.*?\})*\]
-    sleeptime: 0
-    caselink: /admin/apitest/testcase/1466/change/
+    sleeptime: '0'
+    caselink: /admin/apitest/testcase/1550/change/
     project: "\u8BC1\u901AAPI"
-    jsonschema: ''
-  - baseurl: https://112.65.144.19:9179
-    setupfunc: ${ztrequest($request)}
-    teardownfunc: ''
-    callfunc: yb
-    suitename: "20210402164609\u6D4B\u8BD5\u62A5\u544A\u91CD\u8DD1\u5931\u8D25\u7528\
-      \u4F8B"
-    group: "\u5F02\u6B65"
-    caseno: P0010052-20210301215655721
-    casename: "\u4F01\u4E1A\u5DE5\u5546\u57FA\u672C\u4FE1\u606F\u67E5\u8BE2-\u67E5\
-      \u8BE2\u6210\u529F\u6709\u7ED3\u679C\uFF08\u7EDF\u4E00\u4FE1\u7528\u4EE3\u7801\
-      \uFF09"
-    isValid: true
-    method: POST
-    url: /ectcispserver/api/entcreditapi/asyncQueryApply
-    data:
-      prodCode: P0010052
-      entInfo: 91140000602168003F
-    params: {}
-    formdata: {}
-    headers: {}
-    asserts:
-    - - assert_equal
-      - body.resultData.P0010052Status
-      - '4'
-    - - assert_equal
-      - body.resultCode
-      - '00000'
-    - - assert_equal
-      - body.resultDesc
-      - "\u6210\u529F"
-    - - assert_jsonmatch
-      - $..alterList
-      - \[(\{.*?\})*\]
-    - - assert_jsonmatch
-      - $..basicList
-      - \[(\{.*?\})*\]
-    - - assert_jsonmatch
-      - $..caseInfoList
-      - \[(\{.*?\})*\]
-    - - assert_jsonmatch
-      - $..exceptionList
-      - \[(\{.*?\})*\]
-    - - assert_jsonmatch
-      - $..filiationList
-      - \[(\{.*?\})*\]
-    - - assert_jsonmatch
-      - $..illegalList
-      - \[(\{.*?\})*\]
-    - - assert_jsonmatch
-      - $..liquidationList
-      - \[(\{.*?\})*\]
-    - - assert_jsonmatch
-      - $..morDetailList
-      - \[(\{.*?\})*\]
-    - - assert_jsonmatch
-      - $..personList
-      - \[(\{.*?\})*\]
-    - - assert_jsonmatch
-      - $..sharFrozList
-      - \[(\{.*?\})*\]
-    - - assert_jsonmatch
-      - $..sharePledgList
-      - \[(\{.*?\})*\]
-    - - assert_jsonmatch
-      - $..stockList
-      - \[(\{.*?\})*\]
-    sleeptime: 0
-    caselink: /admin/apitest/testcase/1476/change/
-    project: "\u8BC1\u901AAPI"
-    jsonschema: ''
+    jsonschema: "{\"*schema\":\"http://json-schema.org/draft-04/schema#\",\"type\"\
+      :\"object\",\"properties\":{\"orderNo\":{\"type\":\"string\"},\"resultData\"\
+      :{\"type\":\"object\",\"properties\":{\"P0030036Status\":{\"type\":\"string\"\
+      },\"P0030036Data\":{\"type\":\"object\",\"properties\":{\"executedList\":{\"\
+      type\":\"array\",\"items\":{\"type\":\"object\",\"properties\":{\"no\":{\"type\"\
+      :\"number\",\"description\":\"\u5E8F\u53F7\"},\"entityName\":{\"type\":\"string\"\
+      ,\"description\":\"\u4E3B\u4F53\u540D\u79F0\"},\"sortTime\":{\"type\":\"string\"\
+      ,\"description\":\"\u7ACB\u6848\u65F6\u95F4\"},\"entityId\":{\"type\":\"string\"\
+      ,\"description\":\"\u4E3B\u4F53\u4EE3\u7801\"},\"court\":{\"type\":\"string\"\
+      ,\"description\":\"\u6267\u884C\u6CD5\u9662\u540D\u79F0\"},\"execMoney\":{\"\
+      type\":\"string\",\"description\":\"\u6267\u884C\u6807\u7684\u91D1\u989D\"},\"\
+      caseNo\":{\"type\":\"string\",\"description\":\"\u6848\u53F7\"}},\"required\"\
+      :[\"no\",\"entityName\",\"sortTime\",\"entityId\",\"court\",\"execMoney\",\"\
+      caseNo\"]},\"description\":\"\u88AB\u6267\u884C\u4EBA\u4FE1\u606F\"},\"dishonestList\"\
+      :{\"type\":\"array\",\"items\":{\"type\":\"object\",\"properties\":{\"no\":{\"\
+      type\":\"number\"},\"sortTime\":{\"type\":\"string\",\"description\":\"\u7ACB\
+      \u6848\u65F6\u95F4\"},\"sex\":{\"type\":\"null\",\"description\":\"\u6027\u522B\
+      \"},\"publishDate\":{\"type\":\"string\",\"description\":\"\u53D1\u5E03\u65E5\
+      \u671F\"},\"entityId\":{\"type\":\"string\",\"description\":\"\u4E3B\u4F53\u4EE3\
+      \u7801\"},\"partyTypeName\":{\"type\":\"string\",\"description\":\"\u5931\u4FE1\
+      \u88AB\u6267\u884C\u4EBA\u7C7B\u578B\"},\"court\":{\"type\":\"string\",\"description\"\
+      :\"\u6267\u884C\u6CD5\u9662\u540D\u79F0\"},\"caseNo\":{\"type\":\"string\",\"\
+      description\":\"\u6848\u53F7\"},\"dishonestType\":{\"type\":\"string\",\"description\"\
+      :\"\u5931\u4FE1\u7C7B\u578B\"},\"province\":{\"type\":\"string\",\"description\"\
+      :\"\u6CD5\u9662\u6240\u5728\u7701\u6216\u76F4\u8F96\u5E02\"},\"lxqk\":{\"type\"\
+      :\"string\",\"description\":\"\u88AB\u6267\u884C\u4EBA\u7684\u5C65\u884C\u60C5\
+      \u51B5\"},\"entityName\":{\"type\":\"string\",\"description\":\"\u4E3B\u4F53\
+      \u540D\u79F0\"},\"duty\":{\"type\":\"string\",\"description\":\"\u751F\u6548\
+      \u6CD5\u5F8B\u6587\u4E66\u786E\u5B9A\u7684\u4E49\u52A1\"},\"yjdw\":{\"type\"\
+      :\"string\",\"description\":\"\u505A\u51FA\u6267\u884C\u4F9D\u636E\u5355\u4F4D\
+      \"},\"age\":{\"type\":\"null\",\"description\":\"\u5E74\u9F84\"},\"gistId\"\
+      :{\"type\":\"string\",\"description\":\"\u6267\u884C\u4F9D\u636E\u6587\u53F7\
+      \"}},\"required\":[\"no\",\"sortTime\",\"sex\",\"publishDate\",\"entityId\"\
+      ,\"partyTypeName\",\"court\",\"caseNo\",\"dishonestType\",\"province\",\"lxqk\"\
+      ,\"entityName\",\"duty\",\"yjdw\",\"age\",\"gistId\"]},\"description\":\"\u5931\
+      \u4FE1\u88AB\u6267\u884C\u4EBA\u4FE1\u606F\"}}}}},\"packetCnt\":{\"type\":\"\
+      number\"},\"resultCode\":{\"type\":\"string\"},\"resultDesc\":{\"type\":\"string\"\
+      },\"isCompressed\":{\"type\":\"number\"}}}"

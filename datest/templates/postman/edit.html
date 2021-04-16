@@ -1,57 +1,35 @@
-{% extends "rest_framework/base.html" %}
 {% load static %}
 {% load i18n %}
 {% load rest_framework %}
 
 <!DOCTYPE html>
+<html>
 <head>
-    {% block head %}
-
-      {% block meta %}
         <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
         <meta name="robots" content="NONE,NOARCHIVE" />
-      {% endblock %}
-
-      <title>{% block title %}{% if name %}{{ name }} – {% endif %}接口自动化测试平台{% endblock %}</title>
-
-      {% block style %}
-        {% block bootstrap_theme %}
           <link rel="stylesheet" type="text/css" href="{% static "rest_framework/css/bootstrap.min.css" %}"/>
           <link rel="stylesheet" type="text/css" href="{% static "rest_framework/css/bootstrap-tweaks.css" %}"/>
-        {% endblock %}
 
         <link rel="stylesheet" type="text/css" href="{% static "rest_framework/css/prettify.css" %}"/>
         <link rel="stylesheet" type="text/css" href="{% static "rest_framework/css/default.css" %}"/>
-
-        {% if code_style %}<style>{{ code_style }}</style>{% endif %}
         <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.2.6/ace.js" type="text/javascript"
             charset="utf-8"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.2.6/ext-language_tools.js" type="text/javascript"
             charset="utf-8"></script>
     <script src="https://cdn.bootcss.com/jquery/2.1.1/jquery.min.js"></script>
     <script src="{% static 'assets/js/commons.js' %}"></script>
-
-
-      {% endblock %}
-    {% endblock %}
+      <script src="{% static "rest_framework/js/jquery-3.5.1.min.js" %}"></script>
+      <script src="{% static "rest_framework/js/ajax-form.js" %}"></script>
+      <script src="{% static "rest_framework/js/csrf.js" %}"></script>
+      <script src="{% static "rest_framework/js/bootstrap.min.js" %}"></script>
+      <script src="{% static "rest_framework/js/prettify-min.js" %}"></script>
+      <script src="{% static "rest_framework/js/default.js" %}"></script>
 </head>
 
-<html>
+<body>
 
-
-{% block content %}
-
-<div class="region"  aria-label="{% trans "request form" %}">
-
-
-
-
-
-</div>
-
-
-
-            <div class="content-main" role="main"  aria-label="{% trans "main content" %}">
+<div class="content-main" role="main"  aria-label="{% trans "main content" %}">
+<button type="button" onclick="prev()" class="el-button el-button--button el-button--small" style="float: left; margin-right: 10px; margin-bottom: 10px;"><i class="el-icon-arrow-left"></i><span><span>返回</span></span></button>
 
 
               <div class="page-header">
@@ -62,6 +40,7 @@
 
 
 <div class="request-info" style="clear: both" aria-label="{% trans "request info" %}">
+
 
 <pre id="req" class="ace_editor" style="margin-top: 0px; margin-bottom: 0px">
 <textarea>
@@ -92,20 +71,11 @@
               </div>
             </div>
 
-
-
-
-{% endblock content %}
-
-
-{% block script %}
-      <script src="{% static "rest_framework/js/jquery-3.5.1.min.js" %}"></script>
-      <script src="{% static "rest_framework/js/ajax-form.js" %}"></script>
-      <script src="{% static "rest_framework/js/csrf.js" %}"></script>
-      <script src="{% static "rest_framework/js/bootstrap.min.js" %}"></script>
-      <script src="{% static "rest_framework/js/prettify-min.js" %}"></script>
-      <script src="{% static "rest_framework/js/default.js" %}"></script>
 <script>
+    function prev() {
+             window.location.href='/admin/apitest/testcase/'
+        }
+
     //初始化对象
     editor1 = ace.edit("req");
     editor2 = ace.edit("res");
@@ -150,5 +120,7 @@
     });
 
 </script>
-    {% endblock %}
+
+</body>
+
 </html>

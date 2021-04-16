@@ -38,7 +38,6 @@ class PostWithFunctions(HttpRunner):
 
         self.with_project_meta(load_project_meta(filedir + '/projects/' +testdata['project'] + '/'))
 
-
         self.teststeps = []
 
         # 根据输入值构建请求信息

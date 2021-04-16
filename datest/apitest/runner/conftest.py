@@ -17,11 +17,18 @@ from productor import Saver
 filepath = os.path.dirname(__file__)
 
 @pytest.fixture(scope='session', autouse=True)
-def getlogger():
+def teststart():
     logging.info('开始测试')
     Saver.clear_data()
     yield
     logging.info('结束测试')
+
+@pytest.fixture(scope='function', autouse=True)
+def roundstart(testdata):
+    logging.info('---------------------------------------' + testdata['caseno'] + '---------------------------------------')
+    yield
+    logging.info('---------------------------------------' + testdata['caseno'] + '---------------------------------------')
+    logging.info('\r\n')
 
 @pytest.fixture(params=Reader.read_case(filepath + '/data/test.yaml'))
 def testdata(request):
@@ -30,13 +37,11 @@ def testdata(request):
     :param request:
     :return:
     '''
-    logging.info('---------------------------------------' + request.param['caseno'] + '---------------------------------------')
     # 根据输入参数化的内容获取历史请求、响应中对应模块的参数值
     request.param['headers'] = json.loads(Saver.handle_params(json.dumps(request.param['headers'], ensure_ascii=False)))
     request.param['data'] = json.loads(Saver.handle_params(json.dumps(request.param['data'], ensure_ascii=False)))
     request.param['formdata'] = json.loads(Saver.handle_params(json.dumps(request.param['formdata'], ensure_ascii=False)))
     return request.param
-    logging.info('---------------------------------------' + request.param['caseno'] + '---------------------------------------')
 
 @pytest.hookimpl(hookwrapper=True)
 def pytest_runtestloop(session):

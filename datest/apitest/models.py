@@ -84,9 +84,8 @@ class Testcase(BaseModel):
     casename = models.CharField('用例名称',max_length=100)
     project = models.ForeignKey(Project, verbose_name='所属项目', on_delete=models.SET_NULL, null=True)
     group = models.ForeignKey('TestcaseGroup',verbose_name='所属分组', on_delete=models.SET_NULL, null=True)
-    beforecase = models.ForeignKey('self',on_delete=models.SET_NULL,null=True,blank=True)
     isValid = models.BooleanField('是否有效',default=True)
-    baseurl = models.ForeignKey('BASEURL',verbose_name='环境地址',on_delete=models.SET_NULL,null=True,default=1)
+    baseurl = models.ForeignKey('BASEURL',verbose_name='环境地址',on_delete=models.SET_NULL,null=True,blank=True)
     api = models.ForeignKey('Api',verbose_name='测试接口',on_delete=models.SET_NULL,null=True)
     datamode = models.CharField('请求参数类型',choices=[('JSON', "JSON"), ('FORM-DATA', "FORM-DATA")], max_length=10)
     requestdata = models.TextField('请求报文',max_length=1000,null=True,blank=True,default='{}')
@@ -241,17 +240,9 @@ class Assertval(models.Model):
 class TESTSUITE(BaseModel):
     name = models.CharField('套件名称',max_length=100)
     project = models.ForeignKey(Project,verbose_name='所属项目', on_delete=models.SET_NULL, null=True)
-    baseurl = models.ForeignKey('BASEURL',verbose_name='环境地址',on_delete=models.SET_NULL,null=True)
-    setupfunc = models.ForeignKey('FUNC', verbose_name='请求前置方法',on_delete=models.SET_NULL, related_name='setupfunc_suite', null=True, blank=True)
-    callfunc = models.ForeignKey('CALLFUNC', verbose_name='自定义运行方法',on_delete=models.SET_NULL, null=True, blank=True)
-    teardownfunc = models.ForeignKey('FUNC', verbose_name='请求后置方法', on_delete=models.SET_NULL, related_name='teardownfunc_suite', null=True, blank=True)
     case = models.ManyToManyField('Testcase',verbose_name='用例集', related_name='case_suites',blank=True)
-    sleeptime = models.IntegerField('运行延时',default=0)
     runtime = models.DateTimeField('运行时间',null=True)
     creater = models.ForeignKey('auth.user',verbose_name='创建人',on_delete=models.CASCADE)
-    args = models.ManyToManyField('Argument',verbose_name='pytest运行参数', related_name='Argument_suites',blank=True)
-    reruns = models.IntegerField('失败重跑次数',null=True,blank=True,default=0)
-    reruns_delay = models.IntegerField('重跑间隔时间',null=True, blank=True,default=0)
     isorder = models.BooleanField('是否顺序执行',default=False)
 
     def __str__(self):
@@ -282,9 +273,6 @@ class Testbatch(BaseModel):
     name = models.CharField('批次名称',max_length=100)
     testsuite = models.ManyToManyField('TESTSUITE', verbose_name='测试套件',related_name='TESTSUITE_batch')
     runtime = models.DateTimeField('运行时间',null=True)
-    args = models.ManyToManyField('Argument', verbose_name='pytest运行参数', related_name='Argument_batch', blank=True)
-    reruns = models.IntegerField('失败重跑次数', null=True, blank=True, default=0)
-    reruns_delay = models.IntegerField('重跑间隔时间', null=True, blank=True, default=0)
 
     def __str__(self):
         return self.name
@@ -305,6 +293,7 @@ class TESTREPORT(models.Model):
     suc = models.IntegerField('成功用例数量',null=True,blank=True)
     fail = models.IntegerField('失败用例数量',null=True,blank=True)
     file = models.FileField(upload_to='report',default='report/html/index.html',verbose_name='报告文件')
+    logfile = models.FileField(upload_to='logs',default='logs/pytest_error.log',verbose_name='日志文件')
     errors = models.TextField('异常信息',max_length=10000,null=True)
 
     def __str__(self):
@@ -320,7 +309,7 @@ class Jenkinsreport(models.Model):
     duration = models.DurationField('运行时长',null=True)
     runtime = models.DateTimeField('运行时间',null=True)
     result = models.CharField('运行结果', max_length=10,null=True)
-    output = models.TextField('运行日志',max_length=10000,null=True)
+    jenkinslogfile = models.FileField(upload_to='jenkinslogs',default='jenkinslogs/pytest_error.log',verbose_name='jenkins日志文件')
     receivetime = models.DateTimeField('接收时间',auto_now=True,null=True)
 
     def __str__(self):

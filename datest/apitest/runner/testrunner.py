@@ -26,7 +26,7 @@ def createfolder(path):
         os.mkdir(path)
 
 
-def pyrun(args='',reruns=0,reruns_delay=0):
+def pyrun(args=[],reruns=0,reruns_delay=0):
     '''
     运行pytest脚本
     :param args: pytest运行参数
@@ -44,7 +44,10 @@ def pyrun(args='',reruns=0,reruns_delay=0):
     htmldir = f'{BASE_DIR}/data/report/html{ts}'
     testargs = []
     for arg in args:
-        testargs.append(arg[0])
+        if arg != '':
+            testargs.append(arg)
+    testargs.append('--log-file')
+    testargs.append(f'{BASE_DIR}/data/logs/{htmldir.split("/")[-1]}.log')
     testargs.append('--reruns')
     testargs.append(str(reruns))
     testargs.append('--reruns-delay')
