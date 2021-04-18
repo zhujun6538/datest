@@ -50,7 +50,7 @@
     <div class="page-header">
         <el-page-header @back="goBack" content="{{title}}"/>
     </div>
-	<div id="app">
+<div id="app">
 <div class="submit-row">
 	<button type="button" onclick="prev()" class="el-button el-button--button el-button--small" style="float: left; margin-right: 10px; margin-bottom: 10px;"><i class="el-icon-arrow-left"></i><span><span>返回</span></span></button>
 	<button @click="post()" class="el-button el-button--primary el-button--small">
@@ -96,16 +96,24 @@
 <!--</textarea>-->
 <!--</pre>-->
   </el-col>
-<el-row>
+</el-row>
+
+        <el-row>
         <el-col>
       	  <el-card class="box-card">
   <div slot="header" class="clearfix">
     <span>响应</span>
     <el-button style="float: right; padding: 3px 0" type="text">操作按钮</el-button>
   </div>
-  <div class="text" v-html="respdata">
 
-  </div>
+              <el-input
+  type="textarea"
+  autosize
+  name="respdata"
+  :rows="10"
+  v-model="respdata">
+</el-input>
+
 </el-card>
 
   </el-col>
@@ -171,10 +179,6 @@
 </el-input>
     </el-form-item>
 
-
-
-
-      <el-form-item>
 <!--  <div slot="footer" class="dialog-footer">-->
     <el-button @click="dialogFormVisible = false">取 消</el-button>
     <el-button native-type="submit" type="primary" @click="dialogFormVisible = false">确 定</el-button>
@@ -182,58 +186,20 @@
       </el-form-item>
   </el-form>
 </el-dialog>
-
+</div>
 </div>
 
-
-
-
-
-
-
-
-
-
-
-        </div>
-
-</div>
 <script type="text/javascript">
 
     function prev() {
              window.location.href='/admin/apitest/api/'
         }
 
-    //初始化对象
-
-
-        function post(url, params) {
-        var temp = document.createElement("form");
-        temp.action = url;
-        temp.method = "post";
-        temp.style.display = "none";
-        for (var x in params) {
-            var opt = document.createElement("input");
-            opt.name = x;
-            opt.value = params[x];
-            temp.appendChild(opt);
-        }
-        document.body.appendChild(temp);
-        temp.submit();
-        return temp;
-    }
-
-    $('#request').click(function () {
-        reqdata = editor1.session.getValue();
-        post('/api/{{ id }}/postapi/', {'reqdata': reqdata});
-    });
-
-
 	var vm = new Vue({
   el: '#app',
   data () {
     return {
-      reqdata: '{{ jsondata }}',
+      reqdata: '',
       respdata: '',
       dialogFormVisible: false,
       formLabelWidth: '120px',

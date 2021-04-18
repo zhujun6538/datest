@@ -50,11 +50,11 @@
     <div class="page-header">
         <el-page-header @back="goBack" content="{{title}}"/>
     </div>
-	<div id="app">
+	<div id="app" v-loading="loading">
 <div class="submit-row">
 	<button type="button" onclick="prev()" class="el-button el-button--button el-button--small" style="float: left; margin-right: 10px; margin-bottom: 10px;"><i class="el-icon-arrow-left"></i><span><span>返回</span></span></button>
-	<button @click="post()" class="el-button el-button--primary el-button--small">
-        POST
+	<button @click="openmodel()" class="el-button el-button--primary el-button--small">
+        自动生成断言
         </button>
 
 </div>
@@ -73,15 +73,22 @@
             {{ adminform.form.non_field_errors }}
             {% endif %}
 
-
+<el-row>
         <el-col>
       	  <el-card class="box-card">
   <div slot="header" class="clearfix">
     <span>请求</span>
     <el-button style="float: right; padding: 3px 0" type="text">操作按钮</el-button>
   </div>
-  <div name = "reqpad" class="text" v-html="{{ jsondata }}">
-  </div>
+<el-form><el-form-item label="请求" :label-width="formLabelWidth">
+              <el-input
+  type="textarea"
+  name="reqdata"
+  :rows="10"
+  v-model="reqdata">
+</el-input>
+          </el-form-item></el-form>
+</el-input>
 </el-card>
 
   </el-col>
@@ -93,13 +100,82 @@
     <span>响应</span>
     <el-button style="float: right; padding: 3px 0" type="text">操作按钮</el-button>
   </div>
-  <div name = "rsp" class="text" v-html="{{ respdata }}">
-  </div>
+              <el-form><el-form-item label="响应" :label-width="formLabelWidth">
+
+              <el-input
+  type="textarea"
+  autosize
+  name="respdata"
+  :rows="10"
+  v-model="respdata">
+</el-input>
+          </el-form-item></el-form>
+
 </el-card>
 
   </el-col>
 </el-row>
 
+<el-dialog title="自动生成校验" :visible.sync="dialogFormVisible">
+<el-row>
+    <el-col :span="8">
+        <span>XXX</span>
+    </el-col>
+    <el-col :span="8">
+        <span>XXX</span>
+    </el-col>
+    <el-col :span="6">
+        <span>XXX</span>
+    </el-col>
+        <el-col :span="2">
+        <span>XXX</span>
+    </el-col>
+</el-row>
+    <el-form :model="adForm" ref="adForm" class="demo-dynamic">
+        <el-form-item
+v-for="(adata,index) in adForm.assertdatalist"
+    :key="adata.key"
+    :prop="'assertdatalist.' + index"
+        >
+             <el-row>
+             <el-col :span="8">
+        <el-input v-model="adata.path" placeholder="请输入内容"></el-input>
+    </el-col>
+           <el-col :span="8">
+        <el-input v-model="adata.value" placeholder="请输入内容"></el-input>
+    </el-col>
+          <el-col :span="6">
+              <el-select v-model="adata.mode" placeholder="请选择">
+              <el-option
+      v-for="item in modes"
+      :key="item.value"
+      :label="item.label"
+      :value="item.value">
+    </el-option>
+                  </el-select>
+    </el-col>
+          <el-col :span="2">
+                      <el-button @click.prevent="removedata(adata)" size="mini" type="danger" icon="el-icon-delete" circle></el-button>
+    </el-col>
+      </el-row>
+            </el-form-item>
+        <el-form-item>
+                <el-button @click.prevent="adddata()" size="mini" type="success" icon="el-icon-circle-plus-outline" circle></el-button>
+        </el-form-item>
+    </el-form>
+
+<!--                      <el-input-->
+<!--  name="assertdata"-->
+<!--  type="textarea"-->
+<!--  :rows="10"-->
+<!--  v-model="assertdata">-->
+<!--</el-input>-->
+  <div slot="footer" class="dialog-footer">
+    <el-button @click="dialogFormVisible = false">取 消</el-button>
+    <el-button  type="primary" @click="addautoassert()">确 定</el-button>
+  </div>
+
+</el-dialog>
 
 </div>
 
@@ -129,22 +205,66 @@
   el: '#app',
   data () {
     return {
+      loading: true,
       reqdata: '',
       respdata: '',
+      assertdata: '',
+      dialogTableVisible: false,
+      dialogFormVisible: false,
+      formLabelWidth: '120px',
+      adForm: {
+        assertdatalist: []
+      },
+      modes: [{
+          value: 'assert_equal',
+          label: '完全匹配'
+        }, {
+          value: '选项2',
+          label: '双皮奶'
+        }, {
+          value: '选项3',
+          label: '蚵仔煎'
+        }, {
+          value: '选项4',
+          label: '龙须面'
+        }, {
+          value: '选项5',
+          label: '北京烤鸭'
+        }]
     }
   },
+
+mounted() {
+  this.assertdata = '{{ assertdata|escapejs }}';
+  this.reqdata = '{{ jsondata|escapejs }}';
+  this.respdata = '{{ respdata|escapejs }}';
+  this.loading = false;
+},
    methods:{
+            removedata:function (item) {
+            var index = this.adForm.assertdatalist.indexOf(item);
+            if (index !== -1) {
+            this.adForm.assertdatalist.splice(index, 1)
+        };
+            },
+            adddata() {
+        this.adForm.assertdatalist.push({"no":'', "path": '', "value": '', "mode": 'assert_equal'});
+      },
 	        openmodel:function () {
-        this.caseform.requestdata = this.reqdata;
-        this.caseform.responsedata = this.respdata;
-        this.dialogFormVisible = true;
+        	            //发送 post 请求
+	            this.$http.post('/testcase/{{ id }}/getassertdata/',{'respdata': this.respdata},{emulateJSON:true}).then(function(res){
+                    this.adForm.assertdatalist=res.body;
+                },function(res){
+                    console.log(res.status);
+                });
+                this.dialogFormVisible = true;
     },
-	        createobj:function () {
-        reqcont = this.reqdata;
-        rescont = this.respdata;
-        post('/testcase/{{ id }}/gennewcase/', {'reqcont': reqcont,'rescont': rescont});
+	        addautoassert:function () {
+        post('/testcase/{{ id }}/genassertdata/', {'assertdata': JSON.stringify(this.adForm.assertdatalist)});
+        dialogFormVisible = false;
     }
 	    }
 });
+
 </script>
 {% endblock %}

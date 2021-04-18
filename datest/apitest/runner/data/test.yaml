@@ -2,111 +2,295 @@
     setupfunc: ${ztrequest($request)}
     teardownfunc: ''
     callfunc: default_func
-    suitename: '20210322'
+    suitename: "\u8FD0\u884C\u6D4B\u8BD5\u7528\u4F8B"
     group: " \u540C\u6B65"
-    caseno: P0010006-20210301115815455
-    casename: "\u4F01\u4E1A\u540D\u79F0\u6A21\u7CCA\u67E5\u8BE2-\u67E5\u8BE2\u6210\
-      \u529F\u6709\u7ED3\u679C"
+    caseno: P0010037-20210418114107727
+    casename: "\u6D4B\u8BD5P0010037"
     isValid: true
     method: POST
     url: /ectcispserver/api/entcreditapi/query
     data:
-      prodCode: P0010006
-      key: "\u4E50\u89C6"
-    params: {}
-    formdata: {}
-    headers:
-      Content-Type: application/json
-    asserts:
-    - - assert_equal
-      - body.resultData.P0010006Status
-      - '4'
-    - - assert_equal
-      - body.resultCode
-      - '00000'
-    - - assert_equal
-      - body.resultDesc
-      - "\u6210\u529F"
-    - - assert_jsonmatch
-      - $..fuzzyList
-      - \[(\{.*?\})*\]
-    sleeptime: '0'
-    caselink: /admin/apitest/testcase/1336/change/
-    project: "\u8BC1\u901AAPI"
-    jsonschema: "{\"*schema\":\"http://json-schema.org/draft-04/schema#\",\"type\"\
-      :\"object\",\"properties\":{\"orderNo\":{\"type\":\"string\",\"validators\"\
-      :[{\"validator\":\"maxLength\",\"value\":3}]},\"resultData\":{\"type\":\"object\"\
-      ,\"properties\":{\"P0010006Status\":{\"type\":\"string\"},\"P0010006Data\":{\"\
-      type\":\"object\",\"properties\":{\"fuzzyList\":{\"type\":\"array\",\"items\"\
-      :{\"type\":\"object\",\"properties\":{\"no\":{\"type\":\"number\"},\"orgName\"\
-      :{\"type\":\"string\",\"description\":\"\u4F01\u4E1A\uFF08\u673A\u6784\uFF09\
-      \u540D\u79F0\",\"validators\":[{\"validator\":\"maxLength\",\"value\":100}]}},\"\
-      required\":[\"no\",\"orgName\"]},\"description\":\"\u4F01\u4E1A\u540D\u79F0\u6A21\
-      \u7CCA\u67E5\u8BE2\u5217\u8868\"}}}}},\"packetCnt\":{\"type\":\"number\"},\"\
-      isCompressed\":{\"type\":\"number\"},\"resultCode\":{\"type\":\"string\"}}}"
-  - baseurl: https://112.65.144.19:9179
-    setupfunc: ${ztrequest($request)}
-    teardownfunc: ''
-    callfunc: yb
-    suitename: '20210322'
-    group: "\u5F02\u6B65"
-    caseno: P0030036-20210402150647878
-    casename: "\u67E5\u8BE2\u6210\u529F\u6709\u7ED3\u679C"
-    isValid: true
-    method: POST
-    url: /ectcispserver/api/entcreditapi/asyncQueryApply
-    data:
-      entityId: '911101055825564383'
-      entityName: "\u4E50\u89C6\u63A7\u80A1(\u5317\u4EAC)\u6709\u9650\u516C\u53F8"
-      prodCode: P0030036
+      prodCode: P0010037
+      entInfo: "\u4E50\u89C6\u63A7\u80A1\uFF08\u5317\u4EAC\uFF09\u6709\u9650\u516C\
+        \u53F8"
     params: {}
     formdata: {}
     headers: {}
     asserts:
-    - - assert_jsonmatch
-      - $..dishonestList
-      - \[(\{.*?\})*\]
-    - - assert_jsonmatch
-      - $..executedList
-      - \[(\{.*?\})*\]
-    sleeptime: '0'
-    caselink: /admin/apitest/testcase/1550/change/
+    - - assert_equal
+      - $..isCompressed
+      - '0'
+    - - assert_equal
+      - $..packetCnt
+      - '1'
+    - - assert_equal
+      - $..resultCode
+      - '00000'
+    - - assert_equal
+      - $..resultDesc
+      - "\u6210\u529F"
+    sleeptime: 0
+    caselink: /admin/apitest/testcase/1581/change/
     project: "\u8BC1\u901AAPI"
     jsonschema: "{\"*schema\":\"http://json-schema.org/draft-04/schema#\",\"type\"\
       :\"object\",\"properties\":{\"orderNo\":{\"type\":\"string\"},\"resultData\"\
-      :{\"type\":\"object\",\"properties\":{\"P0030036Status\":{\"type\":\"string\"\
-      },\"P0030036Data\":{\"type\":\"object\",\"properties\":{\"executedList\":{\"\
-      type\":\"array\",\"items\":{\"type\":\"object\",\"properties\":{\"no\":{\"type\"\
-      :\"number\",\"description\":\"\u5E8F\u53F7\"},\"entityName\":{\"type\":\"string\"\
-      ,\"description\":\"\u4E3B\u4F53\u540D\u79F0\"},\"sortTime\":{\"type\":\"string\"\
-      ,\"description\":\"\u7ACB\u6848\u65F6\u95F4\"},\"entityId\":{\"type\":\"string\"\
-      ,\"description\":\"\u4E3B\u4F53\u4EE3\u7801\"},\"court\":{\"type\":\"string\"\
-      ,\"description\":\"\u6267\u884C\u6CD5\u9662\u540D\u79F0\"},\"execMoney\":{\"\
-      type\":\"string\",\"description\":\"\u6267\u884C\u6807\u7684\u91D1\u989D\"},\"\
-      caseNo\":{\"type\":\"string\",\"description\":\"\u6848\u53F7\"}},\"required\"\
-      :[\"no\",\"entityName\",\"sortTime\",\"entityId\",\"court\",\"execMoney\",\"\
-      caseNo\"]},\"description\":\"\u88AB\u6267\u884C\u4EBA\u4FE1\u606F\"},\"dishonestList\"\
+      :{\"type\":\"object\",\"properties\":{\"P0010037Status\":{\"type\":\"string\"\
+      },\"P0010037Data\":{\"type\":\"object\",\"properties\":{\"sharePledgList\":{\"\
+      type\":\"array\",\"items\":{\"type\":\"object\",\"properties\":{\"impPledgor\"\
+      :{\"type\":\"string\",\"description\":\"\u51FA\u8D28\u4EBA\u540D\u79F0\"},\"\
+      impPrLicensenNo\":{\"type\":\"string\",\"description\":\"\u51FA\u8D28\u4EBA\u8BC1\
+      \u4EF6\u53F7\u7801\"},\"no\":{\"type\":\"number\"},\"impAm\":{\"type\":\"string\"\
+      ,\"description\":\"\u51FA\u8D28\u80A1\u6743\u6570\u989D \"},\"impOrgLicenseNo\"\
+      :{\"type\":\"string\",\"description\":\"\u8D28\u6743\u4EBA\u8BC1\u4EF6\u53F7\
+      \u7801\"},\"impEqupleDate\":{\"type\":\"string\",\"description\":\"\u80A1\u6743\
+      \u51FA\u8D28\u8BBE\u7ACB\u767B\u8BB0\u65E5\u671F\\tYYYY-MM-DD\"},\"ImpAltList\"\
+      :{\"type\":\"array\",\"items\":{\"type\":\"object\",\"properties\":{\"altDate\
+      \ \":{\"type\":\"string\",\"description\":\"\u80A1\u6743\u51FA\u8D28\u53D8\u66F4\
+      \u65E5\u671F\\tYYYY-MM-DD\"},\"altContent \":{\"type\":\"string\",\"description\"\
+      :\"\u80A1\u6743\u51FA\u8D28\u53D8\u66F4\u5185\u5BB9\"}}},\"description\":\"\u80A1\
+      \u6743\u51FA\u8D28\u53D8\u66F4\u4FE1\u606F\"},\"pledgeeName\":{\"type\":\"string\"\
+      ,\"description\":\"\u8D28\u6743\u4EBA\u540D\u79F0\"},\"impExeState\":{\"type\"\
+      :\"string\",\"description\":\"\u80A1\u6743\u51FA\u8D28\u767B\u8BB0\u72B6\u6001\
+      \\t\u6709\u6548\u3001\u65E0\u6548\u3001\u6CE8\u9500\"},\"impPubDate\":{\"type\"\
+      :\"string\",\"description\":\"\u80A1\u6743\u51FA\u8D28\u767B\u8BB0\u516C\u793A\
+      \u65E5\u671F\\tYYYY-MM-DD\"},\"impEquityNo\":{\"type\":\"string\",\"description\"\
+      :\"\u80A1\u6743\u51FA\u8D28\u767B\u8BB0\u7F16\u53F7\"}},\"required\":[\"impPledgor\"\
+      ,\"impPrLicensenNo\",\"no\",\"impAm\",\"impOrgLicenseNo\",\"impEqupleDate\"\
+      ,\"ImpAltList\",\"pledgeeName\",\"impExeState\",\"impPubDate\",\"impEquityNo\"\
+      ]},\"description\":\"\u80A1\u6743\u51FA\u8D28\u4FE1\u606F\"},\"personList\"\
       :{\"type\":\"array\",\"items\":{\"type\":\"object\",\"properties\":{\"no\":{\"\
-      type\":\"number\"},\"sortTime\":{\"type\":\"string\",\"description\":\"\u7ACB\
-      \u6848\u65F6\u95F4\"},\"sex\":{\"type\":\"null\",\"description\":\"\u6027\u522B\
-      \"},\"publishDate\":{\"type\":\"string\",\"description\":\"\u53D1\u5E03\u65E5\
-      \u671F\"},\"entityId\":{\"type\":\"string\",\"description\":\"\u4E3B\u4F53\u4EE3\
-      \u7801\"},\"partyTypeName\":{\"type\":\"string\",\"description\":\"\u5931\u4FE1\
-      \u88AB\u6267\u884C\u4EBA\u7C7B\u578B\"},\"court\":{\"type\":\"string\",\"description\"\
-      :\"\u6267\u884C\u6CD5\u9662\u540D\u79F0\"},\"caseNo\":{\"type\":\"string\",\"\
-      description\":\"\u6848\u53F7\"},\"dishonestType\":{\"type\":\"string\",\"description\"\
-      :\"\u5931\u4FE1\u7C7B\u578B\"},\"province\":{\"type\":\"string\",\"description\"\
-      :\"\u6CD5\u9662\u6240\u5728\u7701\u6216\u76F4\u8F96\u5E02\"},\"lxqk\":{\"type\"\
-      :\"string\",\"description\":\"\u88AB\u6267\u884C\u4EBA\u7684\u5C65\u884C\u60C5\
-      \u51B5\"},\"entityName\":{\"type\":\"string\",\"description\":\"\u4E3B\u4F53\
-      \u540D\u79F0\"},\"duty\":{\"type\":\"string\",\"description\":\"\u751F\u6548\
-      \u6CD5\u5F8B\u6587\u4E66\u786E\u5B9A\u7684\u4E49\u52A1\"},\"yjdw\":{\"type\"\
-      :\"string\",\"description\":\"\u505A\u51FA\u6267\u884C\u4F9D\u636E\u5355\u4F4D\
-      \"},\"age\":{\"type\":\"null\",\"description\":\"\u5E74\u9F84\"},\"gistId\"\
-      :{\"type\":\"string\",\"description\":\"\u6267\u884C\u4F9D\u636E\u6587\u53F7\
-      \"}},\"required\":[\"no\",\"sortTime\",\"sex\",\"publishDate\",\"entityId\"\
-      ,\"partyTypeName\",\"court\",\"caseNo\",\"dishonestType\",\"province\",\"lxqk\"\
-      ,\"entityName\",\"duty\",\"yjdw\",\"age\",\"gistId\"]},\"description\":\"\u5931\
-      \u4FE1\u88AB\u6267\u884C\u4EBA\u4FE1\u606F\"}}}}},\"packetCnt\":{\"type\":\"\
-      number\"},\"resultCode\":{\"type\":\"string\"},\"resultDesc\":{\"type\":\"string\"\
-      },\"isCompressed\":{\"type\":\"number\"}}}"
+      type\":\"number\"},\"name\":{\"type\":\"string\",\"description\":\"\u59D3\u540D\
+      \"},\"personId\":{\"type\":\"string\",\"description\":\"\u5185\u90E8\u4F01\u4E1A\
+      \u5173\u8054\u4EBAID\"},\"position\":{\"type\":\"string\",\"description\":\"\
+      \u804C\u52A1\"}},\"required\":[\"no\",\"name\",\"personId\",\"position\"]},\"\
+      description\":\"\u4E3B\u8981\u4EBA\u5458\u4FE1\u606F\"},\"stockList\":{\"type\"\
+      :\"array\",\"items\":{\"type\":\"object\",\"properties\":{\"stockCode\":{\"\
+      type\":\"string\",\"description\":\"\u4E0A\u5E02\u516C\u53F8\u80A1\u7968\u4EE3\
+      \u7801\"},\"stockType\":{\"type\":\"string\",\"description\":\"\u4E0A\u5E02\u516C\
+      \u53F8\u80A1\u7968\u6240\u5C5E\u677F\u5757\"},\"stockName\":{\"type\":\"string\"\
+      ,\"description\":\"\u4E0A\u5E02\u516C\u53F8\u80A1\u7968\u7B80\u79F0\"},\"topTenShareHolderList\"\
+      :{\"type\":\"array\",\"items\":{\"type\":\"object\",\"properties\":{\"ratioNo\"\
+      :{\"type\":\"string\",\"description\":\"\u4E0A\u5E02\u516C\u53F8\u524D\u5341\
+      \u5927\u80A1\u4E1C\u6301\u80A1\u6392\u5E8F\"},\"shareholderName\":{\"type\"\
+      :\"string\",\"description\":\"\u4E0A\u5E02\u516C\u53F8\u524D\u5341\u5927\u80A1\
+      \u4E1C\u540D\u79F0\"},\"shareId\":{\"type\":\"string\",\"description\":\"\u5185\
+      \u90E8\u80A1\u4E1CID \u80A1\u4E1C\u7C7B\u578B\u4E3A\u81EA\u7136\u4EBA\u662F\u5173\
+      \u8054\u4EBA ID\uFF0C\u80A1\u4E1C\u7C7B\u578B\u4E3A\u4F01\u4E1A\u6CD5\u4EBA\u662F\
+      \u4F01\u4E1A ID\uFF0C\u7EC4\u7EC7\u673A\u6784\u6216\u5176\u4ED6\u5219\u4E3A\u7A7A\
+      \"},\"ratio\":{\"type\":\"string\",\"description\":\"\u4E0A\u5E02\u516C\u53F8\
+      \u524D\u5341\u5927\u80A1\u4E1C\u6301\u80A1\u6BD4\u4F8B\"},\"quantity\":{\"type\"\
+      :\"string\",\"description\":\"\u4E0A\u5E02\u516C\u53F8\u524D\u5341\u5927\u80A1\
+      \u4E1C\u6301\u80A1\u6570\u91CF\"},\"lastDate\":{\"type\":\"string\",\"description\"\
+      :\"\u4E0A\u5E02\u516C\u53F8\u524D\u5341\u5927\u80A1\u4E1C\u4FE1\u606F\u622A\u6B62\
+      \u65F6\u95F4\\tYYYY-MM-DD\"}}},\"description\":\"\u4E0A\u5E02\u516C\u53F8\u524D\
+      \u5341\u5927\u80A1\u4E1C\u4FE1\u606F\"}}},\"description\":\"\u4F01\u4E1A\u4E0A\
+      \u5E02\u4FE1\u606F\"},\"exceptionList\":{\"type\":\"array\",\"items\":{\"type\"\
+      :\"object\",\"properties\":{\"no\":{\"type\":\"number\"},\"dateIn\":{\"type\"\
+      :\"string\",\"description\":\"\u5217\u5165\u7ECF\u8425\u5F02\u5E38\u540D\u5F55\
+      \u65E5\u671F\\tYYYY-MM-DD\"},\"orgNameIn\":{\"type\":\"string\",\"description\"\
+      :\"\u5217\u5165\u7ECF\u8425\u5F02\u5E38\u540D\u5F55\u51B3\u5B9A\u673A\u5173\"\
+      },\"dateOut\":{\"type\":\"string\",\"description\":\"\u79FB\u51FA\u7ECF\u8425\
+      \u5F02\u5E38\u540D\u5F55\u65E5\u671F\\tYYYY-MM-DD\"},\"resultOut\":{\"type\"\
+      :\"string\",\"description\":\"\u79FB\u51FA\u7ECF\u8425\u5F02\u5E38\u540D\u5F55\
+      \u539F\u56E0\"},\"orgNameOut\":{\"type\":\"string\",\"description\":\"\u79FB\
+      \u51FA\u7ECF\u8425\u5F02\u5E38\u540D\u5F55\u51B3\u5B9A\u673A\u5173\"},\"resultIn\"\
+      :{\"type\":\"string\",\"description\":\"\u5217\u5165\u7ECF\u8425\u5F02\u5E38\
+      \u540D\u5F55\u539F\u56E0\"}}},\"description\":\"\u7ECF\u8425\u5F02\u5E38\u4FE1\
+      \u606F\"},\"illegalList\":{\"type\":\"array\",\"items\":{\"type\":\"object\"\
+      ,\"properties\":{\"illegalType\":{\"type\":\"string\",\"description\":\"\u4E25\
+      \u91CD\u8FDD\u6CD5\u5931\u4FE1\u884C\u4E3A\u7C7B\u522B\"},\"illegalOrgNameIn\"\
+      :{\"type\":\"string\",\"description\":\"\u5217\u5165\u4E25\u91CD\u8FDD\u6CD5\
+      \u5931\u4FE1\u540D\u5355\u51B3\u5B9A\u673A\u5173\"},\"illegalResultIn\":{\"\
+      type\":\"string\",\"description\":\"\u5217\u5165\u4E25\u91CD\u8FDD\u6CD5\u5931\
+      \u4FE1\u540D\u5355\u539F\u56E0\"},\"no\":{\"type\":\"number\"},\"illegalOrgNameOut\"\
+      :{\"type\":\"string\",\"description\":\"\u79FB\u51FA\u4E25\u91CD\u8FDD\u6CD5\
+      \u5931\u4FE1\u540D\u5355\u51B3\u5B9A\u673A\u5173\"},\"illegalResultOut\":{\"\
+      type\":\"string\",\"description\":\"\u79FB\u51FA\u4E25\u91CD\u8FDD\u6CD5\u5931\
+      \u4FE1\u540D\u5355\u539F\u56E0\"},\"illegalDateOut\":{\"type\":\"string\",\"\
+      description\":\"\u79FB\u51FA\u4E25\u91CD\u8FDD\u6CD5\u5931\u4FE1\u540D\u5355\
+      \u65E5\u671F\"},\"illegalDateIn\":{\"type\":\"string\",\"description\":\"\u5217\
+      \u5165\u4E25\u91CD\u8FDD\u6CD5\u5931\u4FE1\u540D\u5355\u65E5\u671F\\tYYYY-MM-DD\"\
+      }}},\"description\":\"\u4E25\u91CD\u8FDD\u6CD5\u5931\u4FE1\u4FE1\u606F\"},\"\
+      morDetailList\":{\"type\":\"array\",\"items\":{\"type\":\"object\",\"properties\"\
+      :{\"mortRegNo\":{\"type\":\"string\",\"description\":\"\u52A8\u4EA7\u62B5\u62BC\
+      \u767B\u8BB0\u7F16\u53F7 \"},\"mortOrgList\":{\"type\":\"array\",\"items\":{\"\
+      type\":\"object\",\"properties\":{\"mortLoc\":{\"type\":\"string\",\"description\"\
+      :\"\u62B5\u62BC\u6743\u4EBA\u4F4F\u6240\u5730 \"},\"blicType\":{\"type\":\"\
+      string\",\"description\":\"\u62B5\u62BC\u6743\u4EBA\u8BC1\u4EF6\u7C7B\u578B\"\
+      },\"blicNo\":{\"type\":\"string\",\"description\":\"\u62B5\u62BC\u6743\u4EBA\
+      \u8BC1\u4EF6\u53F7\u7801\"},\"mortgagee\":{\"type\":\"string\",\"description\"\
+      :\"\u62B5\u62BC\u6743\u4EBA\u540D\u79F0 \"}}},\"description\":\"\u62B5\u62BC\
+      \u6743\u4EBA\u4FE1\u606F\"},\"no\":{\"type\":\"number\"},\"morguaInfoList\"\
+      :{\"type\":\"array\",\"items\":{\"type\":\"object\",\"properties\":{\"guaOwn\"\
+      :{\"type\":\"string\",\"description\":\"\u62B5\u62BC\u7269\u6743\u76CA\u5F52\
+      \u5C5E\"},\"guaName\":{\"type\":\"string\",\"description\":\"\u62B5\u62BC\u7269\
+      \u540D\u79F0 \"},\"guaDes\":{\"type\":\"string\",\"description\":\"\u62B5\u62BC\
+      \u7269\u60C5\u51B5\u63CF\u8FF0\"}}},\"description\":\"\u52A8\u4EA7\u62B5\u62BC\
+      \u7269\u4FE1\u606F\"},\"pefperFrom\":{\"type\":\"string\",\"description\":\"\
+      \u52A8\u4EA7\u62B5\u62BC\u5C65\u884C\u671F\u9650\u81EA\\tYYYY-MM-DD\"},\"canDate\"\
+      :{\"type\":\"string\",\"description\":\"\u52A8\u4EA7\u62B5\u62BC\u6CE8\u9500\
+      \u767B\u8BB0\u65E5\u671F\\tYYYY-MM-DD\"},\"priClaSecType\":{\"type\":\"string\"\
+      ,\"description\":\"\u88AB\u62C5\u4FDD\u7684\u4E3B\u503A\u6743\u79CD\u7C7B \"\
+      },\"pefperTo\":{\"type\":\"string\",\"description\":\"\u52A8\u4EA7\u62B5\u62BC\
+      \u5C65\u884C\u671F\u9650\u81F3\\tYYYY-MM-DD\"},\"regDate\":{\"type\":\"string\"\
+      ,\"description\":\"\u52A8\u4EA7\u62B5\u62BC\u767B\u8BB0\u65E5\u671F\\tYYYY-MM-DD\"\
+      },\"mortStatus\":{\"type\":\"string\",\"description\":\"\u52A8\u4EA7\u62B5\u62BC\
+      \u767B\u8BB0\u72B6\u6001\\t\u6709\u6548\u3001\u65E0\u6548\"},\"canReason\":{\"\
+      type\":\"string\",\"description\":\"\u52A8\u4EA7\u62B5\u62BC\u6CE8\u9500\u767B\
+      \u8BB0\u539F\u56E0\"},\"regOrg\":{\"type\":\"string\",\"description\":\"\u52A8\
+      \u4EA7\u62B5\u62BC\u767B\u8BB0\u673A\u5173\"},\"priClaSecAmt\":{\"type\":\"\
+      string\",\"description\":\"\u88AB\u62C5\u4FDD\u7684\u4E3B\u503A\u6743\u6570\u989D\
+      \ \\t\\t\u4E07\u5143\"},\"warcov\":{\"type\":\"string\",\"description\":\"\u52A8\
+      \u4EA7\u62B5\u62BC\u62C5\u4FDD\u8303\u56F4\"}}},\"description\":\"\u52A8\u4EA7\
+      \u62B5\u62BC\u4FE1\u606F\"},\"shareholderList\":{\"type\":\"array\",\"items\"\
+      :{\"type\":\"object\",\"properties\":{\"conDate\":{\"type\":\"string\",\"description\"\
+      :\"\u51FA\u8D44\u65E5\u671F\"},\"country\":{\"type\":\"string\",\"description\"\
+      :\"\u56FD\u522B\uFF08\u5730\u533A\uFF09\"},\"no\":{\"type\":\"number\"},\"subConCur\"\
+      :{\"type\":\"string\",\"description\":\"\u8BA4\u7F34\u51FA\u8D44\u5E01\u79CD\
+      \"},\"shareholderIdNumber\":{\"type\":\"string\",\"description\":\"\u80A1\u4E1C\
+      \u8BC1\u4EF6\u53F7\u7801\"},\"shareId\":{\"type\":\"string\",\"description\"\
+      :\"\u5185\u90E8\u80A1\u4E1CID\"},\"shareholderType\":{\"type\":\"string\",\"\
+      description\":\"\u80A1\u4E1C\u7C7B\u578B\"},\"subConAmt\":{\"type\":\"string\"\
+      ,\"description\":\"\u8BA4\u7F34\u51FA\u8D44\u989D\\t\\t\u4E07\u5143\"},\"shareholderName\"\
+      :{\"type\":\"string\",\"description\":\"\u80A1\u4E1C\u540D\u79F0\"},\"shareholderIdType\"\
+      :{\"type\":\"string\",\"description\":\"\u80A1\u4E1C\u8BC1\u4EF6\u7C7B\u578B\
+      \"},\"fundedRatio\":{\"type\":\"string\",\"description\":\"\u51FA\u8D44\u6BD4\
+      \u4F8B\"}},\"required\":[\"conDate\",\"country\",\"no\",\"subConCur\",\"shareholderIdNumber\"\
+      ,\"shareId\",\"shareholderType\",\"subConAmt\",\"shareholderName\",\"shareholderIdType\"\
+      ,\"fundedRatio\"]},\"description\":\"\u80A1\u4E1C\u51FA\u8D44\u4FE1\u606F\"\
+      },\"caseInfoList\":{\"type\":\"array\",\"items\":{\"type\":\"object\",\"properties\"\
+      :{\"penDecDate\":{\"type\":\"string\",\"description\":\"\u5904\u7F5A\u51B3\u5B9A\
+      \u4E66\u7B7E\u53D1\u65E5\u671F\\tYYYY-MM-DD\"},\"penAuth\":{\"type\":\"string\"\
+      ,\"description\":\"\u5904\u7F5A\u673A\u5173\"},\"penResult\":{\"type\":\"string\"\
+      ,\"description\":\"\u5904\u7F5A\u7ED3\u679C\"},\"no\":{\"type\":\"number\"},\"\
+      caseBook\":{\"type\":\"string\",\"description\":\"\u884C\u653F\u5904\u7F5A\u51B3\
+      \u5B9A\u4E66\u5185\u5BB9\"},\"caseInfoOpenDate\":{\"type\":\"string\",\"description\"\
+      :\"\u884C\u653F\u5904\u7F5A\u516C\u793A\u65E5\u671F\\tYYYY-MM-DD\"},\"penaltyDocNo\"\
+      :{\"type\":\"string\",\"description\":\"\u5904\u7F5A\u51B3\u5B9A\u6587\u4E66\
+      \"},\"illegActType\":{\"type\":\"string\",\"description\":\"\u8FDD\u6CD5\u884C\
+      \u4E3A\u7C7B\"}}},\"description\":\"\u884C\u653F\u5904\u7F5A\u4FE1\u606F\"},\"\
+      alterList\":{\"type\":\"array\",\"items\":{\"type\":\"object\",\"properties\"\
+      :{\"busAltBef\":{\"type\":\"string\",\"description\":\"\u5DE5\u5546\u53D8\u66F4\
+      \u524D\u5185\u5BB9\"},\"no\":{\"type\":\"number\"},\"busAltDate\":{\"type\"\
+      :\"string\",\"description\":\"\u5DE5\u5546\u53D8\u66F4\u65E5\u671F\\tYYYY-MM-DD\"\
+      },\"busAltItem\":{\"type\":\"string\",\"description\":\"\u5DE5\u5546\u53D8\u66F4\
+      \u4E8B\u9879\\t\u5DE5\u5546\u53D8\u66F4\u4E8B\u9879\u8BF4\u660E\"},\"busAltAft\"\
+      :{\"type\":\"string\",\"description\":\"\u5DE5\u5546\u53D8\u66F4\u540E\u5185\
+      \u5BB9 \"}},\"required\":[\"busAltBef\",\"no\",\"busAltDate\",\"busAltItem\"\
+      ,\"busAltAft\"]},\"description\":\"\u4F01\u4E1A\u53D8\u66F4\u4FE1\u606F\"},\"\
+      basicList\":{\"type\":\"array\",\"items\":{\"type\":\"object\",\"properties\"\
+      :{\"regNo\":{\"type\":\"string\",\"description\":\"\u5DE5\u5546\u6CE8\u518C\u53F7\
+      \"},\"estDate\":{\"type\":\"string\",\"description\":\"\u5F00\u4E1A\u65E5\u671F\
+      \\tYYYY-MM-DD\"},\"cancelDate\":{\"type\":\"string\",\"description\":\"\u6CE8\
+      \u9500\u65E5\u671F\\tYYYY-MM-DD\u3000\"},\"city\":{\"type\":\"string\",\"description\"\
+      :\"\u4F4F\u6240\u5730\u5740\u6240\u5728\u5730\u7EA7\u5E02\"},\"county\":{\"\
+      type\":\"string\",\"description\":\"\u4F4F\u6240\u5730\u5740\u6240\u5728\u533A\
+      /\u53BF\"},\"industry\":{\"type\":\"string\",\"description\":\"\u56FD\u6C11\u7ECF\
+      \u6D4E\u884C\u4E1A\u540D\u79F0\"},\"paidInCap\":{\"type\":\"string\",\"description\"\
+      :\"\u5B9E\u6536\u8D44\u672C\"},\"revokeDate\":{\"type\":\"string\",\"description\"\
+      :\"\u540A\u9500\u65E5\u671F\\tYYYY-MM-DD\u3000\"},\"industryCode\":{\"type\"\
+      :\"string\",\"description\":\"\u6C11\u7ECF\u6D4E\u884C\u4E1A\u4EE3\u7801\"},\"\
+      orgType\":{\"type\":\"string\",\"description\":\"\u4F01\u4E1A\uFF08\u673A\u6784\
+      \uFF09\u7C7B\u578B\"},\"creditCode\":{\"type\":\"string\",\"description\":\"\
+      \u7EDF\u4E00\u793E\u4F1A\u4FE1\u7528\u4EE3\u7801\"},\"regCapCur\":{\"type\"\
+      :\"string\",\"description\":\"\u6CE8\u518C\u8D44\u672C\u5E01\u79CD\"},\"province\"\
+      :{\"type\":\"string\",\"description\":\"\u4F4F\u6240\u5730\u5740\u6240\u5728\
+      \u7701\u4EFD\"},\"orgCode\":{\"type\":\"string\",\"description\":\"\u7EC4\u7EC7\
+      \u673A\u6784\u4EE3\u7801 \"},\"regCap\":{\"type\":\"string\",\"description\"\
+      :\"\u6CE8\u518C\u8D44\u672C\"},\"ancheYear\":{\"type\":\"string\",\"description\"\
+      :\"\u6700\u8FD1\u5E74\u62A5\u62A5\u9001\u5E74\u5EA6\\tYYYY\u3000\"},\"industryPhyCode\"\
+      :{\"type\":\"string\",\"description\":\"\u884C\u4E1A\u95E8\u7C7B\u4EE3\u7801\
+      \"},\"annAddress\":{\"type\":\"string\",\"description\":\"\u5E74\u62A5\u62AB\
+      \u9732\u8054\u7CFB\u5730\u5740\"},\"email\":{\"type\":\"string\",\"description\"\
+      :\"\u5E74\u62A5\u62AB\u9732\u7535\u5B50\u90AE\u7BB1\"},\"orgName\":{\"type\"\
+      :\"string\",\"description\":\"\u4F01\u4E1A\uFF08\u673A\u6784\uFF09\u540D\u79F0\
+      \"},\"address\":{\"type\":\"string\",\"description\":\"\u4F4F\u6240\u5730\u5740\
+      \"},\"entId\":{\"type\":\"string\",\"description\":\"\u5185\u90E8\u4F01\u4E1A\
+      ID\"},\"legRepName\":{\"type\":\"string\",\"description\":\"\u6CD5\u5B9A\u4EE3\
+      \u8868\u4EBA\u59D3\u540D\"},\"openTo\":{\"type\":\"string\",\"description\"\
+      :\"\u7ECF\u8425\u671F\u9650\u81F3\\tYYYY-MM-DD\"},\"postcode\":{\"type\":\"\
+      string\",\"description\":\"\u5E74\u62A5\u62AB\u9732\u90AE\u653F\u7F16\u7801\"\
+      },\"entHisList\":{\"type\":\"array\",\"items\":{\"type\":\"object\",\"properties\"\
+      :{\"entHisName\":{\"type\":\"string\",\"description\":\"\u4F01\u4E1A\uFF08\u673A\
+      \u6784\uFF09\u5386\u53F2\u540D\u79F0\"},\"validDate\":{\"type\":\"string\",\"\
+      description\":\"\u4F01\u4E1A\uFF08\u673A\u6784\uFF09\u5386\u53F2\u540D\u79F0\
+      \u6709\u6548\u671F\u81F3\\tYYYY-MM-DD\"}}},\"description\":\"\u5386\u53F2\u540D\
+      \u79F0\u4FE1\u606F\"},\"apprDate\":{\"type\":\"string\",\"description\":\"\u6838\
+      \u51C6\u65E5\u671F\\tYYYY-MM-DD\u3000\"},\"orgStatus\":{\"type\":\"string\"\
+      ,\"description\":\"\u7ECF\u8425\u72B6\u6001\"},\"openFrom\":{\"type\":\"string\"\
+      ,\"description\":\"\u7ECF\u8425\u671F\u9650\u81EA\\tYYYY-MM-DD\"},\"areaCode\"\
+      :{\"type\":\"string\",\"description\":\"\u4F4F\u6240\u6240\u5728\u884C\u653F\
+      \u533A\u5212\u4EE3\u7801\"},\"phone\":{\"type\":\"string\",\"description\":\"\
+      \u5E74\u62A5\u62AB\u9732\u8054\u7CFB\u7535\u8BDD\"},\"operateScope\":{\"type\"\
+      :\"string\",\"description\":\"\u7ECF\u8425\uFF08\u4E1A\u52A1\uFF09\u8303\u56F4\
+      \"},\"regOrg\":{\"type\":\"string\",\"description\":\"\u5DE5\u5546\u767B\u8BB0\
+      \u673A\u5173\"},\"frPersonId\":{\"type\":\"string\",\"description\":\"\u5185\
+      \u90E8\u4F01\u4E1A\u5173\u8054\u4EBAID\"},\"industryClas\":{\"type\":\"string\"\
+      ,\"description\":\"\u884C\u4E1A\u95E8\u7C7B\u540D\u79F0\"},\"ancheDate\":{\"\
+      type\":\"string\",\"description\":\"\u6700\u8FD1\u5E74\u62A5\u516C\u793A\u65E5\
+      \u671F\\tYYYY-MM-DD\"}}},\"description\":\"\u5DE5\u5546\u7167\u9762\u4FE1\u606F\
+      \"},\"liquidationList\":{\"type\":\"array\",\"items\":{\"type\":\"object\",\"\
+      properties\":{\"liqPrincipal\":{\"type\":\"string\",\"description\":\"\u6E05\
+      \u7B97\u8D1F\u8D23\u4EBA \"},\"no\":{\"type\":\"number\"},\"liqMen\":{\"type\"\
+      :\"string\",\"description\":\"\u6E05\u7B97\u7EC4\u6210\u5458\"}}},\"description\"\
+      :\"\u7834\u4EA7\u6E05\u7B97\u4FE1\u606F\"},\"sharFrozList\":{\"type\":\"array\"\
+      ,\"items\":{\"type\":\"object\",\"properties\":{\"frozAuth\":{\"type\":\"string\"\
+      ,\"description\":\"\u51BB\u7ED3\u6267\u884C\u6CD5\u9662 \"},\"frozFrom\":{\"\
+      type\":\"string\",\"description\":\"\u51BB\u7ED3\u671F\u9650\u81EA\\tYYYY-MM-DD\"\
+      },\"no\":{\"type\":\"number\"},\"frozPublicDate\":{\"type\":\"string\",\"description\"\
+      :\"\u51BB\u7ED3\u516C\u793A\u65E5\u671F\\tYYYY-MM-DD\"},\"keepFrozTo\":{\"type\"\
+      :\"string\",\"description\":\"\u7EED\u884C\u51BB\u7ED3\u671F\u9650\u81F3\\tYYYY-MM-DD\"\
+      },\"judicialInv\":{\"type\":\"string\",\"description\":\"\u80A1\u6743\u51BB\u7ED3\
+      \u88AB\u6267\u884C\u4EBA\u540D\u79F0\"},\"invalidTime\":{\"type\":\"string\"\
+      ,\"description\":\"\u51BB\u7ED3\u5931\u6548\u65F6\u95F4\\tYYYY-MM-DD\"},\"thawExecuteNo\"\
+      :{\"type\":\"string\",\"description\":\"\u89E3\u51BB\u6267\u884C\u901A\u77E5\
+      \u4E66\u6587\u53F7 \"},\"keepFrozDeadline\":{\"type\":\"string\",\"description\"\
+      :\"\u7EED\u884C\u51BB\u7ED3\u671F\u9650 \"},\"judicialCerTypeName\":{\"type\"\
+      :\"string\",\"description\":\"\u80A1\u6743\u51BB\u7ED3\u88AB\u6267\u884C\u4EBA\
+      \u8BC1\u4EF6\u7C7B\u578B\"},\"judicialFrozState\":{\"type\":\"string\",\"description\"\
+      :\"\u80A1\u6743\u51BB\u7ED3\u72B6\u6001\\t\u51BB\u7ED3\u3001\u7EED\u51BB\u3001\
+      \u89E3\u9664\u51BB\u7ED3\u3001\u51BB\u7ED3\u5931\u6548\"},\"frozExecuteItem\"\
+      :{\"type\":\"string\",\"description\":\"\u51BB\u7ED3\u6267\u884C\u4E8B\u9879\
+      \ \"},\"frozTo\":{\"type\":\"string\",\"description\":\"\u51BB\u7ED3\u671F\u9650\
+      \u81F3\\tYYYY-MM-DD\"},\"frozDeadline\":{\"type\":\"string\",\"description\"\
+      :\"\u51BB\u7ED3\u65F6\u95F4\u671F\u9650\"},\"thawExecuteItem\":{\"type\":\"\
+      string\",\"description\":\"\u51BB\u6267\u884C\u4E8B\u9879 \"},\"frozDocNo\"\
+      :{\"type\":\"string\",\"description\":\"\u51BB\u7ED3\u6267\u884C\u88C1\u5B9A\
+      \u4E66\u6587\u53F7 \"},\"judicialFroAm\":{\"type\":\"string\",\"description\"\
+      :\"\u51BB\u7ED3\u80A1\u6743\u6570\u989D\\t\\t\u4E07\"},\"keepFrozFrom\":{\"\
+      type\":\"string\",\"description\":\"\u7EED\u884C\u51BB\u7ED3\u671F\u9650\u81EA\
+      \\tYYYY-MM-DD\"},\"thawPublicDate\":{\"type\":\"string\",\"description\":\"\u89E3\
+      \u51BB\u516C\u793A\u65E5\u671F\\tYYYY-MM-DD\"},\"judicialCerNo\":{\"type\":\"\
+      string\",\"description\":\"\u80A1\u6743\u51BB\u7ED3\u88AB\u6267\u884C\u4EBA\u8BC1\
+      \u4EF6\u53F7\u7801\"},\"thawAuth\":{\"type\":\"string\",\"description\":\"\u89E3\
+      \u51BB\u6267\u884C\u6CD5\u9662 \"},\"thawDocNo\":{\"type\":\"string\",\"description\"\
+      :\"\u89E3\u51BB\u6267\u884C\u88C1\u5B9A\u4E66\u6587\u53F7\"},\"frozExecuteNo\"\
+      :{\"type\":\"string\",\"description\":\"\u51BB\u7ED3\u6267\u884C\u901A\u77E5\
+      \u4E66\u6587\u53F7 \"},\"thawDate\":{\"type\":\"string\",\"description\":\"\u89E3\
+      \u51BB\u65E5\u671F\\tYYYY-MM-DD\"},\"invalidReason\":{\"type\":\"string\",\"\
+      description\":\"\u51BB\u7ED3\u5931\u6548\u539F\u56E0\"}},\"required\":[\"frozAuth\"\
+      ,\"frozFrom\",\"no\",\"frozPublicDate\",\"keepFrozTo\",\"judicialInv\",\"invalidTime\"\
+      ,\"thawExecuteNo\",\"keepFrozDeadline\",\"judicialCerTypeName\",\"judicialFrozState\"\
+      ,\"frozExecuteItem\",\"frozTo\",\"frozDeadline\",\"thawExecuteItem\",\"frozDocNo\"\
+      ,\"judicialFroAm\",\"keepFrozFrom\",\"thawPublicDate\",\"judicialCerNo\",\"\
+      thawAuth\",\"thawDocNo\",\"frozExecuteNo\",\"thawDate\",\"invalidReason\"]},\"\
+      description\":\"\u80A1\u6743\u51BB\u7ED3\u4FE1\u606F\"},\"filiationList\":{\"\
+      type\":\"array\",\"items\":{\"type\":\"object\",\"properties\":{\"brAddr\":{\"\
+      type\":\"string\",\"description\":\"\u5206\u652F\u673A\u6784\u5730\u5740\"},\"\
+      no\":{\"type\":\"number\"},\"entId\":{\"type\":\"string\",\"description\":\"\
+      \u5185\u90E8\u4F01\u4E1A ID\"},\"brCreditCode\":{\"type\":\"string\",\"description\"\
+      :\"\u5206\u652F\u673A\u6784\u7EDF\u4E00\u793E\u4F1A\u4FE1\u7528\u4EE3\u7801\"\
+      },\"brRegNo\":{\"type\":\"string\",\"description\":\"\u5206\u652F\u673A\u6784\
+      \u5DE5\u5546\u6CE8\u518C\u53F7\"},\"brName\":{\"type\":\"string\",\"description\"\
+      :\"\u5206\u652F\u673A\u6784\u540D\u79F0\"},\"cbuItem\":{\"type\":\"string\"\
+      ,\"description\":\"\u5206\u652F\u673A\u6784\u7ECF\u8425\u8303\u56F4\"},\"brPrincipal\"\
+      :{\"type\":\"string\",\"description\":\"\u5206\u652F\u673A\u6784\u8D1F\u8D23\
+      \u4EBA\"}},\"required\":[\"brAddr\",\"no\",\"entId\",\"brCreditCode\",\"brRegNo\"\
+      ,\"brName\",\"cbuItem\",\"brPrincipal\"]},\"description\":\"\u5206\u652F\u673A\
+      \u6784\u4FE1\u606F\"},\"webInfomationList\":{\"type\":\"array\",\"items\":{\"\
+      type\":\"object\",\"properties\":{\"websitName\":{\"type\":\"string\",\"description\"\
+      :\"\u7F51\u7AD9\u540D\u79F0\"},\"website\":{\"type\":\"string\",\"description\"\
+      :\"\u7F51\u5740\"}}},\"description\":\"\u4F01\u4E1A\u7F51\u7AD9\u4FE1\u606F\"\
+      }}}}},\"packetCnt\":{\"type\":\"number\"},\"resultCode\":{\"type\":\"string\"\
+      },\"resultDesc\":{\"type\":\"string\"},\"isCompressed\":{\"type\":\"number\"\
+      }}}"

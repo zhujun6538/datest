@@ -190,7 +190,7 @@ class TestcaseViewset(viewsets.ModelViewSet):
         if request.method == 'GET':
             caseobj = Testcase.objects.get(pk=kwargs['pk'])
             case = get_casedata('',caseobj)
-            reqdata = json.dumps(case['data'], sort_keys=True, indent=4, ensure_ascii=False)
+            reqdata = case['data']
             res = apipost(httpMethod=case['method'], headers=case['headers'], endpoint=case['baseurl'],requestUri=case['url'], data=case['data'])
             if caseobj.api.requesttype == '1':
                 url2 = caseobj.api.url.replace('Apply','Result')
@@ -206,86 +206,65 @@ class TestcaseViewset(viewsets.ModelViewSet):
             "cookies": res.cookies,
             "body": json.loads(res.content, encoding='utf-8'),
         }
-
+        datano = caseobj.api.code
+        assertdata = []
+        for key, value in resp_obj_meta['body'].items():
+            akobj = Assertkey.objects.get_or_create(value='$..' + key)[0]
+            # assertmode = 'assert_jsonmatch'
+            # if type(value) is list:
+            #     assertvalue = "\[(\{.*?\})*\]"
+            # elif type(value) is dict:
+            #     assertvalue = "\{.*?\}"
+            # elif type(value) is str:
+            #     assertvalue = ".*?"
+            # elif value is False:
+            #     assertvalue = 'False'
+            # elif value is True:
+            #     assertvalue = 'True'
+            avobj = Assertval.objects.get_or_create(value=str(value))[0]
+            assertdata.append({"path": akobj.value, "value": avobj.value})
         result = {'id': caseobj.id, 'headers': case['headers'],
                   'jsondata': reqdata,
                   'formdata': case['formdata'],
-                  'respdata': json.dumps(resp_obj_meta.get('body'), sort_keys=True, indent=4, ensure_ascii=False)}
+                  'respdata': json.dumps(resp_obj_meta.get('body'), sort_keys=True, indent=4, ensure_ascii=False),
+                'assertdata': assertdata
+                  }
         return Response(result, template_name='postman/postcase.html')
 
-    @action(methods=['post'], detail='testcase-detail', url_path='repostcase', url_name='testcase-repostcase')
-    def repostcase(self,request, *args, **kwargs):
-        caseobj = Testcase.objects.get(pk=kwargs['pk'])
-        reqdata = json.dumps(json.loads(request.POST.get('reqdata')), sort_keys=True, indent=4, ensure_ascii=False)
-        res = apipost(requestUri=caseobj.api.url, data=json.loads(request.POST.get('reqdata'), encoding='utf-8'))
-        if caseobj.api.requesttype == '1':
-            url2 = caseobj.api.url.replace('Apply', 'Result')
-            orderno = json.loads(res.text, encoding='utf-8')['orderNo']
-            resultDesc = "订单处理中"
-            while resultDesc == "订单处理中":
-                time.sleep(1)
-                res = apipost(requestUri=url2, data={'orderNo': orderno})
-        result = json.dumps(json.loads(res.text,encoding='utf-8'), sort_keys=True, indent=4, ensure_ascii=False)
-        return Response(result)
-
+    @action(methods=['post'],detail='testcase-detail',url_path='getassertdata',url_name='testcase-getassertdata')
+    def get_assert_data(self,request, *args, **kwargs):
+        # 根据页面响应信息输入框自动生成此用例校验数据保存
+        resjson = json.loads(request.POST.get('respdata'), encoding='utf-8')
+        assertdata = []
+        num = 0
+        for key, value in resjson.items():
+            # assertmode = 'assert_jsonmatch'
+            # if type(value) is list:
+            #     assertvalue = "\[(\{.*?\})*\]"
+            # elif type(value) is dict:
+            #     assertvalue = "\{.*?\}"
+            # elif type(value) is str:
+            #     assertvalue = ".*?"
+            # elif value is False:
+            #     assertvalue = 'False'
+            # elif value is True:
+            #     assertvalue = 'True'
+            mode = 'assert_equal'
+            assertdata.append({"no":num, "path": '$..' + key, "value": str(value), "mode": mode})
+            num += 1
+        return Response(assertdata)
 
     @action(methods=['post'],detail='testcase-detail',url_path='genassertdata',url_name='testcase-genassertdata')
     def gen_assert_data(self,request, *args, **kwargs):
-        # 根据页面响应信息输入框自动生成此用例校验数据保存
         caseobj = Testcase.objects.get(pk=kwargs['pk'])
-        datano = caseobj.api.code
-        body = json.loads(request.POST.get('content'),encoding='utf-8')
-        for key, value in body['resultData'][datano + 'Data'].items():
-            akobj = Assertkey.objects.get_or_create(value='$..' + key)[0]
-            assertmode = 'assert_jsonmatch'
-            if type(value) is list:
-                assertvalue = "\[(\{.*?\})*\]"
-            elif type(value) is dict:
-                assertvalue = "\{.*?\}"
-            elif type(value) is str:
-                assertvalue = ".*?"
-            elif value is False:
-                assertvalue = 'False'
-            elif value is True:
-                assertvalue = 'True'
-            avobj = Assertval.objects.get_or_create(value=assertvalue)[0]
-            AssertParam.objects.get_or_create(testcase=caseobj,paramkey=akobj,defaults = {'paramval':avobj,'mode':assertmode})
-        return HttpResponseRedirect('/admin/apitest/testcase/')
-
-    @action(methods=['post'], detail='testcase-detail', url_path='gennewcase', url_name='testcase-gennewcase')
-    def gen_new_case(self,request, *args, **kwargs):
-        obj = Testcase.objects.get(pk=kwargs['pk'])
-        oid = obj.id
-        obj.id = None
-        obj.requestdata = request.POST.get('reqcont')
-        obj.caseno = obj.api.code + '-' + datetime.datetime.now().strftime('%Y%m%d%H%M%S') + str(
-            random.randint(1, 1000))
-        obj.save()
-        oldobj = Testcase.objects.get(id=oid)
-        for par in list(oldobj.headerparam_set.all()):
-            HeaderParam.objects.create(testcase=obj, paramkey=par.paramkey, paramval=par.paramval)
-        for par in list(oldobj.formdataparam_set.all()):
-            FormdataParam.objects.create(testcase=obj, paramkey=par.paramkey, paramval=par.paramval)
-        for par in list(oldobj.requestparam_set.all()):
-            RequestParam.objects.create(testcase=obj, paramkey=par.paramkey, paramval=par.paramval)
-        datano = obj.api.code
-        body = json.loads(request.POST.get('rescont'), encoding='utf-8')
-        for key, value in body['resultData'][datano + 'Data'].items():
-            akobj = Assertkey.objects.get_or_create(value='$..' + key)[0]
-            assertmode = 'assert_jsonmatch'
-            if type(value) is list:
-                assertvalue = "\[(\{.*?\})*\]"
-            elif type(value) is dict:
-                assertvalue = "\{.*?\}"
-            elif type(value) is str:
-                assertvalue = ".*?"
-            elif value is False:
-                assertvalue = 'False'
-            elif value is True:
-                assertvalue = 'True'
-            avobj = Assertval.objects.get_or_create(value=assertvalue)[0]
-            AssertParam.objects.get_or_create(testcase=obj,paramkey=akobj,defaults = {'paramval':avobj,'mode':assertmode})
-        return HttpResponseRedirect('/admin/apitest/testcase/')
+        case = get_casedata('', caseobj)
+        assertjsondata = json.loads(request.POST.get('assertdata'), encoding='utf-8')
+        for data in assertjsondata:
+            akey = Assertkey.objects.get_or_create(value=data['path'])[0]
+            aval = Assertval.objects.get_or_create(value=data['value'])[0]
+            mode = data['mode']
+            AssertParam.objects.get_or_create(testcase=caseobj,paramkey=akey,defaults = {'paramval':aval,'mode':mode})
+        return HttpResponseRedirect(f'/admin/apitest/testcase/{caseobj.id}/change/')
 
 def run_suite(id):
     '''
