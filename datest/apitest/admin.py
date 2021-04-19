@@ -213,7 +213,7 @@ class TestcaseGroupAdmin(admin.ModelAdmin):
 class HeaderAdmin(admin.ModelAdmin):
     list_display = ['key','value']
 
-@admin.register(Baseurl)
+@admin.register(BASEURL)
 class BASEURLAdmin(admin.ModelAdmin):
     list_display = ['name','url']
 
@@ -492,7 +492,7 @@ class TestcaseAdmin(ImportExportModelAdmin, AjaxAdmin):
         :return:
         '''
         post = request.POST
-        baseurl = Baseurl.objects.get(id=post.get('baseurl'))
+        baseurl = BASEURL.objects.get(id=post.get('baseurl'))
         sleeptime = post.get('sleeptime')
         try:
             run_date = (datetime.datetime.now() + datetime.timedelta(seconds=5)).strftime('%Y-%m-%d %H:%M:%S')
@@ -532,7 +532,7 @@ class TestcaseAdmin(ImportExportModelAdmin, AjaxAdmin):
                 'width': '200px',
                 # size对应elementui的size，取值为：medium / small / mini
                 'size': 'small',
-                'options': [{'key': obj['id'], 'label': obj['name']} for obj in Baseurl.objects.all().values()]
+                'options': [{'key': obj['id'], 'label': obj['name']} for obj in BASEURL.objects.all().values()]
             },
             {
                 'type': 'input',
@@ -671,7 +671,7 @@ class TESTSUITEAdmin(ImportExportActionModelAdmin, AjaxAdmin):
         '''
         try:
             post = request.POST
-            baseurl = Baseurl.objects.get(id=post.get('baseurl'))
+            baseurl = BASEURL.objects.get(id=post.get('baseurl'))
             runargs = [arg.split(' ')[0] for arg in post.get('runargs').split(',')]
             run_date = (datetime.datetime.now() + datetime.timedelta(seconds=5)).strftime('%Y-%m-%d %H:%M:%S')
             # scheduler添加任务异步在后台运行测试用例
@@ -710,7 +710,7 @@ class TESTSUITEAdmin(ImportExportActionModelAdmin, AjaxAdmin):
                     'width': '200px',
                     # size对应elementui的size，取值为：medium / small / mini
                     'size': 'small',
-                    'options': [{'key': obj['id'], 'label': obj['name']} for obj in Baseurl.objects.all().values()]
+                    'options': [{'key': obj['id'], 'label': obj['name']} for obj in BASEURL.objects.all().values()]
                 },
                 {
                     'type': 'input',
@@ -847,7 +847,7 @@ class TestbatchAdmin(ImportExportActionModelAdmin, AjaxAdmin):
         '''
         try:
             post = request.POST
-            baseurl = Baseurl.objects.get(id=post.get('baseurl'))
+            baseurl = BASEURL.objects.get(id=post.get('baseurl'))
             runargs = [arg.split(' ')[0] for arg in post.get('runargs').split(',')]
             run_date = (datetime.datetime.now() + datetime.timedelta(seconds=5)).strftime('%Y-%m-%d %H:%M:%S')
             # scheduler添加任务异步在后台运行测试用例
@@ -887,7 +887,7 @@ class TestbatchAdmin(ImportExportActionModelAdmin, AjaxAdmin):
                 # size对应elementui的size，取值为：medium / small / mini
                 'size': 'small',
                 'require': True,
-                'options': [{'key': obj['id'], 'label': obj['name']} for obj in Baseurl.objects.all().values()]
+                'options': [{'key': obj['id'], 'label': obj['name']} for obj in BASEURL.objects.all().values()]
             },
             {
                 'type': 'input',
@@ -943,7 +943,7 @@ class TestbatchAdmin(ImportExportActionModelAdmin, AjaxAdmin):
             try:
                 post = request.POST
                 testbatch = []
-                baseurl = Baseurl.objects.get(id=post.get('baseurl'))
+                baseurl = BASEURL.objects.get(id=post.get('baseurl'))
                 for obj in batch.testsuite.all():
                     testsuite = get_suitedata(obj, baseurl.url, post.get('sleeptime') )
                     testbatch.extend(testsuite)
@@ -992,7 +992,7 @@ class TestbatchAdmin(ImportExportActionModelAdmin, AjaxAdmin):
                 # size对应elementui的size，取值为：medium / small / mini
                 'size': 'small',
                 'require': True,
-                'options': [{'key': obj['id'], 'label': obj['name']} for obj in Baseurl.objects.all().values()]
+                'options': [{'key': obj['id'], 'label': obj['name']} for obj in BASEURL.objects.all().values()]
             },
             {
                 'type': 'input',

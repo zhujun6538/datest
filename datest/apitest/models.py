@@ -85,11 +85,11 @@ class Testcase(BaseModel):
     project = models.ForeignKey(Project, verbose_name='所属项目', on_delete=models.SET_NULL, null=True)
     group = models.ForeignKey('TestcaseGroup',verbose_name='所属分组', on_delete=models.SET_NULL, null=True)
     isValid = models.BooleanField('是否有效',default=True)
-    Baseurl = models.ForeignKey('Baseurl',verbose_name='环境地址',on_delete=models.SET_NULL,null=True,blank=True)
+    baseurl = models.ForeignKey('BASEURL',verbose_name='环境地址',on_delete=models.SET_NULL,null=True,blank=True,default=3)
     api = models.ForeignKey('Api',verbose_name='测试接口',on_delete=models.SET_NULL,null=True)
     datamode = models.CharField('请求参数类型',choices=[('JSON', "JSON"), ('FORM-DATA', "FORM-DATA")], max_length=10)
     requestdata = models.TextField('请求报文',max_length=1000,null=True,blank=True,default='{}')
-    setupfunc = models.ForeignKey('FUNC',verbose_name='请求前置方法',on_delete=models.SET_NULL,null=True,blank=True,related_name='setupfunc_testcases')
+    setupfunc = models.ForeignKey('FUNC',verbose_name='请求前置方法',on_delete=models.SET_NULL,null=True,blank=True,related_name='setupfunc_testcases',default=1)
     callfunc = models.ForeignKey('CALLFUNC',verbose_name='自定义运行方法',on_delete=models.SET_NULL,null=True,blank=True)
     teardownfunc = models.ForeignKey('FUNC', verbose_name='请求后置方法', on_delete=models.SET_NULL, null=True, blank=True,related_name='teardownfunc_testcases')
     responsedata = models.TextField('响应报文',max_length=10000,null=True,blank=True)
@@ -102,7 +102,7 @@ class Testcase(BaseModel):
     class Meta:
         verbose_name_plural = '测试用例'
 
-class Baseurl(models.Model):
+class BASEURL(models.Model):
     name = models.CharField('环境', max_length=100)
     url = models.CharField('url', max_length=100)
     project = models.ForeignKey(Project, on_delete=models.SET_NULL, null=True)
