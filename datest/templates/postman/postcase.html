@@ -53,9 +53,8 @@
 	<div id="app" v-loading="loading">
 <div class="submit-row">
 	<button type="button" onclick="prev()" class="el-button el-button--button el-button--small" style="float: left; margin-right: 10px; margin-bottom: 10px;"><i class="el-icon-arrow-left"></i><span><span>返回</span></span></button>
-	<button @click="openmodel()" class="el-button el-button--primary el-button--small">
-        自动生成断言
-        </button>
+
+     <el-button class="el-button el-button--danger el-button--small" @click="addautoassert()">提交</el-button>
 
 </div>
 
@@ -73,78 +72,42 @@
             {{ adminform.form.non_field_errors }}
             {% endif %}
 
-<el-row>
+         <el-row>
         <el-col>
       	  <el-card class="box-card">
   <div slot="header" class="clearfix">
-    <span>请求</span>
-    <el-button style="float: right; padding: 3px 0" type="text">操作按钮</el-button>
+    <span>自动生成断言</span>
+    <el-button style="float: right;" class="el-button el-button--primary el-button--small" @click="openmodel()">自动生成</el-button>
   </div>
-<el-form><el-form-item label="请求" :label-width="formLabelWidth">
-              <el-input
-  type="textarea"
-  name="reqdata"
-  :rows="10"
-  v-model="reqdata">
-</el-input>
-          </el-form-item></el-form>
-</el-input>
-</el-card>
-
-  </el-col>
-</el-row>
-        <el-row>
-        <el-col>
-      	  <el-card class="box-card">
-  <div slot="header" class="clearfix">
-    <span>响应</span>
-    <el-button style="float: right; padding: 3px 0" type="text">操作按钮</el-button>
-  </div>
-              <el-form><el-form-item label="响应" :label-width="formLabelWidth">
-
-              <el-input
-  type="textarea"
-  autosize
-  name="respdata"
-  :rows="10"
-  v-model="respdata">
-</el-input>
-          </el-form-item></el-form>
-
-</el-card>
-
-  </el-col>
-</el-row>
-
-<el-dialog title="自动生成校验" :visible.sync="dialogFormVisible">
-<el-row>
+              <el-form :model="adForm" ref="adForm" class="demo-dynamic">
+                   <el-row>
     <el-col :span="8">
-        <span>XXX</span>
+        <span>参数</span>
     </el-col>
     <el-col :span="8">
-        <span>XXX</span>
+        <span>值</span>
     </el-col>
     <el-col :span="6">
-        <span>XXX</span>
+        <span>模式</span>
     </el-col>
         <el-col :span="2">
-        <span>XXX</span>
+        <span>操作</span>
     </el-col>
 </el-row>
-    <el-form :model="adForm" ref="adForm" class="demo-dynamic">
         <el-form-item
 v-for="(adata,index) in adForm.assertdatalist"
     :key="adata.key"
     :prop="'assertdatalist.' + index"
         >
+
              <el-row>
-             <el-col :span="8">
+             <el-col :span="4">
         <el-input v-model="adata.path" placeholder="请输入内容"></el-input>
     </el-col>
-           <el-col :span="8">
-        <el-input v-model="adata.value" placeholder="请输入内容"></el-input>
+           <el-col :span="14">
+        <el-input type="textarea" autosize v-model="adata.value" placeholder="请输入内容"></el-input>
     </el-col>
-          <el-col :span="6">
+          <el-col :span="4">
               <el-select v-model="adata.mode" placeholder="请选择">
               <el-option
       v-for="item in modes"
@@ -164,18 +127,73 @@ v-for="(adata,index) in adForm.assertdatalist"
         </el-form-item>
     </el-form>
 
+
+</el-card>
+
+  </el-col>
+</el-row>
+
+<el-row>
+        <el-col>
+      	  <el-card class="box-card">
+  <div slot="header" class="clearfix">
+    <span>请求</span>
+  </div>
+<el-form><el-form-item>
+              <el-input
+  type="textarea"
+  name="reqdata"
+  :rows="3"
+  v-model="reqdata">
+</el-input>
+          </el-form-item></el-form>
+</el-input>
+</el-card>
+
+  </el-col>
+</el-row>
+        <el-row>
+        <el-col>
+      	  <el-card class="box-card">
+  <div slot="header" class="clearfix">
+    <span>响应</span>
+  </div>
+              <el-form><el-form-item>
+
+              <el-input
+  type="textarea"
+  autosize
+  name="respdata"
+  :rows="10"
+  v-model="respdata">
+</el-input>
+          </el-form-item></el-form>
+
+</el-card>
+
+  </el-col>
+</el-row>
+
+
+
+
+
+
+<!--<el-dialog title="自动生成校验" :visible.sync="dialogFormVisible">-->
+
+
 <!--                      <el-input-->
 <!--  name="assertdata"-->
 <!--  type="textarea"-->
 <!--  :rows="10"-->
 <!--  v-model="assertdata">-->
 <!--</el-input>-->
-  <div slot="footer" class="dialog-footer">
-    <el-button @click="dialogFormVisible = false">取 消</el-button>
-    <el-button  type="primary" @click="addautoassert()">确 定</el-button>
-  </div>
+<!--  <div slot="footer" class="dialog-footer">-->
+<!--    <el-button @click="dialogFormVisible = false">取 消</el-button>-->
+<!--    <el-button  type="primary" @click="addautoassert()">确 定</el-button>-->
+<!--  </div>-->
 
-</el-dialog>
+<!--</el-dialog>-->
 
 </div>
 
@@ -218,18 +236,19 @@ v-for="(adata,index) in adForm.assertdatalist"
       modes: [{
           value: 'assert_equal',
           label: '完全匹配'
-        }, {
-          value: '选项2',
-          label: '双皮奶'
-        }, {
-          value: '选项3',
-          label: '蚵仔煎'
-        }, {
-          value: '选项4',
-          label: '龙须面'
-        }, {
-          value: '选项5',
-          label: '北京烤鸭'
+        },
+        {
+          value: 'assert_contains',
+          label: '包含'
+        },{
+          value: 'assert_regex_match',
+          label: '正则匹配'
+        },{
+          value: 'assert_json_contains',
+          label: 'json完全匹配'
+        },{
+          value: 'assert_jsonmatch',
+          label: 'json正则匹配'
         }]
     }
   },
@@ -257,7 +276,7 @@ mounted() {
                 },function(res){
                     console.log(res.status);
                 });
-                this.dialogFormVisible = true;
+<!--                this.dialogFormVisible = true;-->
     },
 	        addautoassert:function () {
         post('/testcase/{{ id }}/genassertdata/', {'assertdata': JSON.stringify(this.adForm.assertdatalist)});

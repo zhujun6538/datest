@@ -78,7 +78,6 @@ class ApiViewset(viewsets.ModelViewSet):
     serializer_class = ApiSerializer
     renderer_classes = (renderers.JSONRenderer,renderers.TemplateHTMLRenderer)
     authentication_classes = (authentication.BasicAuthentication,)
-    permission_classes = (permissions.IsAuthenticatedOrReadOnly,)
 
     @action(methods=['get','post'],detail='api-detail',url_path='runapi',url_name='api-runapi')
     def runapi(self,request, *args, **kwargs):
@@ -97,7 +96,8 @@ class ApiViewset(viewsets.ModelViewSet):
                       'baseurl': baseurl,
                       'teardownfunc':teardownfunc,
                       'setupfunc': setupfunc,
-                      'callfunc': callfunc
+                      'callfunc': callfunc,
+                      'user':request.user
                       }
         return Response(result, template_name='postman/api.html')
 
@@ -122,25 +122,17 @@ class ApiViewset(viewsets.ModelViewSet):
     @action(methods=['post'], detail='api-detail', url_path='gennewcase', url_name='api-gennewcase')
     def gen_newcase(self,request, *args, **kwargs):
         apiobj = Api.objects.get(pk=kwargs['pk'])
-        body = json.loads(request.POST.get('responsedata'), encoding='utf-8')
         newcase = Testcase.objects.create(
             caseno= apiobj.code + '-' + datetime.datetime.now().strftime('%Y%m%d%H%M%S') + str(
             random.randint(1, 1000)),
             casename = request.POST.get('casename'),
             project = apiobj.project,
             group = TestcaseGroup.objects.get(id=request.POST.get('group').split('-')[0]),
-            baseurl = BASEURL.objects.get(id=request.POST.get('baseurl').split('-')[0]),
             api=apiobj,
             datamode='JSON',
             requestdata = request.POST.get('jsondata'),
             creater = request.user
         )
-        if request.POST.get('setupfunc') != '':
-            newcase.setupfunc = FUNC.objects.get(id=request.POST.get('setupfunc').split('-')[0])
-        if request.POST.get('teardownfunc') != '':
-            newcase.teardownfunc = FUNC.objects.get(id=request.POST.get('teardownfunc').split('-')[0])
-        if request.POST.get('callfunc') != '':
-            newcase.callfunc = CALLFUNC.objects.get(id=request.POST.get('callfunc').split('-')[0])
         newcase.save()
         return HttpResponseRedirect(f'/admin/apitest/testcase/?id={newcase.id}')
 
@@ -227,7 +219,8 @@ class TestcaseViewset(viewsets.ModelViewSet):
                   'jsondata': reqdata,
                   'formdata': case['formdata'],
                   'respdata': json.dumps(resp_obj_meta.get('body'), sort_keys=True, indent=4, ensure_ascii=False),
-                'assertdata': assertdata
+                'assertdata': assertdata,
+                  'user': request.user
                   }
         return Response(result, template_name='postman/postcase.html')
 
