@@ -82,7 +82,7 @@ class ApiViewset(viewsets.ModelViewSet):
     @action(methods=['get','post'],detail='api-detail',url_path='runapi',url_name='api-runapi')
     def runapi(self,request, *args, **kwargs):
         testgroup = TestcaseGroup.objects.all()
-        baseurl = BASEURL.objects.all()
+        baseurl = Baseurl.objects.all()
         setupfunc = FUNC.objects.all()
         teardownfunc = FUNC.objects.all()
         callfunc = CALLFUNC.objects.all()
