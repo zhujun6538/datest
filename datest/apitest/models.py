@@ -187,7 +187,7 @@ class AssertParam(models.Model):
     paramkey = models.ForeignKey('Assertkey',verbose_name='参数', on_delete=models.SET_NULL, null=True)
     paramval = models.ForeignKey('Assertval',verbose_name='值', on_delete=models.SET_NULL, null=True)
     description = models.CharField('描述',max_length=1000, null=True, blank=True)
-    mode = models.CharField('模式', choices=[('assert_equal', "equils"),('assert_not_equal', "not_equal"),('assert_string_equals', "string_equals"),('assert_startswith', "startswith"),('assert_endswith', "endswith"), ('assert_contained_by', "contained_by"), ('assert_type_match', "type_match"),  ('assert_length_equal', "length_equal"),('assert_length_equal', "length_equal"), ('assert_contains', "contains"),('assert_regex_match', "regex_match"), ('assert_json_contains', "jsoncontains"), ('assert_jsonmatch', "jsonmatch")], max_length=100,default='assert_equal')
+    mode = models.CharField('模式', choices=[('assert_equal', "equil"),('assert_not_equal', "not_equal"),('assert_string_equals', "string_equals"),('assert_startswith', "startswith"),('assert_endswith', "endswith"), ('assert_contained_by', "contained_by"), ('assert_type_match', "type_match"),  ('assert_length_equal', "length_equal"),('assert_length_equal', "length_equal"), ('assert_contains', "contains"),('assert_regex_match', "regex_match"), ('assert_json_contains', "jsoncontains"), ('assert_json_match', "jsonmatch")], max_length=100,default='assert_equal')
 
     def __str__(self):
         return self.paramkey.value + '-' + self.paramval.value

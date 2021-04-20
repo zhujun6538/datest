@@ -27,11 +27,6 @@
 {% block extrastyle %}{{ block.super }}
 <link rel="stylesheet" type="text/css" href="{% static '/admin/css/forms.css' %}"/>
 <link rel="stylesheet" type="text/css" href="//unpkg.com/element-ui@2.15.1/lib/theme-chalk/index.css"/>
-          <link rel="stylesheet" type="text/css" href="{% static "rest_framework/css/bootstrap.min.css" %}"/>
-          <link rel="stylesheet" type="text/css" href="{% static "rest_framework/css/bootstrap-tweaks.css" %}"/>
-<link rel="stylesheet" type="text/css" href="{% static "rest_framework/css/bootstrap-tweaks.css" %}"/>
-        <link rel="stylesheet" type="text/css" href="{% static "rest_framework/css/prettify.css" %}"/>
-        <link rel="stylesheet" type="text/css" href="{% static "rest_framework/css/default.css" %}"/>
 
 {% endblock %}
 {% block content %}
@@ -211,6 +206,15 @@ v-for="(adata,index) in adForm.assertdatalist"
 
 </div>
 <script type="text/javascript">
+
+    new Vue({
+        el: '.page-header',
+        methods: {
+            goBack: function () {
+                window.location.href = '{% get_previous_url %}'
+            }
+        }
+    })
 
     function prev() {
              window.location.href='/admin/apitest/testcase/'

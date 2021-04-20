@@ -2,7 +2,133 @@
     setupfunc: ${ztrequest($request)}
     teardownfunc: ''
     callfunc: default_func
-    suitename: "\u8FD0\u884C\u6D4B\u8BD5\u7528\u4F8B"
+    suitename: "\u5957\u4EF61"
+    group: " \u540C\u6B65"
+    caseno: P1020036-20210420100901575
+    casename: "\u6D4B\u8BD50420"
+    isValid: true
+    method: POST
+    url: /ectcispserver/api/perscreditapi/query
+    data:
+      prodCode: P1020036
+      entryId: c2020e0821zhi151_t20200122_pchenguilan
+    params: {}
+    formdata: {}
+    headers: {}
+    asserts:
+    - - assert_equal
+      - $..isCompressed
+      - '0'
+    - - assert_regex_match
+      - $..orderNo
+      - \d+
+    - - assert_equal
+      - $..packetCnt
+      - '1'
+    - - assert_equal
+      - $..resultCode
+      - '00000'
+    - - assert_equal
+      - $..resultDesc
+      - "\u6210\u529F"
+    - - assert_equal
+      - body.resultData.P1020036Status
+      - '4'
+    sleeptime: '0'
+    caselink: /admin/apitest/testcase/1587/change/
+    project: "\u8BC1\u901AAPI"
+    jsonschema: "{\"*schema\":\"http://json-schema.org/draft-04/schema#\",\"type\"\
+      :\"object\",\"properties\":{\"orderNo\":{\"type\":\"string\"},\"resultData\"\
+      :{\"type\":\"object\",\"properties\":{\"P1020036Data\":{\"type\":\"object\"\
+      ,\"properties\":{\"executedListMeta\":{\"type\":\"object\",\"properties\":{\"\
+      totalCount\":{\"type\":\"number\",\"description\":\"\u603B\u6570\"}}},\"executedList\"\
+      :{\"type\":\"array\",\"items\":{\"type\":\"object\",\"properties\":{\"closeDate\"\
+      :{\"type\":\"string\",\"description\":\"\u7EC8\u672C\u65E5\u671F\",\"validators\"\
+      :[{\"validator\":\"maxLength\",\"value\":50}]},\"partysList\":{\"type\":\"array\"\
+      ,\"items\":{\"type\":\"object\",\"properties\":{\"caseNoKeyWord\":{\"type\"\
+      :\"string\",\"description\":\"\u4EE3\u5B57\",\"validators\":[{\"validator\"\
+      :\"maxLength\",\"value\":50}]},\"caseState\":{\"type\":\"string\",\"description\"\
+      :\"\u6848\u4EF6\u72B6\u6001\",\"validators\":[{\"validator\":\"maxLength\",\"\
+      value\":50}]},\"partyName\":{\"type\":\"string\",\"description\":\"\u5F53\u4E8B\
+      \u4EBA\u540D\u79F0\",\"validators\":[{\"validator\":\"maxLength\",\"value\"\
+      :500}]},\"partyType\":{\"type\":\"string\",\"description\":\"\u5F53\u65F6\u4EBA\
+      \u7C7B\u578B\uFF0CP\u4E2A\u4EBA\uFF0CC\u4F01\u4E1A\",\"validators\":[{\"validator\"\
+      :\"maxLength\",\"value\":50}]},\"partyId\":{\"type\":\"string\",\"description\"\
+      :\"\u5F53\u4E8B\u4EBA\u8BC1\u4EF6\u53F7\u7801\",\"validators\":[{\"validator\"\
+      :\"maxLength\",\"value\":50}]},\"execMoney\":{\"type\":\"number\",\"description\"\
+      :\"\u6267\u884C\u91D1\u989D\",\"validators\":[{\"validator\":\"maxLength\",\"\
+      value\":50}]}}},\"description\":\"\u5F53\u4E8B\u4EBA\u5217\u8868\"},\"address\"\
+      :{\"type\":\"string\",\"description\":\"\u5730\u5740\",\"validators\":[{\"validator\"\
+      :\"maxLength\",\"value\":500}]},\"sortTime\":{\"type\":\"string\",\"description\"\
+      :\"\u7ACB\u6848\u65E5\u671F\",\"validators\":[{\"validator\":\"maxLength\",\"\
+      value\":50}]},\"proposer\":{\"type\":\"string\",\"description\":\"\u7533\u8BF7\
+      \u6267\u884C\u4EBA\",\"validators\":[{\"validator\":\"maxLength\",\"value\"\
+      :500}]},\"yjdw\":{\"type\":\"string\",\"description\":\"\u505A\u51FA\u6267\u884C\
+      \u7684\u4F9D\u636E\u5355\u4F4D\",\"validators\":[{\"validator\":\"maxLength\"\
+      ,\"value\":200}]},\"body\":{\"type\":\"string\",\"description\":\"\u5185\u5BB9\
+      \"},\"title\":{\"type\":\"string\",\"description\":\"\u6807\u9898\",\"validators\"\
+      :[{\"validator\":\"maxLength\",\"value\":500}]},\"court\":{\"type\":\"string\"\
+      ,\"description\":\"\u6CD5\u9662\u540D\u79F0\",\"validators\":[{\"validator\"\
+      :\"maxLength\",\"value\":50}]},\"caseNo\":{\"type\":\"string\",\"description\"\
+      :\"\u6848\u53F7\",\"validators\":[{\"validator\":\"maxLength\",\"value\":50}]},\"\
+      gistId\":{\"type\":\"string\",\"description\":\"\u6267\u884C\u4F9D\u636E\u6587\
+      \u53F7\",\"validators\":[{\"validator\":\"maxLength\",\"value\":500}]},\"entryId\"\
+      :{\"type\":\"string\",\"description\":\"id\uFF0C\u552F\u4E00\u6807\u8BC6\"},\"\
+      matchRatio\":{\"type\":\"string\",\"description\":\"\u5339\u914D\u5EA6\",\"\
+      validators\":[{\"validator\":\"maxLength\",\"value\":50}]}}}}}},\"P1020036Status\"\
+      :{\"type\":\"string\"}}},\"packetCnt\":{\"type\":\"number\"},\"resultCode\"\
+      :{\"type\":\"string\"},\"resultDesc\":{\"type\":\"string\"},\"isCompressed\"\
+      :{\"type\":\"number\"}}}"
+  - baseurl: https://112.65.144.19:9179
+    setupfunc: ${ztrequest($request)}
+    teardownfunc: ''
+    callfunc: yb
+    suitename: "\u5957\u4EF61"
+    group: "\u5F02\u6B65"
+    caseno: P0010013-20210420105809984
+    casename: "\u6D4B\u8BD50420"
+    isValid: true
+    method: POST
+    url: /ectcispserver/api/entcreditapi/asyncQueryApply
+    data:
+      prodCode: P0010013
+      creditCode: 91330100716105852F
+      name: "\u963F\u91CC\u5DF4\u5DF4\uFF08\u4E2D\u56FD\uFF09\u7F51\u7EDC\u6280\u672F\
+        \u6709\u9650\u516C\u53F8"
+      orgCode: '716105852'
+      regNo: '330100400015575'
+    params: {}
+    formdata: {}
+    headers:
+      Content-Type: application/json
+    asserts:
+    - - assert_string_equals
+      - $..isCompressed
+      - '0'
+    - - assert_regex_match
+      - $..orderNo
+      - \d+
+    - - assert_string_equals
+      - $..packetCnt
+      - '1'
+    - - assert_equal
+      - $..resultCode
+      - '00000'
+    - - assert_json_match
+      - $..resultData
+      - \{.*?\}
+    - - assert_equal
+      - $..resultDesc
+      - "\u6210\u529F"
+    sleeptime: '0'
+    caselink: /admin/apitest/testcase/1588/change/
+    project: "\u8BC1\u901AAPI"
+    jsonschema: ''
+  - baseurl: https://112.65.144.19:9179
+    setupfunc: ${ztrequest($request)}
+    teardownfunc: ''
+    callfunc: default_func
+    suitename: "\u5957\u4EF62"
     group: " \u540C\u6B65"
     caseno: P0990006-2021041911074850
     casename: "P0990006\u6D4B\u8BD5"
@@ -19,10 +145,10 @@
     headers:
       Content-Type: application/json
     asserts:
-    - - assert_equal
+    - - assert_string_equals
       - $..isCompressed
       - '0'
-    - - assert_equal
+    - - assert_string_equals
       - $..packetCnt
       - '1'
     - - assert_equal
@@ -31,7 +157,13 @@
     - - assert_equal
       - $..resultDesc
       - "\u6210\u529F"
-    sleeptime: 0
+    - - assert_regex_match
+      - $..orderNo
+      - \d+
+    - - assert_json_match
+      - $..resultData
+      - \{.*?\}
+    sleeptime: '0'
     caselink: /admin/apitest/testcase/1582/change/
     project: "\u8BC1\u901AAPI"
     jsonschema: "{\"*schema\":\"http://json-schema.org/draft-04/schema#\",\"type\"\
@@ -51,3 +183,44 @@
       :\"\u603B\u6570\"}}}}},\"P0990006Status\":{\"type\":\"string\"}}},\"packetCnt\"\
       :{\"type\":\"number\"},\"resultCode\":{\"type\":\"string\"},\"resultDesc\":{\"\
       type\":\"string\"},\"isCompressed\":{\"type\":\"number\"}}}"
+  - baseurl: https://112.65.144.19:9179
+    setupfunc: ${ztrequest($request)}
+    teardownfunc: ''
+    callfunc: yb
+    suitename: "\u5957\u4EF62"
+    group: "\u5F02\u6B65"
+    caseno: P0010052-20210420115636892
+    casename: "P0010052\u6D4B\u8BD5"
+    isValid: true
+    method: POST
+    url: /ectcispserver/api/entcreditapi/asyncQueryApply
+    data:
+      prodCode: P0010052
+      entInfo: "\u5F53\u4EE3\u4E1C\u65B9\u6295\u8D44\u80A1\u4EFD\u6709\u9650\u516C\
+        \u53F8"
+    params: {}
+    formdata: {}
+    headers: {}
+    asserts:
+    - - assert_string_equals
+      - $..isCompressed
+      - '0'
+    - - assert_regex_match
+      - $..orderNo
+      - \d+
+    - - assert_string_equals
+      - $..packetCnt
+      - '1'
+    - - assert_equal
+      - $..resultCode
+      - '00000'
+    - - assert_json_match
+      - $..resultData
+      - \{.*?\}
+    - - assert_equal
+      - $..resultDesc
+      - "\u6210\u529F"
+    sleeptime: '0'
+    caselink: /admin/apitest/testcase/1590/change/
+    project: "\u8BC1\u901AAPI"
+    jsonschema: ''

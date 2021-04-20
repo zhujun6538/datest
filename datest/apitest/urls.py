@@ -18,10 +18,8 @@ def get_media_root():
 router = DefaultRouter()
 router.APIRootView = views.RootView
 router.register(r'testcase',views.TestcaseViewset)
-router.register(r'testsuite',views.TestsuiteViewset)
-router.register(r'testbatch',views.TestbatchViewset)
 router.register(r'debugtalk',views.DebugTalkViewset)
-router.register(r'debugtalk',views.TESTREPORTViewset)
+router.register(r'testreport',views.TESTREPORTViewset)
 router.register(r'api',views.ApiViewset)
 
 urlpatterns = [

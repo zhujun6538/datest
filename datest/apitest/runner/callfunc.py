@@ -43,11 +43,11 @@ class Callfunc(object):
         for i in range(3):
             try:
                 time.sleep(1)
-                testresut = PostWithFunctions(testdata2).test_start()
+                testresult = PostWithFunctions(testdata2).test_start()
                 break
             except Exception as e:
                 if i == 2:
                     raise e
-        return testresut.get_summary()
+        return testresult.get_summary()
             # if jsonpath.jsonpath(Saver.httphist,):
             #     break

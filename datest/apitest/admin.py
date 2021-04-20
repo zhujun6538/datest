@@ -334,10 +334,10 @@ class CALLFUNCAdmin(admin.ModelAdmin):
         return False
 
 
-def run_case(query_set,baseurl,sleeptime):
+def run_case(query_set):
     '''依次运行query_set中的所有测试用例'''
     for obj in query_set:
-        testdata = get_casedata('运行测试用例',obj,baseurl=baseurl,sleeptime=sleeptime)
+        testdata = get_casedata('运行测试用例',obj)
         testreport = run_data(data = [[testdata]])
         testreport.testcases.add(obj)
         testreport.save()
@@ -492,12 +492,10 @@ class TestcaseAdmin(ImportExportModelAdmin, AjaxAdmin):
         :return:
         '''
         post = request.POST
-        baseurl = BASEURL.objects.get(id=post.get('baseurl'))
-        sleeptime = post.get('sleeptime')
         try:
             run_date = (datetime.datetime.now() + datetime.timedelta(seconds=5)).strftime('%Y-%m-%d %H:%M:%S')
             # scheduler添加任务异步在后台运行测试用例
-            scheduler.add_job(run_case, 'date', id=str(datetime.datetime.now().timestamp().as_integer_ratio()[0]),run_date=run_date, args=[query_set,baseurl.url,int(sleeptime)])
+            scheduler.add_job(run_case, 'date', id=str(datetime.datetime.now().timestamp().as_integer_ratio()[0]),run_date=run_date, args=[query_set])
         except Exception as e:
             return JsonResponse(data={
                 'status': 'error',
@@ -523,26 +521,6 @@ class TestcaseAdmin(ImportExportModelAdmin, AjaxAdmin):
 
         # 表单中 label的宽度，对应element-ui的 label-width，默认80px
         'labelWidth': "80px",
-
-        'params': [
-            {
-                'type': 'select',
-                'key': 'baseurl',
-                'label': '测试环境',
-                'width': '200px',
-                # size对应elementui的size，取值为：medium / small / mini
-                'size': 'small',
-                'options': [{'key': obj['id'], 'label': obj['name']} for obj in BASEURL.objects.all().values()]
-            },
-            {
-                'type': 'input',
-                'key': 'sleeptime',
-                'label': '运行延时',
-                'width': '200px',
-                # size对应elementui的size，取值为：medium / small / mini
-                'size': 'small',
-                'value': '0'}
-        ]
     }
 
 class Testcaselistinline(admin.TabularInline):
@@ -768,8 +746,8 @@ def run_batch(query_set,baseurl,sleeptime,runargs,reruns,reruns_delay,ispostmail
                 case.save()
         testreport.testbatch = batch
         testreport.save()
-        obj.runtime = timezone.now()
-        obj.save()
+        batch.runtime = timezone.now()
+        batch.save()
         if ispostmail == 'true':
             postmail('127.0.0.1','605662545@qq.com','605662545@qq.com',testreport)
 
@@ -957,6 +935,8 @@ class TestbatchAdmin(ImportExportActionModelAdmin, AjaxAdmin):
                 build_args = {'args':args,'extra_args':f"--reruns={post.get('reruns')} --reruns-delay={post.get('reruns_delay')} --log-file={filedir}/data/jenkinslogs/{this_build_number}.log"}
                 server.build_job('apitest', parameters = build_args, token='111111')
                 Jenkinsreport.objects.create(number=this_build_number,batch=batch)
+                batch.runtime = timezone.now()
+                batch.save()
             except Exception as e:
                 return JsonResponse(data={
                     'status': 'error',

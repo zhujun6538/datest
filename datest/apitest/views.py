@@ -78,6 +78,7 @@ class ApiViewset(viewsets.ModelViewSet):
     serializer_class = ApiSerializer
     renderer_classes = (renderers.JSONRenderer,renderers.TemplateHTMLRenderer)
     authentication_classes = (authentication.BasicAuthentication,)
+    permission_classes = (permissions.IsAuthenticatedOrReadOnly,)
 
     @action(methods=['get','post'],detail='api-detail',url_path='runapi',url_name='api-runapi')
     def runapi(self,request, *args, **kwargs):
@@ -96,8 +97,7 @@ class ApiViewset(viewsets.ModelViewSet):
                       'baseurl': baseurl,
                       'teardownfunc':teardownfunc,
                       'setupfunc': setupfunc,
-                      'callfunc': callfunc,
-                      'user':request.user
+                      'callfunc': callfunc
                       }
         return Response(result, template_name='postman/api.html')
 
@@ -114,6 +114,7 @@ class ApiViewset(viewsets.ModelViewSet):
                 while resultDesc == "订单处理中":
                     time.sleep(1)
                     res = apipost(requestUri=url2, data={'orderNo': orderno})
+                    resultDesc = json.loads(res.text, encoding='utf-8')['resultDesc']
             result = json.dumps(json.loads(res.text,encoding='utf-8'), sort_keys=True, indent=4, ensure_ascii=False)
             return Response(result)
         except Exception as e:
@@ -175,6 +176,7 @@ class TestcaseViewset(viewsets.ModelViewSet):
     serializer_class = TestcaseSerializer
     renderer_classes = (renderers.JSONRenderer,renderers.TemplateHTMLRenderer)
     authentication_classes = (authentication.BasicAuthentication,)
+    permission_classes = (permissions.IsAuthenticatedOrReadOnly,)
 
     @action(methods=['get'],detail='testcase-detail',url_path='postcase',url_name='testcase-postcase')
     def runcase(self,request, *args, **kwargs):
@@ -192,35 +194,10 @@ class TestcaseViewset(viewsets.ModelViewSet):
                     time.sleep(1)
                     res = apipost(requestUri=url2, data={'orderNo':orderno})
                     resultDesc = json.loads(res.text, encoding='utf-8')['resultDesc']
-        resp_obj_meta = {
-            "status_code": res.status_code,
-            "headers": res.headers,
-            "cookies": res.cookies,
-            "body": json.loads(res.content, encoding='utf-8'),
-        }
-        datano = caseobj.api.code
-        assertdata = []
-        for key, value in resp_obj_meta['body'].items():
-            akobj = Assertkey.objects.get_or_create(value='$..' + key)[0]
-            # assertmode = 'assert_jsonmatch'
-            # if type(value) is list:
-            #     assertvalue = "\[(\{.*?\})*\]"
-            # elif type(value) is dict:
-            #     assertvalue = "\{.*?\}"
-            # elif type(value) is str:
-            #     assertvalue = ".*?"
-            # elif value is False:
-            #     assertvalue = 'False'
-            # elif value is True:
-            #     assertvalue = 'True'
-            avobj = Assertval.objects.get_or_create(value=str(value))[0]
-            assertdata.append({"path": akobj.value, "value": avobj.value})
         result = {'id': caseobj.id, 'headers': case['headers'],
                   'jsondata': reqdata,
                   'formdata': case['formdata'],
-                  'respdata': json.dumps(resp_obj_meta.get('body'), sort_keys=True, indent=4, ensure_ascii=False),
-                'assertdata': assertdata,
-                  'user': request.user
+                  'respdata': json.dumps(json.loads(res.content, encoding='utf-8'), sort_keys=True, indent=4, ensure_ascii=False)
                   }
         return Response(result, template_name='postman/postcase.html')
 
@@ -259,90 +236,6 @@ class TestcaseViewset(viewsets.ModelViewSet):
             AssertParam.objects.get_or_create(testcase=caseobj,paramkey=akey,defaults = {'paramval':aval,'mode':mode})
         return HttpResponseRedirect(f'/admin/apitest/testcase/{caseobj.id}/change/')
 
-def run_suite(id):
-    '''
-    通过apitest/runner下的testrunner脚本运行yaml测试用例文件，根据测试结果新建测试报告对象
-    :param query_set:
-    :return:
-    '''
-        # 获取套件所有的测试用例，结果为[[{套件1用例},...],[{套件2用例},...]]
-    obj = TESTSUITE.objects.get(id=id)
-    testdata = get_suitedata(obj)
-    casenum = obj.case.count()
-    args = obj.args.all().values_list('name')
-    reruns = obj.reruns
-    reruns_delay = obj.reruns_delay
-    testreport = run_data(num=casenum, data=[testdata],args=args,reruns=reruns,reruns_delay=reruns_delay)
-    testreport.testsuite.add(obj)
-    for case in obj.case.all():
-        testreport.testcases.add(case)
-        case.runtime = timezone.now()
-        case.save()
-    testreport.save()
-    obj.runtime = timezone.now()
-    obj.save
-
-class TestsuiteViewset(viewsets.ModelViewSet):
-    queryset = TESTSUITE.objects.all()
-    serializer_class = TestsuiteSerializer
-    renderer_classes = (renderers.TemplateHTMLRenderer,)
-
-    @action(methods=['get'], detail='testsuite-detail', url_path='runback', url_name='testsuite-runback')
-    def run_back(self,request, *args, **kwargs):
-        '''
-        后台运行单个测试套件任务
-        :param request:
-        :param args:
-        :param kwargs:
-        :return:
-        '''
-        run_date = (datetime.datetime.now() + datetime.timedelta(seconds=5)).strftime('%Y-%m-%d %H:%M:%S')
-        scheduler.add_job(run_suite, 'date', id=str(datetime.datetime.now().timestamp().as_integer_ratio()[0]),run_date=run_date, args=[kwargs['pk']])
-        return Response({},template_name='testsuite/runback.html')
-
-
-def run_batch(host,id):
-    batch = Testbatch.objects.get(id=id)
-    testbatch = []
-    for obj in batch.testsuite.all():
-        testsuite = get_suitedata(obj)
-        testbatch.extend(testsuite)
-    casenum = len(testbatch)
-    args = batch.args.all().values_list('name')
-    testreport = run_data(num=casenum, data=[testbatch], args=args)
-    for suite in batch.testsuite.all():
-        testreport.testsuite.add(suite)
-        if suite.isorder == False:
-            runcases = suite.case.all()
-        else:
-            runcases = suite.testcaselist_set.all()
-            runcases = [case.testcase for case in runcases]
-        for case in runcases:
-            testreport.testcases.add(case)
-            case.runtime = timezone.now()
-            case.save()
-    testreport.testbatch = batch
-    testreport.save()
-    obj.runtime = timezone.now()
-    obj.save()
-    postmail(host,'605662545@qq.com', '605662545@qq.com', testreport)
-
-
-class TestbatchViewset(viewsets.ModelViewSet):
-    queryset = Testbatch.objects.all()
-    serializer_class = TestbatchSerializer
-    renderer_classes = (renderers.TemplateHTMLRenderer,)
-
-    @action(methods=['get'], detail='testbatch-detail', url_path='runback', url_name='testbatch-runback')
-    def run_back(self,request, *args, **kwargs):
-        # 后台运行测试批次任务
-        run_date = (datetime.datetime.now() + datetime.timedelta(seconds=5)).strftime('%Y-%m-%d %H:%M:%S')
-        http = urlsplit(request.build_absolute_uri(None)).scheme
-        host = http + '://' + request.META['HTTP_HOST']
-        scheduler.add_job(run_batch, 'date', id=str(datetime.datetime.now().timestamp().as_integer_ratio()[0]),run_date=run_date, args=[host,kwargs['pk']])
-        return Response({},template_name='testbatch/runback.html')
-
-
 def run_failcase(rid):
     '''
     通过apitest/runner下的testrunner脚本运行yaml测试用例文件，根据测试结果新建测试报告对象
@@ -360,7 +253,7 @@ def run_failcase(rid):
         case.save()
     testreport.save()
     obj.runtime = timezone.now()
-    obj.save
+    obj.save()
 
 class TESTREPORTViewset(viewsets.ModelViewSet):
     queryset = TESTREPORT.objects.all()
@@ -370,9 +263,18 @@ class TESTREPORTViewset(viewsets.ModelViewSet):
     @action(methods=['get'], detail='testreport-detail', url_path='runfail', url_name='testbatch-runfail')
     def run_fail(self,request, *args, **kwargs):
         # 后台运行测试批次任务
-        run_date = (datetime.datetime.now() + datetime.timedelta(seconds=5)).strftime('%Y-%m-%d %H:%M:%S')
-        scheduler.add_job(run_failcase, 'date', id=str(datetime.datetime.now().timestamp().as_integer_ratio()[0]),run_date=run_date, args=[kwargs['pk']])
-        return Response({},template_name='testreport/runback.html')
+        try:
+            run_date = (datetime.datetime.now() + datetime.timedelta(seconds=5)).strftime('%Y-%m-%d %H:%M:%S')
+            scheduler.add_job(run_failcase, 'date', id=str(datetime.datetime.now().timestamp().as_integer_ratio()[0]),run_date=run_date, args=[kwargs['pk']])
+        except Exception as e:
+            return Response({
+            'status': 'error',
+            'msg': f'异常！{e}'
+        },template_name='testreport/runback.html')
+        return Response({
+                'status': 'success',
+                'msg': '运行成功！'
+            }, template_name='testreport/runback.html')
 
 @api_view(['GET'])
 def get_log(request,*args,**kwargs):
